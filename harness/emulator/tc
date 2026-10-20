@@ -1,0 +1,507 @@
+#!/usr/bin/env python3
+"""tc -- battle calculator for the Emerald harness (companion build, v2 16 Oct 2026).
+
+FAIRNESS RULE (Jackson + companion): tc shows only what a human player could see on a
+screen or work out from public game knowledge. It never reads the foe's real moves,
+held item, ability, IVs/EVs or nature, the foe trainer's unrevealed Pokemon, or the
+Factory's set list. Foe numbers that depend on hidden values are ranges marked (est).
+Tables (type chart, base stats, moves, items, natures) come from the ROM itself.
+
+  tc                  in battle: field (stages, status), speed check, your moves vs the foe
+                      (multiplier, damage range as % of foe HP, hits to KO), switch-in check
+  tc rentals          on the rental floor (or swap screen): the six rentals as their summary
+                      pages show them: types, ability, nature, item, L50 stats, moves
+  tc party            your party's summary pages: stats, nature, ability, item, moves
+  tc <move|type> <species|type[/type]>     one lookup, e.g.  tc surf gligar
+  tc mon <species>    types, possible abilities, base stats, weak/resist/immune lists
+
+CHANGELOG
+  16 Oct ~2:30pm  v1 (companion): type chart from ROM, switch-in check.
+  16 Oct ~3:15pm  v2 (companion): stages, speed check, damage ranges, tc party, tc rentals.
+  16 Oct ~4:45pm  v2.1 (companion): rental IVs from the round, not the stale field.
+  16 Oct ~6:00pm  agent edits (an earlier agent): switch-in speed range counts foe stages and
+                  paralysis (bug fix); Fake Out reminder; footer on live stages.
+  16 Oct ~7pm     v3 (companion): in-battle MENU slot numbers; weather; screens, Spikes,
+                  Safeguard, Mist; volatile states (confusion, Leech Seed, Substitute, Taunt,
+                  Encore, Disable, Perish count, Yawn, Fly/Dig/Dive, Protect streak...);
+                  Fake Out live check; Future Sight / Wish pending; weather and screens in
+                  damage; a SEEN-MOVES notebook (only moves the foe actually used in front of
+                  you, kept across battles in tc_seen.json) with incoming damage estimates.
+  16 Oct ~7pm     v3.1 (companion, from the agent's live report): menu slots read the right way
+                  round; your moves show S/P with the stat they use; Counter/Mirror Coat show
+                  the foe's last move and whether they would reflect it; tc rentals shows S/P
+                  and an output index (% of a neutral L50 target) per move and the best one.
+  Addresses: pret/pokeemerald symbols branch (pokeemerald.sym), checked against gBattleMons
+  and gPlayerParty, which this harness already used.
+"""
+import os, re, socket, struct, subprocess, sys
+
+ROM = os.environ.get("TC_ROM") or os.path.expanduser("~/pokemon_bridge/emerald_orig_copy.gba")  # TC_ROM: Kaizo arms read the hack's own tables (16 Oct, v3.1k)
+G = os.path.expanduser("~/pokemon_bridge/g")
+r = open(ROM, "rb").read()
+
+CH = {0: " ", 0xAD: ".", 0xAE: "-", 0xB4: "'", 0xB5: "M", 0xB6: "F", 0xAB: "!", 0xAC: "?"}
+for i in range(26):
+    CH[0xBB + i] = chr(65 + i); CH[0xD5 + i] = chr(97 + i)
+for i in range(10):
+    CH[0xA1 + i] = str(i)
+def s(addr, n, src=None):
+    out = ""
+    for b in (src or r)[addr:addr + n]:
+        if b == 0xFF: break
+        out += CH.get(b, "?")
+    return out.strip()
+
+# ---- ROM tables ----
+TYPES = [s(0x31AE38 + i * 7, 7) for i in range(18)]
+SPECIAL = set(range(10, 18))                                   # Gen 3: Fire..Dark special
+EFF = {}
+i = 0x31ACE8
+while r[i] != 0xFF:
+    if r[i] != 0xFE: EFF[(r[i], r[i + 1])] = r[i + 2] / 10
+    i += 3
+NSP = 412
+SPN = [s(0x3185C8 + k * 11, 11) for k in range(NSP)]
+def base(k):
+    b = 0x3203CC + k * 28
+    return {"stats": list(r[b:b + 6]), "types": [r[b + 6], r[b + 7]], "abil": [r[b + 22], r[b + 23]]}  # hp atk def spe spa spd
+ABN = lambda a: s(0x31B6DB + a * 13, 13)
+NMV = 355
+MVN = [s(0x31977C + k * 13, 13) for k in range(NMV)]
+def mv(k):
+    b = 0x31C898 + k * 12
+    return {"pow": r[b + 1], "type": r[b + 2], "acc": r[b + 3], "pri": struct.unpack_from("b", r, b + 7)[0]}
+ITN = lambda k: s(0x5839A0 + k * 44, 14) if 0 < k < 377 else "-"
+FHELD = 0x5CECB0                                               # gBattleFrontierHeldItems (u16)
+FMONS = 0x5D97BC                                               # gBattleFrontierMons (16-byte FacilityMon)
+NATURES = "HARDY LONELY BRAVE ADAMANT NAUGHTY BOLD DOCILE RELAXED IMPISH LAX TIMID HASTY SERIOUS JOLLY NAIVE MODEST MILD QUIET BASHFUL RASH CALM GENTLE SASSY CAREFUL QUIRKY".split()
+STATN = ["HP", "Atk", "Def", "Spe", "SpA", "SpD"]
+def nat_mod(n, st):                                            # st index 1..5 (atk def spe spa spd)
+    up, dn = n // 5 + 1, n % 5 + 1
+    if up == dn: return 1.0
+    return 1.1 if st == up else 0.9 if st == dn else 1.0
+def nat_str(n):
+    up, dn = n // 5 + 1, n % 5 + 1
+    return NATURES[n] + ("" if up == dn else " (+%s -%s)" % (STATN[up], STATN[dn]))
+def calc_stat(b, iv, ev, lvl, nat, hp=False):
+    v = (2 * b + iv + ev // 4) * lvl // 100
+    return v + lvl + 10 if hp else int((v + 5) * nat)
+
+ABL = {"LEVITATE": {4: 0}, "VOLT ABSORB": {13: 0}, "WATER ABSORB": {11: 0},
+       "FLASH FIRE": {10: 0}, "THICK FAT": {10: .5, 15: .5}}
+FIXED = {"SEISMIC TOSS": "level", "NIGHT SHADE": "level", "DRAGON RAGE": "40", "SONICBOOM": "20",
+         "SUPER FANG": "half HP", "PSYWAVE": "0.5-1.5x level", "ENDEAVOR": "to your HP", "COUNTER": "2x phys taken",
+         "MIRROR COAT": "2x spec taken", "BIDE": "2x taken", "FISSURE": "OHKO", "GUILLOTINE": "OHKO",
+         "HORN DRILL": "OHKO", "SHEER COLD": "OHKO"}
+VARIABLE = {"LOW KICK": "weight", "FLAIL": "your HP", "REVERSAL": "your HP", "RETURN": "friendship",
+            "FRUSTRATION": "friendship", "MAGNITUDE": "random", "HIDDEN POWER": "hidden type/power",
+            "ERUPTION": "your HP", "WATER SPOUT": "your HP", "PRESENT": "random", "SPIT UP": "stockpile"}
+
+def norm(x): return re.sub(r"[^A-Z0-9]", "", x.upper())
+ALIAS = {"PSYCHIC": "PSYCHC", "ELECTRIC": "ELECTR", "FIGHTING": "FIGHT"}
+def find(lst, x, exact=False):
+    x = norm(x)
+    if lst is TYPES: x = ALIAS.get(x, x)
+    for k, n in enumerate(lst):
+        if norm(n) and norm(n) == x: return k
+    if exact or len(x) < 3: return None
+    hits = [k for k, n in enumerate(lst) if norm(n) and (norm(n).startswith(x) or x.startswith(norm(n)))]
+    return hits[0] if len(hits) == 1 else None
+def mult(atk, defs):
+    m = 1.0
+    for d in dict.fromkeys(defs): m *= EFF.get((atk, d), 1.0)
+    return m
+def fm(m): return "x" + ("%g" % m)
+def tstr(ts): return "/".join(TYPES[t] for t in dict.fromkeys(ts))
+def astr(ab): return "/".join(dict.fromkeys(ABN(a) for a in ab if a))
+def abil_note(atk, abil_ids, m):
+    names = {ABN(a) for a in abil_ids if a}
+    out = [n.lower() for n in names if n in ABL and atk in ABL[n]]
+    if "WONDER GUARD" in names and m <= 1: out.append("wonder guard")
+    return " (abl? " + "/".join(out) + ")" if out else ""
+
+# ---- RAM over the director socket (one connection per tc call) ----
+class Ram:
+    def __init__(self):
+        self.k = socket.create_connection(("127.0.0.1", 8888), timeout=5); self.f = self.k.makefile("rw")
+    def q(self, cmd):
+        for attempt in range(4):                               # the director keeps one client: a g call elsewhere resets us
+            try:
+                self.f.write(cmd + "\n"); self.f.flush(); line = self.f.readline().strip()
+                if line: return line
+            except OSError:
+                pass
+            import time; time.sleep(0.3)
+            self.k = socket.create_connection(("127.0.0.1", 8888), timeout=5); self.f = self.k.makefile("rw")
+        raise OSError("connection kept resetting (another g call running?)")
+    def u32(self, a): return int(self.q("R32 0x%08X" % a))
+    def block(self, a, n):                                     # n bytes, 4-aligned
+        return b"".join(struct.pack("<I", self.u32(a + o)) for o in range(0, n, 4))
+SB2_PTR, PARTY, BMONS = 0x03005D90, 0x020244EC, 0x02024084
+# v3 addresses (pokeemerald.sym, symbols branch)
+WEATHER, SIDE_STATUS, SIDE_TIMERS = 0x020243CC, 0x0202428E, 0x02024294
+STATUSES3, DISABLE, LAST_MOVES = 0x020242AC, 0x020242BC, 0x02024248
+WISH_FS, PARTY_ORDER = 0x020243D0, 0x0203CF00
+SEEN = os.path.expanduser("~/pokemon_bridge/tc_seen.json")
+
+def field(ram):
+    f = {}
+    f["weather"] = ram.u32(WEATHER) & 0xFFFF
+    w = ram.block(WISH_FS, 0x2C)
+    f["fs_counter"], f["fs_move"] = list(w[0:4]), list(struct.unpack_from("<4H", w, 0x18))
+    f["wish"], f["wdur"], f["knocked"] = list(w[0x20:0x24]), w[0x28], [w[0x29], w[0x2A]]
+    ss = ram.block(SIDE_STATUS - 2, 8)
+    f["side"] = list(struct.unpack_from("<2H", ss, 2))
+    t = ram.block(SIDE_TIMERS, 24)
+    f["timers"] = [t[0:12], t[12:24]]
+    f["s3"] = list(struct.unpack_from("<4I", ram.block(STATUSES3, 16)))
+    d = ram.block(DISABLE, 0x70)
+    f["dis"] = [d[i * 28:(i + 1) * 28] for i in range(4)]
+    f["last"] = list(struct.unpack_from("<4H", ram.block(LAST_MOVES, 8)))
+    f["order"] = list(ram.block(PARTY_ORDER, 4)[:3])
+    return f
+
+def weather_str(f):
+    w = f["weather"]; n = None
+    if w & 0x7: n = "RAIN"
+    elif w & 0x18: n = "SANDSTORM"
+    elif w & 0x60: n = "SUN"
+    elif w & 0x80: n = "HAIL"
+    if not n: return "none"
+    perm = w & (0x4 | 0x10 | 0x40)
+    return n + (" (permanent)" if perm else " (%d turns left)" % f["wdur"] if f["wdur"] else "")
+
+def side_str(f, side):
+    st, t = f["side"][side], f["timers"][side]; o = []
+    if st & 0x1: o.append("Reflect %d" % t[0])
+    if st & 0x2: o.append("Light Screen %d" % t[2])
+    if st & 0x100: o.append("Mist %d" % t[4])
+    if st & 0x20: o.append("Safeguard %d" % t[6])
+    if st & 0x10: o.append("Spikes x%d" % t[10])
+    if f["knocked"][side]: o.append("an item was knocked off")
+    return ", ".join(o) or "none"
+
+def volatile_str(b, s2, f):
+    s3, d = f["s3"][b], f["dis"][b]; o = []
+    if s2 & 0x7: o.append("confused")
+    if s2 & 0xE000: o.append("trapped (Wrap etc.)")
+    if s2 & 0xF0000: o.append("infatuated")
+    if s2 & 0x100000: o.append("Focus Energy")
+    if s2 & 0x400000: o.append("must recharge")
+    if s2 & 0x1000000: o.append("Substitute up")
+    if s2 & 0x4000000: o.append("can't escape")
+    if s2 & 0x8000000: o.append("Nightmare")
+    if s2 & 0x10000000: o.append("Cursed")
+    if s2 & 0x20000000: o.append("identified (Foresight)")
+    if s2 & 0x80000000: o.append("Tormented")
+    if s2 & 0x1000: o.append("locked into a move")
+    if s3 & 0x4: o.append("Leech Seed")
+    if s3 & 0x20: o.append("Perish count %d" % (d[0xF] & 0xF))
+    if s3 & 0x40: o.append("in the air (Fly/Bounce)")
+    if s3 & 0x80: o.append("underground (Dig)")
+    if s3 & 0x40000: o.append("underwater (Dive)")
+    if s3 & 0x100: o.append("Minimized")
+    if s3 & 0x200: o.append("Charged")
+    if s3 & 0x400: o.append("Ingrained")
+    if s3 & 0x1800: o.append("drowsy (Yawn)")
+    dm, em = struct.unpack_from("<HH", d, 4)
+    if dm and dm < NMV: o.append("%s disabled" % MVN[dm])
+    if em and em < NMV: o.append("Encore: %s" % MVN[em])
+    if d[0x13] & 0xF: o.append("Taunted")
+    if d[9]: o.append("Stockpile %d" % d[9])
+    if d[8]: o.append("Protect streak %d (next Protect less likely)" % d[8])
+    return ", ".join(o) or "none"
+
+def seen_update(f, foe_sp):
+    import json
+    try: db = json.load(open(SEEN))
+    except Exception: db = {}
+    k = f["last"][1]; name = SPN[foe_sp]
+    if 0 < k < NMV:
+        e = db.setdefault(name, {}); e[MVN[k]] = 1             # a set: tc runs every turn, so counts would mislead
+        try: json.dump(db, open(SEEN, "w"), indent=0, sort_keys=True)
+        except Exception: pass
+    return db.get(name, {})
+ORDERS = ["GAEM", "GAME", "GEAM", "GEMA", "GMAE", "GMEA", "AGEM", "AGME", "AEGM", "AEMG", "AMGE", "AMEG",
+          "EGAM", "EGMA", "EAGM", "EAMG", "EMGA", "EMAG", "MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"]
+
+def party(ram):
+    n = ram.u32(0x020244E8) >> 8 & 0xFF                        # gPlayerPartyCount (byte at ...E9)
+    out = []
+    for i in range(min(n, 6)):
+        b = ram.block(PARTY + i * 100, 100)
+        pers, otid = struct.unpack_from("<II", b, 0)
+        if not pers and not otid: continue
+        key = pers ^ otid
+        order = ORDERS[pers % 24]
+        def sub(L):
+            o = 0x20 + order.index(L) * 12
+            return [w ^ key for w in struct.unpack_from("<III", b, o)]
+        g, a, m = sub("G"), sub("A"), sub("M")
+        sp = g[0] & 0xFFFF
+        moves = [a[0] & 0xFFFF, a[0] >> 16, a[1] & 0xFFFF, a[1] >> 16]
+        pp = [(a[2] >> (8 * j)) & 0xFF for j in range(4)]
+        lvl, = struct.unpack_from("<B", b, 0x54)
+        hp, mhp, at, df, spe, spa, spd = struct.unpack_from("<7H", b, 0x56)
+        out.append({"idx": i, "sp": sp, "item": g[0] >> 16, "moves": moves, "pp": pp, "abn": m[1] >> 31,
+                    "nat": pers % 25, "lvl": lvl, "hp": hp, "mhp": mhp, "st": [mhp, at, df, spe, spa, spd],
+                    "status": struct.unpack_from("<I", b, 0x50)[0], "nick": s(8, 10, b)})
+    return out
+
+def bmon(ram, slot):
+    b = ram.block(BMONS + slot * 0x58, 0x58)
+    sp, at, df, spe, spa, spd = struct.unpack_from("<6H", b, 0)
+    return {"sp": sp, "st": [None, at, df, spe, spa, spd], "moves": list(struct.unpack_from("<4H", b, 0xC)),
+            "stages": [x - 6 for x in b[0x18:0x20]], "ability": b[0x20], "pp": list(b[0x24:0x28]),
+            "hp": struct.unpack_from("<H", b, 0x28)[0], "lvl": b[0x2A], "mhp": struct.unpack_from("<H", b, 0x2C)[0],
+            "item": struct.unpack_from("<H", b, 0x2E)[0], "s1": struct.unpack_from("<I", b, 0x4C)[0],
+            "s2": struct.unpack_from("<I", b, 0x50)[0]}
+def status_str(s1, s2=0):
+    o = []
+    if s1 & 7: o.append("SLP")
+    if s1 & 0x88: o.append("TOX" if s1 & 0x80 else "PSN")
+    if s1 & 0x10: o.append("BRN")
+    if s1 & 0x20: o.append("FRZ")
+    if s1 & 0x40: o.append("PAR")
+    if s2 & 7: o.append("confused")
+    return ",".join(o)
+def stage_mult(sg): return (2 + sg) / 2 if sg >= 0 else 2 / (2 - sg)
+def stages_str(st):
+    names = ["", "Atk", "Def", "Spe", "SpA", "SpD", "Acc", "Eva"]
+    return " ".join("%s%+d" % (names[k], st[k]) for k in range(1, 8) if st[k]) or "none"
+
+def foe_range(sp, lvl, st):                                    # (est) stat range: IV 0-31, EV 0-252, nature 0.9-1.1
+    b = base(sp)["stats"][st]
+    if st == 0: return calc_stat(b, 0, 0, lvl, 1, True), calc_stat(b, 31, 252, lvl, 1, True)
+    return calc_stat(b, 0, 0, lvl, 0.9), calc_stat(b, 31, 252, lvl, 1.1)
+
+def dmg(lvl, power, A, D, stab, eff, burned_phys, extra=1.0):
+    d = (2 * lvl // 5 + 2) * power * A // D // 50
+    if burned_phys: d //= 2
+    d = int(d * extra)                                        # weather and screens (v3)
+    d += 2
+    if stab: d = d * 3 // 2
+    d = int(d * eff)
+    return d * 85 // 100, d
+
+# ---- commands ----
+def battle(ram):
+    me, foe = bmon(ram, 0), bmon(ram, 1)
+    if not (0 < foe["sp"] < NSP) or foe["mhp"] == 0: sys.exit("not in battle. Try: tc party | tc rentals | tc <move> <species>")
+    F = base(foe["sp"]); M = base(me["sp"])
+    print("FOE %s L%d %s  HP %d/%d  abilities: %s  %s" % (SPN[foe["sp"]], foe["lvl"], tstr(F["types"]), foe["hp"], foe["mhp"],
+          astr(F["abil"]), status_str(foe["s1"], foe["s2"])))
+    print("    stages: %s" % stages_str(foe["stages"]))
+    print("ME  %s L%d %s  HP %d/%d  ability %s  item %s  %s" % (SPN[me["sp"]], me["lvl"], tstr(M["types"]), me["hp"], me["mhp"],
+          ABN(me["ability"]), ITN(me["item"]), status_str(me["s1"], me["s2"])))
+    print("    stages: %s" % stages_str(me["stages"]))
+    f = field(ram)
+    print("FIELD weather: %s | your side: %s | foe side: %s" % (weather_str(f), side_str(f, 0), side_str(f, 1)))
+    print("STATE you: %s" % volatile_str(0, me["s2"], f))
+    print("      foe: %s" % volatile_str(1, foe["s2"], f))
+    for b, who in ((0, "you"), (1, "the foe")):
+        if f["fs_counter"][b]: print("  pending: %s lands on %s in %d turn(s)" % (MVN[f["fs_move"][b]] if f["fs_move"][b] < NMV else "Future Sight", who, f["fs_counter"][b]))
+        if f["wish"][b]: print("  pending: Wish heals %s's slot in %d turn(s)" % (who, f["wish"][b]))
+    def wx(t):                                                 # weather multiplier for a move type
+        w = f["weather"]
+        if w & 0x7: return 1.5 if t == 11 else 0.5 if t == 10 else 1
+        if w & 0x60: return 1.5 if t == 10 else 0.5 if t == 11 else 1
+        return 1
+    # speed
+    mys = int(me["st"][3] * stage_mult(me["stages"][3]) * (0.25 if me["s1"] & 0x40 else 1))
+    lo, hi = foe_range(foe["sp"], foe["lvl"], 3)
+    fm_ = stage_mult(foe["stages"][3]) * (0.25 if foe["s1"] & 0x40 else 1)
+    lo, hi = int(lo * fm_), int(hi * fm_)
+    verdict = "you move first" if mys > hi else "foe moves first" if mys < lo else "could go either way"
+    print("SPEED you %d vs foe %d-%d (est): %s (priority moves and Quick Claw aside)" % (mys, lo, hi, verdict))
+    # moves
+    print("YOUR MOVES vs %s (damage est.: foe Def/SpD range IV 0-31, EV 0-252, nature; no crit)" % SPN[foe["sp"]])
+    for j, k in enumerate(me["moves"]):
+        if not k: continue
+        m = mv(k); name = MVN[k]; e = mult(m["type"], F["types"]); stab = m["type"] in M["types"]
+        cat = "S" if m["type"] in SPECIAL else "P"
+        head = "  %d:%-12s %-6s %s(%s %d) pw%-3d acc%-3s pp%-2d%s" % (j + 1, name, TYPES[m["type"]], cat,
+               "SpA" if cat == "S" else "Atk", me["st"][4 if cat == "S" else 1], m["pow"],
+               m["acc"] or "-", me["pp"][j], " pri%+d" % m["pri"] if m["pri"] else "")
+        if name == "FAKE OUT": head += "  [works NOW: first turn out]" if f["dis"][0][0x16] else "  [FAILS now: not this mon's first turn]"
+        if name in ("COUNTER", "MIRROR COAT"):
+            lk = f["last"][1]
+            if 0 < lk < NMV:
+                lm = mv(lk); lc = "special" if lm["type"] in SPECIAL else "physical"
+                ok = (lc == "physical") == (name == "COUNTER") and lm["pow"] > 0
+                head += "  [foe's last move: %s (%s%s) -> %s if it repeats it and hits you first]" % (
+                    MVN[lk], lc, "" if lm["pow"] else ", no damage", "would reflect" if ok else "would FAIL")
+            else:
+                head += "  [foe hasn't used a move yet]"
+        if name in FIXED: print(head + "  fixed: " + FIXED[name]); continue
+        if name in VARIABLE: print(head + "  %s  power varies (%s)" % (fm(e), VARIABLE[name])); continue
+        if not m["pow"]: print(head + "  status move"); continue
+        if e == 0: print(head + "  x0  no effect%s" % abil_note(m["type"], F["abil"], e)); continue
+        ai, di = (4, 5) if cat == "S" else (1, 2)
+        A = int(me["st"][ai] * stage_mult(me["stages"][ai]))
+        dlo, dhi = foe_range(foe["sp"], foe["lvl"], di)
+        sm = stage_mult(foe["stages"][di])
+        scr = 0.5 if (cat == "P" and f["side"][1] & 0x1) or (cat == "S" and f["side"][1] & 0x2) else 1
+        ex = wx(m["type"]) * scr * (2 if (m["type"] == 13 and f["s3"][0] & 0x200) else 1)
+        mn, _ = dmg(me["lvl"], m["pow"], A, int(dhi * sm), stab, e, cat == "P" and me["s1"] & 0x10, ex)
+        _, mx = dmg(me["lvl"], m["pow"], A, max(1, int(dlo * sm)), stab, e, cat == "P" and me["s1"] & 0x10, ex)
+        pct = lambda d: 100 * d / foe["mhp"]
+        hits = "OHKO" if mn >= foe["hp"] else "%d-%d hits" % (-(-foe["hp"] // max(mx, 1)), -(-foe["hp"] // max(mn, 1))) if mn else "-"
+        print(head + "  %-5s%s %d-%d (%.0f-%.0f%%) %s%s" % (fm(e), " STAB" if stab else "", mn, mx, pct(mn), pct(mx), hits,
+              abil_note(m["type"], F["abil"], e)))
+    # seen-moves notebook: only moves this foe species has actually used in front of you
+    seen = seen_update(f, foe["sp"])
+    if seen:
+        print("SEEN %s use (your own observations, all battles; another set of the same species may differ):" % SPN[foe["sp"]])
+        for nm in sorted(seen, key=lambda x: -seen[x]):
+            k = find(MVN, nm, exact=True)
+            if k is None: continue
+            m = mv(k); e = mult(m["type"], M["types"]); cat = "S" if m["type"] in SPECIAL else "P"
+            line = "  %-12s %-6s %s pw%-3d  into you: %s" % (nm, TYPES[m["type"]], cat, m["pow"], fm(e))
+            if m["pow"] > 1 and nm not in FIXED and nm not in VARIABLE:
+                ai, di = (4, 5) if cat == "S" else (1, 2)
+                alo, ahi = foe_range(foe["sp"], foe["lvl"], ai)
+                am = stage_mult(foe["stages"][ai]); D = max(1, int(me["st"][di] * stage_mult(me["stages"][di])))
+                scr = 0.5 if (cat == "P" and f["side"][0] & 0x1) or (cat == "S" and f["side"][0] & 0x2) else 1
+                stab = m["type"] in F["types"]
+                lo, _ = dmg(foe["lvl"], m["pow"], int(alo * am), D, stab, e, cat == "P" and foe["s1"] & 0x10, wx(m["type"]) * scr)
+                _, hi = dmg(foe["lvl"], m["pow"], int(ahi * am), D, stab, e, cat == "P" and foe["s1"] & 0x10, wx(m["type"]) * scr)
+                line += "  %d-%d (%.0f-%.0f%% of your max HP) (est)" % (lo, hi, 100 * lo / me["mhp"], 100 * hi / me["mhp"])
+            print(line)
+    switch_check(ram, F, foe, f)
+
+def foe_speed_range(foe):
+    lo, hi = foe_range(foe["sp"], foe["lvl"], 3)
+    f = stage_mult(foe["stages"][3]) * (0.25 if foe["s1"] & 0x40 else 1)
+    return int(lo * f), int(hi * f)
+
+def menu_slots(f):
+    o = f["order"]; slot = {}
+    for pid in range(6):                                       # nibble pid = menu position of party slot pid
+        pos = (o[pid // 2] >> 4) if pid % 2 == 0 else (o[pid // 2] & 0xF)
+        slot[pid] = pos + 1                                    # (v3.1: v3 read it inverted; caught live in run 57 M10)
+    return slot if len(set(slot.values())) > 1 else None
+
+def switch_check(ram, F, foe, f=None):
+    ms = menu_slots(f) if f else None
+    print("SWITCH-IN CHECK (foe STAB into each of yours | your best move into the foe | speed vs foe %d-%d est)"
+          % foe_speed_range(foe))
+    for i, p in enumerate(party(ram)):
+        P = base(p["sp"])
+        taken = ", ".join("%s %s" % (TYPES[t], fm(mult(t, P["types"]))) for t in dict.fromkeys(F["types"]))
+        best = max(((mult(mv(k)["type"], F["types"]) * (1.5 if mv(k)["type"] in P["types"] else 1) * mv(k)["pow"],
+                     MVN[k], mult(mv(k)["type"], F["types"])) for k in p["moves"] if k and mv(k)["pow"] > 1), default=None)
+        print("  %s%-10s %-14s hp %d/%d spe %-3d %s| takes %s | best %s" % (("menu %d  " % ms[p["idx"]]) if ms and p["idx"] in ms else "", SPN[p["sp"]], tstr(P["types"]), p["hp"], p["mhp"],
+              p["st"][3], (status_str(p["status"]) + " ") if p["status"] else "", taken,
+              "%s %s" % (best[1], fm(best[2])) if best else "-"))
+    print("  (menu N = the slot on the in-battle party screen, counted from the top; check the name before pressing A)" if ms else
+          "  (listed in save order, NOT menu order: pick the slot by name on the party screen)")
+    print("  (stages are live RAM: Baton Pass, Intimidate, Charm etc. are already counted in the speed numbers)")
+    print("  (foe's real moves, item and ability are hidden: anything beyond STAB is (est) until seen)")
+
+def show_party(ram):
+    for p in party(ram):
+        P = base(p["sp"])
+        print("%s (%s) L%d %s  HP %d/%d  %s" % (p["nick"], SPN[p["sp"]], p["lvl"], tstr(P["types"]), p["hp"], p["mhp"], status_str(p["status"])))
+        print("  ability %s  nature %s  item %s" % (ABN(P["abil"][p["abn"]] or P["abil"][0]), nat_str(p["nat"]), ITN(p["item"])))
+        print("  " + "  ".join("%s %d" % (STATN[k], p["st"][k]) for k in range(6)))
+        for j, k in enumerate(p["moves"]):
+            if k:
+                m = mv(k)
+                print("    %-12s %-6s %s pw%-3d acc%-3s pp%d%s" % (MVN[k], TYPES[m["type"]], "S" if m["type"] in SPECIAL else "P",
+                      m["pow"], m["acc"] or "-", p["pp"][j], " pri%+d" % m["pri"] if m["pri"] else ""))
+
+def rentals(ram):
+    st = subprocess.run([G, "s"], capture_output=True, text=True).stdout
+    if not st.startswith("26.32"):
+        sys.exit("tc rentals works only on the rental floor (map 26.32); g s says: " + st.strip())
+    sb2 = ram.u32(SB2_PTR)
+    raw = ram.block(sb2 + 0xE70, 72)
+    lvl_mode = ram.u32(sb2 + 0xCA8) >> 8 & 3                   # frontier.lvlMode (0 = Lv50)
+    w = ram.block(sb2 + 0xDE0, 0x18)
+    streak = struct.unpack_from("<H", w, 2 + 2 * lvl_mode)[0]  # factoryWinStreaks[singles][lvlMode]
+    rents = struct.unpack_from("<H", w, 0x12 + 2 * lvl_mode)[0]
+    ch = streak // 7
+    rank = 0 if rents < 15 else min(5, (rents - 15) // 7 + 1)
+    ivt = [3, 6, 9, 12, 15, 21, 31, 31]                        # sFixedIVTable[..][0] (pret battle_factory.c)
+    iv_for = lambda i: ivt[min(ch + (1 if i < rank else 0), 7)]
+    for i in range(6):
+        mon_id, pers, _stale, abn = struct.unpack_from("<HxxIBB", raw, i * 12)
+        ivs = iv_for(i)                                        # the screen builds stats from the round's IVs, not the stored field
+        if mon_id > 881 or (not mon_id and not pers): continue
+        fb = FMONS + mon_id * 16
+        sp = struct.unpack_from("<H", r, fb)[0]; moves = struct.unpack_from("<4H", r, fb + 2)
+        item = struct.unpack_from("<H", r, FHELD + 2 * r[fb + 10])[0]; evs = r[fb + 11]; nat = r[fb + 12]
+        flags = [k for k in range(6) if evs >> k & 1]; ev = 510 // len(flags) if flags else 0
+        P = base(sp)
+        stats = [calc_stat(P["stats"][k], ivs, ev if k in flags else 0, 50, 1 if k == 0 else nat_mod(nat, k), k == 0) for k in range(6)]
+        print("%d %s %s  ability %s  nature %s  item %s" % (i + 1, SPN[sp], tstr(P["types"]),
+              ABN(P["abil"][abn] or P["abil"][0]), nat_str(nat), ITN(item)))
+        print("   L50 " + "  ".join("%s %d" % (STATN[k], stats[k]) for k in range(6)))
+        def idx(k):                                            # output index: % of a neutral L50 target (HP 150, Def/SpD 100)
+            m = mv(k)
+            if m["pow"] <= 1 or MVN[k] in FIXED or MVN[k] in VARIABLE: return None
+            A = stats[4] if m["type"] in SPECIAL else stats[1]
+            _, hi = dmg(50, m["pow"], A, 100, m["type"] in P["types"], 1.0, False)
+            return 100 * hi / 150
+        parts = []
+        for k in moves:
+            if not k: continue
+            m = mv(k); c = "S" if m["type"] in SPECIAL else "P"; ix = idx(k)
+            parts.append("%s %s/%d %s%s%s" % (MVN[k], TYPES[m["type"]], m["pow"], c,
+                         "" if m["acc"] in (0, 100) else " a%d" % m["acc"], " ~%d%%" % ix if ix else ""))
+        print("   " + " | ".join(parts))
+        best = max((idx(k) or 0, MVN[k]) for k in moves if k)
+        print("   output: best %s ~%d%% of a neutral target (L50, HP 150, Def/SpD 100; type matchups aside)" % (best[1], best[0]) if best[0] else "   output: no damaging move")
+        weak = [TYPES[t] for t in range(18) if t != 9 and mult(t, P["types"]) > 1]
+        print("   weak to: " + (" ".join(weak) or "-"))
+
+def defender(arg):
+    if "/" in arg or find(TYPES, arg) is not None and find(SPN, arg, exact=True) is None:
+        ts = [find(TYPES, p) for p in arg.split("/")]
+        if None in ts: sys.exit("unknown type in " + arg)
+        return {"name": arg.upper(), "types": ts, "abil": [], "stats": None}
+    k = find(SPN, arg)
+    if k is None:
+        c = [n for n in SPN if n and norm(n).startswith(norm(arg))][:8]
+        sys.exit("unknown or ambiguous species/type: %s%s" % (arg, ("  (did you mean: " + ", ".join(c) + ")") if c else ""))
+    B = base(k); B["name"] = SPN[k]; return B
+
+def lookup(a, d):
+    D = defender(d)
+    m_id = find(MVN, a, exact=True)
+    t = None if m_id is not None else find(TYPES, a)
+    label = TYPES[t] if t is not None else None
+    if t is None and m_id is None: m_id = find(MVN, a)
+    if t is None:
+        if m_id is None: sys.exit("unknown move/type: " + a)
+        m = mv(m_id); t = m["type"]
+        label = "%s %s/%d acc%s %s" % (MVN[m_id], TYPES[t], m["pow"], m["acc"] or "-", "S" if t in SPECIAL else "P")
+    m = mult(t, D["types"])
+    print("%s -> %s (%s): %s%s" % (label, D["name"], tstr(D["types"]), fm(m), abil_note(t, D["abil"], m)))
+
+def chart(arg):
+    D = defender(arg)
+    bs = "  base " + " ".join("%s %d" % (STATN[k], D["stats"][k]) for k in range(6)) if D["stats"] else ""
+    print("%s  %s  abilities: %s%s" % (D["name"], tstr(D["types"]), astr(D["abil"]) or "-", bs))
+    groups = {}
+    for t in range(18):
+        if t != 9: groups.setdefault(mult(t, D["types"]), []).append(TYPES[t])
+    for m in sorted(groups, reverse=True):
+        if m != 1: print("  takes %-5s %s" % (fm(m), " ".join(groups[m])))
+    names = {ABN(a) for a in D["abil"] if a}
+    for n in names & set(ABL):
+        print("  ability %s would change: %s" % (n, ", ".join("%s %s" % (TYPES[t], fm(x)) for t, x in ABL[n].items())))
+    if "WONDER GUARD" in names: print("  ability WONDER GUARD: only x2/x4 hits do damage")
+
+a = sys.argv[1:]
+try:
+    if not a: battle(Ram())
+    elif a[0] == "party": show_party(Ram())
+    elif a[0] == "rentals": rentals(Ram())
+    elif a[0] == "mon" and len(a) > 1: chart(" ".join(a[1:]))
+    elif a[0] in ("-h", "--help", "help"): print(__doc__)
+    elif len(a) >= 2: lookup(a[0] if len(a) == 2 else " ".join(a[:-1]), a[-1])
+    else: print(__doc__)
+except (ConnectionRefusedError, socket.timeout, OSError) as e:
+    sys.exit("no game connection on :8888 (%s). Lookups (tc <move> <species>, tc mon X) still work." % e)

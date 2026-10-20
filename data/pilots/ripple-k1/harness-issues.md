@@ -1,0 +1,9 @@
+# Harness issues
+- 2026-10-17 01:2x UTC: after `start.sh`, the director's input queue held one stuck entry (queue_len 1, head mask 1, hold 0) so every `g` press returned "ERR busy" and status stayed `busy`, though frames advanced. Worked around with `g raw CLEARQUEUE` (a documented raw command; no harness file edited).
+- setup.sh could not find the ROM (branch rom-local missing); I copied rom/kaizo.gba into ~/pokemon_bridge/rom/ by hand (hash check then passed).
+
+## 2026-10-17 ~14:20 UTC: walk queued while a menu was open wedges the queue
+I gave DASHER a held item through START > BAG > GIVE, and the party screen returned me to the bag's item submenu (not the field). I then sent `g walk right 5`. The harness queued it (walk_active true, walk_n 5, walk_progress 0) but the field was not free, so it never started, and every later `g b` / `g raw PRESS b` was refused with "ERR busy: previous PRESS still queued/draining". The status line stayed `busy lock scr:bag`. My mistake was to assume the menus had closed after the give; the screenshot showed they had not. Lesson: after menu work, press B until the status line has no `scr:` before sending a walk. Logging it as an issue only because the harness gave no way to cancel a queued walk.
+Resolved at about 14:27: `g raw STOPNAV` (an existing director op, not an edit) cancelled the wedged walk. After that `g b` worked again and I backed out of the Berry Tag screen, bag and start menu one B at a time. The queue did not clear by itself in ~7 minutes.
+
+- Forced-switch party screen (after a faint): the highlighted row in `g shot` does not match the game's real cursor. Pressing A twice picked slot 0 (the fainted active mon) while a different row looked highlighted. Workaround: open the submenu, pick SUMMARY to read the name, B back, then SEND OUT.

@@ -1,0 +1,411 @@
+--- a/harness/director.lua	2026-10-16 19:08:23.047811754 +1100
++++ b/harness/director.lua	2026-10-17 11:55:22.553957898 +1100
+@@ -22,7 +22,7 @@
+ -- carries over across a reload except what's explicitly saved to an mGBA
+ -- state slot.
+ 
+-local VERSION = "aba96c3c"  -- shasum -a 256 of this file's content (pre-stamp), first 8 hex chars. Recomputed and substituted by hand at each deploy (see deploy notes in harness-status.md).
++local VERSION = "v2.0"  -- shasum -a 256 of this file's content (pre-stamp), first 8 hex chars. Recomputed and substituted by hand at each deploy (see deploy notes in harness-status.md).
+ 
+ -- ---------------------------------------------------------------------
+ -- JSON / hex helpers
+@@ -1077,8 +1077,10 @@
+ local autosaveStable, autosaveLastMap, autosaveLastFrame = nil, nil, 0
+ local autosaveBattleSeen, autosaveCount, autosaveLastSig, autosaveError = false, 0, nil, nil
+ 
++local v2 = {}   -- harness v2 (text freshness + NAME): filled in by the do-block after readGen3String (the file is at Lua's 200-local limit)
+ local function onFrame()
+     frameCount = frameCount + 1
++    if v2.textFreshTick then pcall(v2.textFreshTick) end
+     if #queue > 0 then
+         local a = queue[1]
+         local ok = pcall(function()
+@@ -1094,6 +1096,7 @@
+         return
+     end
+     emu:setKeys(0)
++    if v2.nameTick then local okN, busyN = pcall(v2.nameTick); if okN and busyN then return end end   -- v2 NAME job drives the naming screen
+ 
+     -- Rolling crash-insurance autosave (2026-09-26, after an mGBA crash lost
+     -- an unsaved gym run). Savestate slot 2 is written whenever the player has
+@@ -1464,6 +1467,239 @@
+     return decodeGen3String(bytes)
+ end
+ 
++-- ---------------------------------------------------------------------
++-- harness v2 (1/2): text freshness. T / TEXT read gStringVar4 / gDisplayedStringBattle,
++-- which keep the LAST message after it leaves the screen. This labels the text:
++--   field:  sFieldMessageBoxMode (0x020375bc, u8; HIDDEN=0 UNUSED=1 NORMAL=2 AUTO_SCROLL=3,
++--           src/field_message_box.c). NB it drops to HIDDEN as soon as the text has finished
++--           PRINTING, while the box still waits for A (Task_DrawFieldMessage state 2), so
++--           HIDDEN alone does not mean "gone". "old" = HIDDEN and field controls not locked
++--           (a message waiting on A always has a script running, i.e. the lock set).
++--   battle: choose_action / choose_move / choose_target -> "menu" (a menu is up; the buffer
++--           holds the earlier message, or the "What will X do?" prompt).
++-- onFrame samples the decoded text every TEXT_TICK frames to know how long it has been unchanged.
++-- ---------------------------------------------------------------------
++do
++local K = {
++    FIELD_MSGBOX_MODE_ADDR = 0x020375bc,
++    TEXT_TICK = 6, TEXT_STALE_S = 3,
++    NS_PTR_ADDR = 0x02039f94,
++    NS_TEXTBUF = 0x1800, NS_STATE = 0x1E10, NS_PAGE = 0x1E22, NS_CURSOR_SPR = 0x1E23, NS_TEMPLATE = 0x1E28,
++    NS_STATE_INPUT = 2,
++    GSPRITES_ADDR = 0x02020630, GSPRITE_SIZE = 0x44, SPRITE_DATA_OFF = 0x2E,
++    FIELD_BOX_NAMES = {[0] = "hidden", [1] = "unused", [2] = "normal", [3] = "autoscroll"},
++    NS_COLS = {[0] = 6, [1] = 8, [2] = 8},
++    NS_PAGE_NAMES = {[0] = "symbols", [1] = "upper", [2] = "lower"},
++}
++v2.K = K
++local textTrack = {}
++local textGen = {f = 0, lastMode = 0}   -- f: +1 each time the field message box goes hidden -> shown, so re-showing identical text restarts the age
++
++local function readCurrentText()
++    local gm = getMode()
++    local inBattle = (gm == "battle_init" or gm == "battle_main")
++    local addr = inBattle and BATTLE_DISPLAYED_STRING_ADDR or FIELD_STRING_VAR4_ADDR
++    local maxLen = inBattle and BATTLE_DISPLAYED_STRING_SIZE or FIELD_STRING_VAR4_SIZE
++    local ok, text = pcall(readGen3String, addr, maxLen)
++    return inBattle, ok and text or nil, gm
++end
++
++-- seconds the text for this source has been unchanged (records it if new)
++local function trackText(src, text, gen)
++    local tr = textTrack[src]
++    if tr == nil or tr.text ~= text or tr.gen ~= gen then
++        tr = {text = text, since = frameCount, gen = gen}
++        textTrack[src] = tr
++    end
++    return (frameCount - tr.since) / 60
++end
++
++-- pure formatter (SELFTEST): word = "old" | "menu" | nil (live)
++local function formatText(src, word, text, age)
++    local s = "[" .. src .. (word and (" " .. word) or "") .. "] " .. text
++    if age > K.TEXT_STALE_S then s = s .. string.format(" (unchanged %ds)", math.floor(age)) end
++    return s
++end
++
++-- returns word ("old"/"menu"/nil), box description, age_s for the currently displayed buffer
++local function textStatus(inBattle, gm, text)
++    local word, box
++    if inBattle then
++        local bi = getBattleDecisionState(gm).battle_input
++        box = bi
++        if bi == "choose_action" or bi == "choose_move" or bi == "choose_target" then word = "menu" end
++    else
++        local okm, m = pcall(u8, K.FIELD_MSGBOX_MODE_ADDR)
++        box = okm and (K.FIELD_BOX_NAMES[m] or tostring(m)) or "unreadable"
++        -- "old" only where the buffer is known not to be what is on screen: the naming screen (it draws its
++        -- own title, never gStringVar4; the script that opened it keeps the field locked) and the overworld
++        -- with the box idle and controls free. Elsewhere (new-game intro speech, clock/starter screens,
++        -- menus) gStringVar4 can hold the live text, or not, with the box idle, so those get no word
++        -- (seen live: Birch's intro speech sits in gStringVar4 while the box mode reads hidden).
++        if gm == "naming_screen" or (okm and m == 0 and not isFieldLocked() and gm == "overworld") then word = "old" end
++    end
++    return word, box, trackText(inBattle and "b" or "f", text, inBattle and 0 or textGen.f)
++end
++
++v2.textFreshTick = function()
++    if frameCount % K.TEXT_TICK ~= 0 then return end
++    local inBattle, text = readCurrentText()
++    local okm, m = pcall(u8, K.FIELD_MSGBOX_MODE_ADDR)
++    if okm then
++        if m ~= 0 and textGen.lastMode == 0 then textGen.f = textGen.f + 1 end
++        textGen.lastMode = m
++    end
++    if text then trackText(inBattle and "b" or "f", text, inBattle and 0 or textGen.f) end
++end
++
++-- ---------------------------------------------------------------------
++-- harness v2 (2/2): NAME <text> -- type a whole name on the naming screen, never confirm.
++-- Layout/addresses from pret src/naming_screen.c: sKeyboardChars, sPageColumnCounts, MainState_*,
++-- Task_HandleInput (D-pad rows wrap mod 4; col == column count is the OK/BACK/page button column;
++-- SELECT cycles pages SYMBOLS(0) -> UPPER(1) -> LOWER(2) -> SYMBOLS; START jumps to OK).
++-- sNamingScreen (0x02039f94, heap ptr) -> struct NamingScreenData: textBuffer +0x1800 (u8[16], EOS=0xFF,
++-- space=0x00), state +0x1E10 (2 = STATE_HANDLE_INPUT), currentPage +0x1E22, cursorSpriteId +0x1E23,
++-- template ptr +0x1E28 (maxChars = byte 1). Cursor cell = gSprites[id].data[0], data[1] (sX, sY).
++-- Every step re-reads the real cursor/page/text; it never counts moves.
++-- ---------------------------------------------------------------------
++local NS_ROWS = {   -- KBPAGE index -> rows of keys (sKeyboardChars; symbols page has 6 columns)
++    [1] = {"ABCDEF .", "GHIJKL ,", "MNOPQRS ", "TUVWXYZ "},
++    [2] = {"abcdef .", "ghijkl ,", "mnopqrs ", "tuvwxyz "},
++    [0] = {"01234 ", "56789 ", "!?\u{2642}\u{2640}/-", "\u{2026}\u{201C}\u{201D}\u{2018}\u{2019} "},
++}
++local NS_INDEX = {}   -- char -> list of {page, col, row}
++for page, rows in pairs(NS_ROWS) do
++    for row, str in ipairs(rows) do
++        local col = 0
++        for _, cp in utf8.codes(str) do
++            local ch = utf8.char(cp)
++            NS_INDEX[ch] = NS_INDEX[ch] or {}
++            table.insert(NS_INDEX[ch], {page = page, col = col, row = row - 1})
++            col = col + 1
++        end
++    end
++end
++local NS_SUPPORTED = "A-Z a-z 0-9 space . , ! ? / - ' and \u{2642} \u{2640} \u{2026} \u{201C} \u{201D} \u{2018}"
++
++-- text -> list of key characters, or nil, errmsg. ASCII ' is the keyboard's apostrophe key.
++local function parseNameText(text)
++    if not utf8.len(text) then return nil, "not valid UTF-8" end
++    local chars, pos = {}, 0
++    for _, cp in utf8.codes(text) do
++        pos = pos + 1
++        local ch = utf8.char(cp)
++        if ch == "'" then ch = "\u{2019}" end
++        if not NS_INDEX[ch] then
++            return nil, string.format("unsupported character '%s' at position %d (supported: %s)", utf8.char(cp), pos, NS_SUPPORTED)
++        end
++        chars[#chars + 1] = ch
++    end
++    return chars
++end
++
++local function s16(v) if v >= 0x8000 then return v - 0x10000 end return v end
++
++-- live naming screen snapshot, or nil, reason
++local function readNamingScreen()
++    local okp, base = pcall(u32, K.NS_PTR_ADDR)
++    if not okp or base < 0x02000000 or base >= 0x02040000 then return nil, "no naming screen allocated" end
++    local ok, r = pcall(function()
++        local spr = K.GSPRITES_ADDR + u8(base + K.NS_CURSOR_SPR) * K.GSPRITE_SIZE
++        local tmpl = u32(base + K.NS_TEMPLATE)
++        local maxc = (tmpl >= 0x08000000 and tmpl < 0x0A000000) and u8(tmpl + 1) or 0
++        local bytes = {}
++        for i = 0, 15 do
++            local b = u8(base + K.NS_TEXTBUF + i)
++            if b == 0xFF then break end
++            bytes[#bytes + 1] = b
++        end
++        return {state = u8(base + K.NS_STATE), page = u8(base + K.NS_PAGE), cx = s16(u16(spr + K.SPRITE_DATA_OFF)),
++                cy = s16(u16(spr + K.SPRITE_DATA_OFF + 2)), max = maxc, text = decodeGen3String(bytes), n = #bytes}
++    end)
++    if not ok then return nil, tostring(r) end
++    if r.max < 1 or r.max > 16 or r.page > 2 then return nil, "naming struct looks wrong (max=" .. r.max .. " page=" .. r.page .. ")" end
++    return r
++end
++
++-- Pure: which single button gets the cursor closer to key `ch`, given page/cursor. "a" = press the key.
++local function namePlan(page, cx, cy, ch)
++    local cells, here = NS_INDEX[ch], {}
++    if not cells then return nil end
++    for _, c in ipairs(cells) do if c.page == page then here[#here + 1] = c end end
++    if #here == 0 then return "select" end          -- next page in the cycle (works from any cursor cell)
++    if cx >= K.NS_COLS[page] then return "left" end   -- on the OK/BACK/page button column: step back onto the keys
++    local best, bestCost
++    for _, c in ipairs(here) do
++        local dy = (c.row - cy) % 4
++        local cost = math.min(dy, 4 - dy) + math.abs(c.col - cx)
++        if bestCost == nil or cost < bestCost then best, bestCost = c, cost end
++    end
++    if best.row ~= cy then return ((best.row - cy) % 4 <= 2) and "down" or "up" end
++    if best.col ~= cx then return (best.col > cx) and "right" or "left" end
++    return "a"
++end
++
++local nameJob = nil
++local function nameFail(j, msg) j.status = "error"; j.err = msg; pushLog("name_error", {frame = frameCount, detail = msg}) end
++
++v2.nameTick = function()
++    local j = nameJob
++    if not j or j.status ~= "running" then return false end
++    if frameCount - j.start > j.limit then nameFail(j, "timed out after " .. j.steps .. " presses"); return false end
++    local gm = getMode()
++    local rd, why = readNamingScreen()
++    if gm ~= "naming_screen" or not rd then nameFail(j, "naming screen is gone (" .. tostring(why or gm) .. ")"); return false end
++    if rd.state ~= K.NS_STATE_INPUT then return true end   -- fading in / page swap / moving to OK: wait
++    local expect = table.concat(j.chars, "", 1, math.min(rd.n, #j.chars))
++    if rd.text ~= expect or rd.n > #j.chars then
++        nameFail(j, string.format("typed text '%s' does not match expected '%s' after %d presses", rd.text, expect, j.steps)); return false
++    end
++    if rd.n == #j.chars then j.status = "done"; pushLog("name_done", {frame = frameCount, detail = rd.text}); return false end
++    local btn = namePlan(rd.page, rd.cx, rd.cy, j.chars[rd.n + 1])
++    local sig = rd.page .. ":" .. rd.cx .. "," .. rd.cy .. ":" .. rd.n
++    if sig == j.lastSig and btn == j.lastBtn then j.stuck = j.stuck + 1 else j.stuck = 0 end
++    if j.stuck >= 3 then nameFail(j, "no progress: '" .. btn .. "' had no effect 3 times at " .. sig); return false end
++    j.lastSig, j.lastBtn, j.steps = sig, btn, j.steps + 1
++    schedule(BUTTON[btn], 5, 5)
++    return true
++end
++
++local function nameStatusLine()
++    local rd, why = readNamingScreen()
++    local j = nameJob
++    local s = "job=" .. (j and j.status or "none")
++    if rd then
++        s = s .. string.format(" name=\"%s\" len=%d/%d page=%s cursor=%d,%d", rd.text, rd.n, rd.max, K.NS_PAGE_NAMES[rd.page] or rd.page, rd.cx, rd.cy)
++    else
++        s = s .. " name=unreadable (" .. tostring(why) .. ")"
++    end
++    if j and j.err then s = s .. " err=" .. j.err end
++    return s
++end
++
++local function nameStart(text)
++    if #queue > 0 or (nameJob and nameJob.status == "running") then return "ERR busy: previous input still queued/draining" end
++    local chars, err = parseNameText(text)
++    if not chars then return "ERR NAME: " .. err end
++    local gm = getMode()
++    local rd, why = readNamingScreen()
++    if gm ~= "naming_screen" or not rd then return "ERR NAME: not on a naming screen (mode=" .. gm .. ", " .. tostring(why or "ok") .. ")" end
++    if #chars > rd.max then return string.format("ERR NAME: '%s' is %d characters, this naming screen allows %d", text, #chars, rd.max) end
++    local pre = table.concat(chars, "", 1, math.min(rd.n, #chars))
++    if rd.n > #chars or rd.text ~= pre then
++        return string.format("ERR NAME: name box already holds '%s', which is not the start of '%s' -- clear it first (g b = backspace)", rd.text, text)
++    end
++    nameJob = {chars = chars, status = "running", start = frameCount, limit = 900 + 200 * #chars, steps = 0, stuck = 0}
++    pushLog("name_start", {frame = frameCount, detail = text})
++    return string.format("OK NAME queued: %d chars of max %d (will not confirm)", #chars, rd.max)
++end
++
++v2.readCurrentText, v2.textStatus, v2.formatText = readCurrentText, textStatus, formatText
++v2.parseNameText, v2.namePlan, v2.readNamingScreen = parseNameText, namePlan, readNamingScreen
++v2.nameStart, v2.nameStatusLine, v2.NS_INDEX, v2.NS_ROWS = nameStart, nameStatusLine, NS_INDEX, NS_ROWS
++v2.nameRunning = function() return nameJob ~= nil and nameJob.status == "running" end
++end
++
+ -- getMapName([mapsecIdOverride]) -- reads the current map's real name
+ -- from gRegionMapEntries. mapsecIdOverride lets SELFTEST exercise the
+ -- out-of-range bounds check without needing a live ROM read (see the
+@@ -1779,7 +2015,7 @@
+         local inBattle = (gm == "battle_init" or gm == "battle_main")
+         local bds = getBattleDecisionState(gm)
+         local out = {string.format("%d.%d %d,%d P%d B%d", mapGroup, mapNum, x, y, partyCount, badges)}
+-        if #queue > 0 or walk ~= nil or nav ~= nil then out[#out+1] = "busy" end
++        if #queue > 0 or walk ~= nil or nav ~= nil or (v2.nameRunning and v2.nameRunning()) then out[#out+1] = "busy" end
+         if isFieldLocked() then out[#out+1] = "lock" end
+         local yn = (bds.field_menu and bds.field_menu_kind == "yesno") or bds.battle_input == "yesno"
+         if yn then out[#out+1] = "yn" end
+@@ -1903,14 +2139,17 @@
+     elseif op == "T" then
+         -- Plain-text TEXT: just the decoded message, newlines flattened to
+         -- " / ", no JSON wrapper. Same buffers as TEXT.
+-        local gm = getMode()
+-        local inBattle = (gm == "battle_init" or gm == "battle_main")
+-        local addr = inBattle and BATTLE_DISPLAYED_STRING_ADDR or FIELD_STRING_VAR4_ADDR
+-        local maxLen = inBattle and BATTLE_DISPLAYED_STRING_SIZE or FIELD_STRING_VAR4_SIZE
+-        local ok, text = pcall(readGen3String, addr, maxLen)
+-        if not ok then return "ERR text read failed" end
+-        text = text:gsub("\n+", " / ")
+-        return (inBattle and "[b] " or "[f] ") .. text
++        -- v2: "[f] "/"[b] " prefix kept; a status word goes inside it ("[f old]", "[b menu]") and
++        -- " (unchanged Ns)" is appended after 3 s. No word = the text is the live one. See the v2 block.
++        local inBattle, text, gm = v2.readCurrentText()
++        if not text then return "ERR text read failed" end
++        local word, _, age = v2.textStatus(inBattle, gm, text)
++        return v2.formatText(inBattle and "b" or "f", word, (text:gsub("\n+", " / ")), age)
++    elseif op == "NAME" then
++        -- v2: NAME <text> types the name (never confirms); bare NAME = status/read-back line.
++        local arg = cmd:match("^NAME (.*)$")
++        if arg == nil or arg == "" then return v2.nameStatusLine() end
++        return v2.nameStart(arg)
+     elseif op == "SHOT" then
+         -- Native 240x160 frame straight from the emulator core: no window
+         -- lookup, no crop, immune to the mGBA window moving (lesson 61).
+@@ -1925,15 +2164,15 @@
+         -- CHARMAP/decodeGen3String block above for the decode, and
+         -- harness-status.md's "Next build target" note for why this
+         -- exists (collapses incidents #19/#21's whole failure class).
+-        local gm = getMode()
+-        local inBattle = (gm == "battle_init" or gm == "battle_main")
+-        local addr = inBattle and BATTLE_DISPLAYED_STRING_ADDR or FIELD_STRING_VAR4_ADDR
+-        local maxLen = inBattle and BATTLE_DISPLAYED_STRING_SIZE or FIELD_STRING_VAR4_SIZE
+-        local ok, text = pcall(readGen3String, addr, maxLen)
+-        if not ok then
++        local inBattle, text, gm = v2.readCurrentText()
++        if not text then
+             return encodeFlat({text = "", source = inBattle and "battle" or "field", read_ok = false})
+         end
+-        return encodeFlat({text = text, source = inBattle and "battle" or "field", read_ok = true})
++        -- v2: live = false when the text is stale ("old") or a battle menu is up ("menu"); box = field
++        -- message-box mode (hidden/normal/autoscroll) or battle_input; age_s = seconds unchanged.
++        local word, box, age = v2.textStatus(inBattle, gm, text)
++        return encodeFlat({text = text, source = inBattle and "battle" or "field", read_ok = true,
++                           live = (word == nil), box = box, age_s = math.floor(age * 10) / 10})
+     elseif op == "MAPNAME" then
+         -- Eleventh-session build: confirm WHERE the player actually is
+         -- from ROM data (gRegionMapEntries via gMapHeader's
+@@ -2209,6 +2448,18 @@
+         -- specifically so this is testable without a real ROM read.
+         local oor = getMapName(9999)
+         results.mapname_bounds_works = (oor.name_ok == false and oor.mapsec_id == 9999)
++        -- harness v2: text labels + NAME planner (pure, fabricated inputs) and the live reads they rely on
++        results.text_label_works = (v2.formatText("f", "old", "hi", 5.2) == "[f old] hi (unchanged 5s)"
++            and v2.formatText("b", "menu", "x", 0) == "[b menu] x" and v2.formatText("f", nil, "y", 3) == "[f] y")
++        results.text_status_read_works = (pcall(u8, v2.K.FIELD_MSGBOX_MODE_ADDR) and pcall(v2.readCurrentText) and pcall(v2.textStatus, false, "overworld", "x") and v2.textStatus(false, "new_game_intro", "x") == nil and v2.textStatus(false, "naming_screen", "x") == "old")
++        local c1, c2, e1 = v2.parseNameText("Aa 'z"), v2.parseNameText("a$"), nil
++        results.name_parse_works = (c1 ~= nil and #c1 == 5 and c2 == nil and select(2, v2.parseNameText("ab\u{4E2D}")) ~= nil)
++        results.name_layout_works = (#v2.NS_INDEX["A"] == 1 and v2.NS_INDEX["A"][1].page == 1 and v2.NS_INDEX["a"][1].page == 2 and v2.NS_INDEX["7"][1].page == 0
++            and #v2.NS_INDEX[" "] > 6 and v2.K.NS_COLS[0] == 6 and utf8.len(v2.NS_ROWS[0][3]) == 6)
++        results.name_plan_works = (v2.namePlan(1, 0, 0, "A") == "a" and v2.namePlan(1, 0, 0, "B") == "right" and v2.namePlan(1, 0, 0, "a") == "select"
++            and v2.namePlan(1, 0, 0, "T") == "up" and v2.namePlan(1, 0, 0, "G") == "down" and v2.namePlan(1, 8, 2, "A") == "left"
++            and v2.namePlan(2, 5, 3, "e") == "down" and v2.namePlan(0, 0, 0, "A") == "select" and v2.namePlan(1, 7, 0, ".") == "a")
++        results.name_screen_read_safe = pcall(v2.readNamingScreen)
+         return encodeFlat(results)
+     else
+         return "ERR unknown command: " .. tostring(op)
+--- a/harness/g	2026-10-16 19:08:23.047887818 +1100
++++ b/harness/g	2026-10-17 11:48:04.194487446 +1100
+@@ -8,7 +8,9 @@
+ #   g a|b|start|select|up|down|left|right   press once -> wait -> status (+new text)
+ #   g walk <dir> [n]       walk n tiles -> wait -> status + "moved dx,dy" (+new text)
+ #   g adv [max]            press a through the current already-shown message; stops on new text / yn / menu / battle / lock cleared
+-#   g t                    current dialogue text (always prints)
++#   g t                    current dialogue text (always prints). Prefix [f]/[b] = live; [f old] = no message on screen (stale buffer);
++#                          [b menu] = battle menu up; " (unchanged Ns)" after 3 s without a change (v2)
++#   g name <TEXT>          type the whole name on the naming screen, then stop; prints the name read back from RAM (v2)
+ #   g shot                 native 240x160 frame, 2x upscaled -> prints path to stage+Read
+ #   g look [r]             LOOK grid, one row per line, prefixed with its y
+ #   g warps                compact warp list: x,y>dest_group.dest_num
+@@ -27,7 +29,9 @@
+ exec 3<>/dev/tcp/127.0.0.1/8888 2>/dev/null || { echo "ERR no reply on :8888 -- mGBA/bootstrap not running? run ~/pokemon_bridge/relaunch.sh"; exit 0; }
+ q(){ local l; printf '%s\n' "$*" >&3; IFS= read -r -t 5 l <&3; printf '%s\n' "$l"; }
+ wait_idle(){ local i s; for i in $(seq 1 150); do s=$(q S); [[ $s == *busy* ]] || break; sleep 0.1; done; sleep 0.25; }
+-newtext(){ local t f=/tmp/pk_lasttext; t=$(q T); if [[ "$t" != "$(cat $f 2>/dev/null)" ]]; then printf '%s' "$t" > $f; echo "$t"; fi; return 0; }
++# txt: T line minus its status word and " (unchanged Ns)" tail, so live->old or an age tick never counts as new text (v2)
++txt(){ local s=$1; [[ $s =~ ^\[[fb]( [a-z]+)?\]\ (.*)$ ]] && s=${BASH_REMATCH[2]}; s=${s% \(unchanged *s\)}; printf '%s' "$s"; }
++newtext(){ local t f=/tmp/pk_lasttext; t=$(q T); if [[ "$(txt "$t")" != "$(txt "$(cat $f 2>/dev/null)")" ]]; then printf '%s' "$t" > $f; echo "$t"; fi; return 0; }
+ xy(){ q S | awk '{print $2}'; }
+ case "$1" in
+   s|"") q S ;;
+@@ -64,21 +68,27 @@
+      if [[ $s == *bat:* ]]; then
+        for w in $(seq 1 15); do
+          b=${s/bat:other/}; t=$(q T)
+-         if [[ $b == *bat:* || $s == *yn* ]]; then echo "$s (choice up, no press)"; [[ "$t" != "$t0" ]] && echo "$t"; exit 0; fi
+-         if [[ "$t" != "$t0" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; exit 0; fi
++         if [[ $b == *bat:* || $s == *yn* ]]; then echo "$s (choice up, no press)"; [[ "$(txt "$t")" != "$(txt "$t0")" ]] && echo "$t"; exit 0; fi
++         if [[ "$(txt "$t")" != "$(txt "$t0")" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; exit 0; fi
+          sleep 0.1; s=$(q S)
+        done
+      fi
+      n=${2:-30}; for i in $(seq 1 $n); do
+        r=$(q PRESS a); [[ $r == OK* ]] || { echo "$r"; break; }
+        wait_idle; s=$(q S); t=$(q T)
+-       if [[ "$t" != "$t0" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; break; fi
++       if [[ "$(txt "$t")" != "$(txt "$t0")" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; break; fi
+        if [[ $s == *bat:other* ]]; then sleep 0.3; s=$(q S); fi
+        b=${s/bat:other/}
+-       if [[ $s == *bat:* ]]; then t=$(q T); echo "$s"; [[ "$t" != "$t0" ]] && { printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; }; break; fi
++       if [[ $s == *bat:* ]]; then t=$(q T); echo "$s"; [[ "$(txt "$t")" != "$(txt "$t0")" ]] && { printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; }; break; fi
+        if [[ $s != *lock* || $s == *yn* || $s == *menu:* || $b == *bat:* || $s == *dec:* || $s == *learn* ]]; then echo "$s (after $i)"; break; fi
+        [[ $i == $n ]] && echo "$s (max $n presses, still in same message)"
+      done ;;
++  name) shift   # v2: type a whole name on the naming screen, then stop (never confirms)
++     [[ -n "$*" ]] || { echo "usage: g name <TEXT>   (types it on the naming screen; does NOT confirm)"; exit 0; }
++     r=$(q NAME "$*"); [[ $r == OK* ]] || { echo "$r"; exit; }
++     for i in $(seq 1 600); do s=$(q S); [[ $s == *busy* ]] || break; sleep 0.1; done; sleep 0.25
++     echo "typed (read back from RAM): $(q NAME)"
++     echo "NOT confirmed. Check with g shot. g start puts the cursor on OK, then g a confirms." ;;
+   money) q MONEY ;;
+   bag) q BAG $2 ;;
+   dex) q DEX ;;
+@@ -87,6 +97,6 @@
+   moves) q MOVES "${2:-0}" ;;
+   tc) shift; exec 3>&-; exec "$D/tc" "$@" ;;   # type chart (see tc --help); added 16 Oct by the companion
+   raw) shift; q "$@" ;;
+-  *) echo "usage: g s|t|a|b|start|select|up|down|left|right|walk <dir> [n]|shot|party|moves|money|bag|dex|snap|raw <CMD>" ;;
++  *) echo "usage: g s|t|a|b|start|select|up|down|left|right|walk <dir> [n]|name <TEXT>|shot|party|moves|money|bag|dex|snap|raw <CMD>" ;;
+ esac
+ exit 0

@@ -1,0 +1,48 @@
+diff --git a/src/platform/headless-main.c b/src/platform/headless-main.c
+index 61110b1..a4bc567 100644
+--- a/src/platform/headless-main.c
++++ b/src/platform/headless-main.c
+@@ -1,3 +1,5 @@
++#include <time.h>
++#include <stdlib.h>
+ /* Copyright (c) 2013-2023 Jeffrey Pfau
+ *  Copyright (c) 2022 Felix Jones
+ *
+@@ -115,6 +117,12 @@ int main(int argc, char * argv[]) {
+ 	}
+ 	core->init(core);
+ 	mCoreInitConfig(core, "headless");
++	{ /* companion patch: give the core a video buffer so screenshots work headless */
++		unsigned vw, vh;
++		core->baseVideoSize(core, &vw, &vh);
++		void* vbuf = calloc((size_t) vw * vh, 4);
++		core->setVideoBuffer(core, vbuf, vw);
++	}
+ 	mArgumentsApply(&args, NULL, 0, &core->config);
+ 
+ 	mCoreConfigSetDefaultValue(&core->config, "idleOptimization", "remove");
+@@ -223,9 +231,21 @@ int main(int argc, char * argv[]) {
+ 		} while (!_dispatchExiting && debugger.state != DEBUGGER_SHUTDOWN);
+ 	} else
+ #endif
+-	do {
+-		core->runLoop(core);
+-	} while (!_dispatchExiting);
++	{
++		/* companion patch 16 Oct 2026: pace to real GBA speed (59.7275 fps) unless MGBA_UNCAPPED is set,
++		   so the cloud harness matches the Mac's timing. */
++		const char* unc = getenv("MGBA_UNCAPPED");
++		struct timespec next;
++		clock_gettime(CLOCK_MONOTONIC, &next);
++		do {
++			core->runFrame(core);
++			if (!unc) {
++				next.tv_nsec += 16742706;
++				while (next.tv_nsec >= 1000000000L) { next.tv_nsec -= 1000000000L; ++next.tv_sec; }
++				clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
++			}
++		} while (!_dispatchExiting);
++	}
+ 	cleanExit = true;
+ 
+ scriptsError:

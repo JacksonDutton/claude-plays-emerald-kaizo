@@ -1,0 +1,9 @@
+arm,win_rule,clock_start_first_g,sighting_utc,sighting_clock,win_utc,win_clock,win_wall_from_diary_start,tries,whiteouts_between,sighting_snippet,win_snippet
+B1,v3_regex,2026-10-16T08:55:27.721789Z,,,,,,,,,
+B1,fixed_regex,2026-10-16T08:55:27.721789Z,,,,,,,,,
+B2a1,v3_regex,2026-10-17T10:59:15.217765Z,,,,,,,,,
+B2a1,fixed_regex,2026-10-17T10:59:15.217765Z,,,,,,,,,
+B2,v3_regex,2026-10-17T11:20:41.214662Z,2026-10-17T17:37:21.318474Z,6h16m40s,,,,,,"B0 lock bat:other me:PHANPY 10/42 L11 vs:EEVEE 31/31 L9 trainer [b] ウエ TRAINER RED sent / out EEVEE! 0.19 31,15 P6 B0 lock bat:other me:PHANPY 10/42 L11 vs:EEVEE 31/31 L9",
+B2,fixed_regex,2026-10-17T11:20:41.214662Z,2026-10-17T17:37:21.318474Z,6h16m40s,2026-10-17T18:04:12.871837Z,6h43m32s,6h43m26s,2,2026-10-17T17:48:10.933045Z,"B0 lock bat:other me:PHANPY 10/42 L11 vs:EEVEE 31/31 L9 trainer [b] ウエ TRAINER RED sent / out EEVEE! 0.19 31,15 P6 B0 lock bat:other me:PHANPY 10/42 L11 vs:EEVEE 31/31 L9",B0 lock bat:other me:FARFETCH’D 9/48 L17 vs:SQUIRTLE 0/29 L9 trainer [b] Player defeated / ウエ TRAINER RED! / [b] Player defeated / ウエ TRAINER RED! / Shell cwd was reset
+Ripple,v3_regex,2026-10-17T01:20:41.846294Z,2026-10-17T10:44:15.015095Z,9h23m33s,,,,,,"[b] ウエ TRAINER RED / would like to battle! / (unchanged 7s) 0.19 32,15 P6 B0 lock bat:other me:CUBONE 6/29 L9 vs:EEVEE 31/31 L9 trainer",
+Ripple,fixed_regex,2026-10-17T01:20:41.846294Z,2026-10-17T10:44:15.015095Z,9h23m33s,2026-10-17T11:22:23.192169Z,10h01m41s,9h57m51s,2,2026-10-17T10:51:50.474496Z,"[b] ウエ TRAINER RED / would like to battle! / (unchanged 7s) 0.19 32,15 P6 B0 lock bat:other me:CUBONE 6/29 L9 vs:EEVEE 31/31 L9 trainer","0.19 31,15 P6 B0 lock bat:other me:ODDISH 23/31 L11 vs:PIKACHU 0/28 L9 trainer [b] Player defeated / ウエ TRAINER RED! /"

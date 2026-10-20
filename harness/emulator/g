@@ -1,0 +1,102 @@
+#!/bin/bash
+# g -- one-call game step helper for the Pokemon Emerald harness.
+# Each call = one action, then waits until the director is idle, then prints
+# ONE status line (see director.lua op "S") plus any NEW dialogue text.
+# It never chains decisions: one press per call, so per-step checking stays intact.
+#
+#   g s                    status line only
+#   g a|b|start|select|up|down|left|right   press once -> wait -> status (+new text)
+#   g walk <dir> [n]       walk n tiles -> wait -> status + "moved dx,dy" (+new text)
+#   g adv [max]            press a through the current already-shown message; stops on new text / yn / menu / battle / lock cleared
+#   g t                    current dialogue text (always prints). Prefix [f]/[b] = live; [f old] = no message on screen (stale buffer);
+#                          [b menu] = battle menu up; " (unchanged Ns)" after 3 s without a change (v2)
+#   g name <TEXT>          type the whole name on the naming screen, then stop; prints the name read back from RAM (v2)
+#   g shot                 native 240x160 frame, 2x upscaled -> prints path to stage+Read
+#   g look [r]             LOOK grid, one row per line, prefixed with its y
+#   g warps                compact warp list: x,y>dest_group.dest_num
+#   g party                whole party from RAM: nick(species) level hp status, moves+PP
+#   g moves [2]            active battler moves (menu order 1-4) with type/power/PP; 2 = second mon in doubles
+#   g money                Trainer Card money, read from RAM (save-data, decrypted)
+#   g bag [pocket]         bag contents by pocket (ITEMS KEY BALLS TMHM BERRIES) with quantities
+#   g dex                  Pokedex owned/seen counts (national bits)
+#   g snap                 checkpoint block from RAM: name, map+name, x,y, badges, play time, money, dex, whole party, bag
+#   g tc [move|type species|type]  type chart from ROM tables; no args in battle = moves + switch-in check
+#   g raw <CMD ...>        raw socket command (DIAG, WARPS, LOOK 5, OBJECTS, MAPNAME, SAVE 1 ...)
+D="$HOME/pokemon_bridge"
+# One persistent connection per g call (bash /dev/tcp): nc sat out its -w timeout
+# on every query, and a fresh connection per query crashed mGBA via socket churn
+# (2026-09-26). Open once here, reuse for every query, close on exit.
+exec 3<>/dev/tcp/127.0.0.1/8888 2>/dev/null || { echo "ERR no reply on :8888 -- mGBA/bootstrap not running? run start.sh resume in the run repo"; exit 0; }
+q(){ local l; printf '%s\n' "$*" >&3; IFS= read -r -t 5 l <&3; printf '%s\n' "$l"; }
+wait_idle(){ local i s; for i in $(seq 1 150); do s=$(q S); [[ $s == *busy* ]] || break; sleep 0.1; done; sleep 0.25; }
+# txt: T line minus its status word and " (unchanged Ns)" tail, so live->old or an age tick never counts as new text (v2)
+txt(){ local s=$1; [[ $s =~ ^\[[fb]( [a-z]+)?\]\ (.*)$ ]] && s=${BASH_REMATCH[2]}; s=${s% \(unchanged *s\)}; printf '%s' "$s"; }
+newtext(){ local t f=/tmp/pk_lasttext; t=$(q T); if [[ "$(txt "$t")" != "$(txt "$(cat $f 2>/dev/null)")" ]]; then printf '%s' "$t" > $f; echo "$t"; fi; return 0; }
+xy(){ q S | awk '{print $2}'; }
+case "$1" in
+  s|"") q S ;;
+  t) t=$(q T); printf '%s' "$t" > /tmp/pk_lasttext; echo "$t" ;;
+  a|b|start|select|up|down|left|right)
+     r=$(q PRESS "$1"); [[ $r == OK* ]] || { echo "$r"; exit; }
+     wait_idle; q S; newtext ;;
+  walk)
+     b=$(xy); r=$(q WALK "$2" "${3:-1}"); [[ $r == OK* ]] || { echo "$r"; exit; }
+     wait_idle; s=$(q S); a=$(echo "$s" | awk '{print $2}')
+     echo "$s | moved $(( ${a%,*} - ${b%,*} )),$(( ${a#*,} - ${b#*,} )) of ${3:-1}"; newtext ;;
+  shot)
+     mkdir -p "$D/shots"; f="$D/shots/s$(date +%s).png"
+     r=$(q SHOT "$f"); [[ $r == OK* ]] || { echo "$r"; exit; }
+     sleep 0.2; sips -z 320 480 "$f" >/dev/null 2>&1
+     ls -t "$D"/shots/*.png | tail -n +21 | xargs rm -f 2>/dev/null
+     echo "$f" ;;
+  look) q LOOK "${2:-6}" | python3 -c 'import json,sys; d=json.load(sys.stdin); print("x0=%d y0=%d (row=y-y0, col=x-x0)"%(d["x0"],d["y0"])); print("\n".join("%3d %s"%(d["y0"]+i,r) for i,r in enumerate(d["grid"])))' ;;
+  warps) q WARPS | python3 -c 'import json,sys; d=json.load(sys.stdin); print(" ".join("%d,%d>%d.%d"%(w["x"],w["y"],w["dest_map_group"],w["dest_map_num"]) for w in d["warps"]))' ;;
+  adv) # advance through the CURRENT, already-printed message only: press a until
+       # lock clears, OR the text changes (new message -> printed, stop), OR a
+       # yes/no, menu, battle or naming flag appears. Never passes unread text.
+     t0=$(q T)
+     # Unreadable-screen guard (2026-09-26): after "evolved into X!" the move-learn
+     # / "delete a move?" screens do NOT update T (it showed garbled "É15/15") and
+     # raise no yn flag, so adv pressed through them and replaced TACKLE blind.
+     # Never auto-advance on garbled text or around evolution / move learning.
+     if [[ "$t0" == *É* || "$t0" =~ [Ee]volv|trying\ to\ learn|forget\ a|[Dd]elete\ a ]]; then
+       echo "$(q S) STOP: evolution/move-learn or unreadable text -- step with g a / g down + g shot, one press at a time"; echo "$t0"; exit 0; fi
+     # Battle guard: some battle messages advance on their own and a menu opens
+     # under them, so an A pressed "on the message" lands on FIGHT. In battle,
+     # first wait up to ~1.5s for a real choice or new text before pressing.
+     s=$(q S)
+     if [[ $s == *bat:* ]]; then
+       for w in $(seq 1 15); do
+         b=${s/bat:other/}; t=$(q T)
+         if [[ $b == *bat:* || $s == *yn* ]]; then echo "$s (choice up, no press)"; [[ "$(txt "$t")" != "$(txt "$t0")" ]] && echo "$t"; exit 0; fi
+         if [[ "$(txt "$t")" != "$(txt "$t0")" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; exit 0; fi
+         sleep 0.1; s=$(q S)
+       done
+     fi
+     n=${2:-30}; for i in $(seq 1 $n); do
+       r=$(q PRESS a); [[ $r == OK* ]] || { echo "$r"; break; }
+       wait_idle; s=$(q S); t=$(q T)
+       if [[ "$(txt "$t")" != "$(txt "$t0")" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; break; fi
+       if [[ $s == *bat:other* ]]; then sleep 0.3; s=$(q S); fi
+       b=${s/bat:other/}
+       if [[ $s == *bat:* ]]; then t=$(q T); echo "$s"; [[ "$(txt "$t")" != "$(txt "$t0")" ]] && { printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; }; break; fi
+       if [[ $s != *lock* || $s == *yn* || $s == *menu:* || $b == *bat:* || $s == *dec:* || $s == *learn* ]]; then echo "$s (after $i)"; break; fi
+       [[ $i == $n ]] && echo "$s (max $n presses, still in same message)"
+     done ;;
+  name) shift   # v2: type a whole name on the naming screen, then stop (never confirms)
+     [[ -n "$*" ]] || { echo "usage: g name <TEXT>   (types it on the naming screen; does NOT confirm)"; exit 0; }
+     r=$(q NAME "$*"); [[ $r == OK* ]] || { echo "$r"; exit; }
+     for i in $(seq 1 600); do s=$(q S); [[ $s == *busy* ]] || break; sleep 0.1; done; sleep 0.25
+     echo "typed (read back from RAM): $(q NAME)"
+     echo "NOT confirmed. Check with g shot. g start puts the cursor on OK, then g a confirms." ;;
+  money) q MONEY ;;
+  bag) q BAG $2 ;;
+  dex) q DEX ;;
+  snap) q SNAP | awk '{gsub(/ \|\| /,"\n")}1' ;;
+  party) q PARTY | awk '{gsub(/ \|\| /,"\n")}1' ;;
+  moves) q MOVES "${2:-0}" ;;
+  tc) shift; exec 3>&-; exec "$D/tc" "$@" ;;   # type chart (see tc --help); added 16 Oct by the companion
+  raw) shift; q "$@" ;;
+  *) echo "usage: g s|t|a|b|start|select|up|down|left|right|walk <dir> [n]|name <TEXT>|shot|party|moves|money|bag|dex|snap|raw <CMD>" ;;
+esac
+exit 0

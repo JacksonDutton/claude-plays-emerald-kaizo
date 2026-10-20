@@ -1,0 +1,23 @@
+{
+  "model": "claude-sonnet-5-5",
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep"
+    ],
+    "deny": [
+      "Skill",
+      "WebFetch",
+      "WebSearch",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(git push --all:*)",
+      "Bash(git push origin rom-local:*)"
+    ]
+  },
+  "effortLevel": "high"
+}
