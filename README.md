@@ -27,9 +27,9 @@ The pilots differed in brief, harness and supervision, so they are case studies,
 | [`harness/`](harness/) | The frozen Kaizo harness (v2, as run by Ripple, B2 and K2): emulator Lua scripts, the `g` command-line client, the `tc` type and damage calculator, cloud build scripts, setup/start/checkpoint scripts, the Claude Code permission settings, the agent briefs for every arm, and the two notes packs. |
 | [`tools/`](tools/) | Analysis and publication scripts: milestone scorer, transcript scrubber, publication prep, session cost reader. |
 | [`design/`](design/) | Protocol and design documents: the pilot protocol, the v3 brief freeze candidate, measures, decisions, scope, the blind-coder codebook, milestone definitions and the transcript analyses. |
-| [`data/`](data/) | Pilot run records (diary, progress, debrief, harness issues, supervisor messages) for B2 and Ripple, analysis outputs (CSV), and a guide to the session transcripts. |
+| [`data/`](data/) | Pilot run records (diary, progress, debrief, harness issues, supervisor messages) for B2 and Ripple, analysis outputs (CSV), and the session transcripts. |
 
-**Session transcripts** for B1, B2 (and its 45-minute first attempt) and Ripple are attached to the [`pilot-transcripts-2026-10-20` release](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/releases/tag/pilot-transcripts-2026-10-20) as gzipped JSON Lines (about 50 MB compressed, 175 MB raw, 135,440 events). See [`data/transcripts/README.md`](data/transcripts/README.md) for the format, checksums and what was removed before publication.
+**Session transcripts** for B1, B2 (and its 45-minute first attempt) and Ripple are in [`data/transcripts/`](data/transcripts/) as gzipped JSON Lines (about 50 MB compressed, 175 MB raw, 135,440 events). Its README gives the format, checksums and what was removed before publication.
 
 ## What is not here, and why
 

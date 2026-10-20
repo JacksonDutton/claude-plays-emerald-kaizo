@@ -1,8 +1,8 @@
 # Pilot session transcripts
 
-The complete event streams of the finished Kaizo pilot sessions, exported from Claude Code cloud sessions on 20 October 2026, then scrubbed and prepared for publication. They are attached to the release [`pilot-transcripts-2026-10-20`](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/releases/tag/pilot-transcripts-2026-10-20), not stored in the repository tree.
+The complete event streams of the finished Kaizo pilot sessions, exported from Claude Code cloud sessions on 20 October 2026, then scrubbed and prepared for publication. The files are in this folder, gzipped (about 50 MB in all). Decompress with `gunzip -k FILE.gz`; checksums are in `SHA256SUMS-gz.txt` and `SHA256SUMS-uncompressed.txt`.
 
-| File (release asset) | Arm | Events | First and last event (UTC) | Raw size |
+| File | Arm | Events | First and last event (UTC) | Raw size |
 |---|---|---|---|---|
 | `kaizo-B1-events-20261020.public.jsonl.gz` | B1 | 30,834 | 16 Oct 08:54 to 20 Oct 05:51 | 31.8 MB |
 | `kaizo-B2-attempt1-events-20261020.public.jsonl.gz` | B2, first attempt (about 45 min, stopped and relaunched) | 1,092 | 17 Oct 10:33 to 19 Oct 22:47 | 1.9 MB |

@@ -34,4 +34,4 @@ Outputs of the 20 October transcript analyses (method and results: `design/trans
 
 ## `transcripts/`
 
-Guide and checksums for the session transcripts, which are release assets. See `transcripts/README.md`.
+The pilot session transcripts (gzipped JSON Lines), with checksums. See `transcripts/README.md`.
