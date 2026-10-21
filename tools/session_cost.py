@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Recompute API-equivalent cost from a claude.ai/code session events export (JSONL, one event per line).
-Companion, 20 Oct 2026. Usage: session_cost.py FILE.jsonl
+Companion, 20 Oct 2026. Usage: session_cost.py FILE.jsonl (or FILE.jsonl.gz)
 Prints: Claude Code's own running total (result events' total_cost_usd), a recompute at list prices
 (per unique message id, max of each usage field), tokens by model, and autocompact events."""
-import json, sys, collections
+import json, sys, collections, gzip
 P = {'claude-sonnet-5-5': (2, 2.5, 4, 0.10, 10), 'claude-opus-5-5': (4, 5, 8, 0.20, 20)}
 def haiku(prompt):  # per-request tiering on prompt length
     return (0.5, 0.625, 1, 0.05, 2.5) if prompt > 100000 else (0.1, 0.125, 0.2, 0.01, 0.5)
 U = {}; results = []; compact = []; types = collections.Counter(); first = last = None
-for line in open(sys.argv[1]):
+src = gzip.open(sys.argv[1], 'rt', encoding='utf8') if sys.argv[1].endswith('.gz') else open(sys.argv[1], encoding='utf8')  # .jsonl.gz read directly (21 Oct)
+for line in src:
     e = json.loads(line); t = e.get('created_at'); types[e.get('event_type')] += 1
     first = t if first is None or t < first else first; last = t if last is None or t > last else last
     p = e.get('payload') or {}
