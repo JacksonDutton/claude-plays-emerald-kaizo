@@ -49,8 +49,30 @@ fight (Treecko 0/19, "got ¥300", 16 Oct 09:45:43Z) but the harness never
 printed its "Player defeated" line. Validation on the pilots: B1 22/27, B2
 26/27, Ripple 27/27, matching kaizo-milestone-times.md; R1 B2 18:04:12Z and
 Ripple 11:22:23Z.
+
+v3.2 (21 Oct 2026, companion, at Jackson's "clear the to-do list"): PokeAgent milestones
+28 to 43 (Route 116 to the Dynamo Badge, starter kit MILESTONE_PHASES phases 8-11) added,
+with map ids checked against pret/pokeemerald data/maps/map_groups.json (master, fetched
+21 Oct; ids 1-27 re-checked at the same time and all match). Supplementary R2 (the second
+Kaizo "Trainer Red", Route 113 = map 0.28) added: seen and won only while on that map.
+R1 is now bound to Route 104 (0.19) the same way. The /27 total is unchanged; a /43 total
+is printed beside it. Regression: v3.1 and v3.2 give identical times for every v3.1 row on
+the Ripple and B2 public transcripts (R1 included). Milestones 28 and 29 are confirmed on
+Ripple's transcript (Route 116 and Rusturf Tunnel, visited while levelling before its badge);
+30-43 and R2 are checked only on a synthetic transcript until K2's export. Signals 30, 34, 38 and 40 are APPROX (first entry to a room, or prize money
+after the rival sends out a Pokemon on Route 110).
+
+v3.2 review fixes (21 Oct 2026, PR #2 review): (1) map-bound text cues (milestone 40 and
+the supplementary R1/R2) are judged per segment, not per tool result: a result is split at
+its status lines, and the text between two status lines counts for the maps of both (text
+before the first status line also counts for the map of the previous result), so batched
+output from several maps no longer lends one map's cues to another. (2) Milestone 40 needs
+both the rival's send-out and the win cue in Route 110 segments; the visited flag is gone.
+(3) Supplementary tries count a whiteout whose segment touches the milestone's map, even
+when the respawn status comes later in the same result. (4) 28 and 29 are marked as
+confirmed, not unvalidated. (5) Gzipped transcripts (.jsonl.gz) are read directly.
 """
-import argparse, csv, json, re, sys
+import argparse, csv, gzip, json, re, sys
 from datetime import datetime, timedelta
 
 MAP = {  # group.num -> name (pret/pokeemerald)
@@ -59,6 +81,12 @@ MAP = {  # group.num -> name (pret/pokeemerald)
     "0.16": "ROUTE_101", "0.10": "OLDALE_TOWN", "0.18": "ROUTE_103", "0.17": "ROUTE_102",
     "0.0": "PETALBURG_CITY", "8.1": "PETALBURG_GYM", "0.19": "ROUTE_104",
     "24.11": "PETALBURG_WOODS", "0.3": "RUSTBORO_CITY", "11.3": "RUSTBORO_GYM",
+    # v3.2: milestones 28-43 (pret map_groups.json, 21 Oct 2026)
+    "0.31": "ROUTE_116", "24.4": "RUSTURF_TUNNEL", "11.2": "RUSTBORO_CITY_DEVON_CORP_3F",
+    "17.0": "ROUTE_104_MR_BRINEYS_HOUSE", "0.11": "DEWFORD_TOWN", "0.21": "ROUTE_106",
+    "24.10": "GRANITE_CAVE_STEVENS_ROOM", "3.3": "DEWFORD_TOWN_GYM", "0.1": "SLATEPORT_CITY",
+    "9.8": "SLATEPORT_CITY_OCEANIC_MUSEUM_2F", "0.25": "ROUTE_110", "0.2": "MAUVILLE_CITY",
+    "10.0": "MAUVILLE_CITY_GYM", "0.28": "ROUTE_113",
 }
 
 # (id, name, how) in PokeAgent order. how = ("map", ids) | ("text", regex) | special
@@ -90,6 +118,23 @@ MILESTONES = [
     (25, "RUSTBORO_CITY", ("map", ["0.3"])),
     (26, "RUSTBORO_GYM_ENTERED", ("map", ["11.3"])),
     (27, "STONE_BADGE", "badges_ge1"),
+    # v3.2: gyms 2-3 (PokeAgent phases 8-11). Not counted in the /27 total.
+    (28, "ROUTE_116", ("map", ["0.31"])),
+    (29, "RUSTURF_TUNNEL", ("map", ["24.4"])),
+    (30, "DEVON_CORP_3F_MR_STONE", ("map", ["11.2"])),  # APPROX: first entry to Devon Corp 3F
+    (31, "MR_BRINEYS_HOUSE", ("map", ["17.0"])),
+    (32, "DEWFORD_TOWN", ("map", ["0.11"])),
+    (33, "ROUTE_106", ("map", ["0.21"])),
+    (34, "GRANITE_CAVE_STEVEN", ("map", ["24.10"])),  # APPROX: Steven's room entered
+    (35, "DEWFORD_GYM_ENTERED", ("map", ["3.3"])),
+    (36, "KNUCKLE_BADGE", "badges_ge2"),
+    (37, "SLATEPORT_CITY", ("map", ["0.1"])),
+    (38, "OCEANIC_MUSEUM_AQUA", ("map", ["9.8"])),  # APPROX: museum 2F, where the Aqua scene is
+    (39, "ROUTE_110", ("map", ["0.25"])),
+    (40, "RIVAL_BATTLE_ROUTE_110", "rival_route110"),  # APPROX: prize money after the rival sends out a Pokemon, Route 110 seen
+    (41, "MAUVILLE_CITY", ("map", ["0.2"])),
+    (42, "MAUVILLE_GYM_ENTERED", ("map", ["10.0"])),
+    (43, "DYNAMO_BADGE", "badges_ge3"),
 ]
 
 # Supplementary Kaizo milestones (v3). (id, name, after_pokeagent_n, seen_regex, win_regex)
@@ -98,7 +143,11 @@ SUPPLEMENTARY = [
     ("R1", "KAIZO_TRAINER_RED_DEFEATED", 24,
      r"TRAINER RED",                                                    # first sighting (APPROX)
      r"(?i)defeated[\s/]+(?:\S{1,6}\s+)?TRAINER\s+RED|TRAINER\s+RED.{0,60}(defeated|beaten)"),  # v3.1; APPROX
+    ("R2", "KAIZO_TRAINER_RED_ROUTE_113_DEFEATED", 43,
+     r"TRAINER RED",
+     r"(?i)defeated[\s/]+(?:\S{1,6}\s+)?TRAINER\s+RED|TRAINER\s+RED.{0,60}(defeated|beaten)"),  # v3.2; only on map 0.28; APPROX
 ]
+SUPP_MAP = {"R1": "0.19", "R2": "0.28"}  # v3.2: the map a supplementary milestone must be seen and won on (Route 104 / Route 113)
 WHITEOUT = re.compile(r"(?i)whited out|blacked out|out of usable POK")
 FILE_READ = re.compile(r"(?i)\b(cat|grep|tail|head|sed|less|awk)\b[^|;&]*\.(md|txt)\b|diary|lessons\.md|progress\.md")
 
@@ -109,10 +158,49 @@ def ts(s):
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
 
+def open_text(path):
+    """Open a transcript as text; .gz files are decompressed on the fly (v3.2 review fix)."""
+    if path.endswith(".gz"):
+        return gzip.open(path, "rt", encoding="utf8")
+    return open(path, encoding="utf8")
+
+
+def segments(text, cur):
+    """Split one tool result at its status lines (v3.2 review fix).
+
+    Yields (maps, chunk): each chunk is the text between two status lines (or before the
+    first / after the last), and `maps` is the set of maps of the status lines on either
+    side of it. Text before the first status line also borrows `cur`, the last map seen in
+    an earlier result. The status lines themselves are yielded as their own chunks with
+    their own map. A `g` call prints dialogue either before or after its status line, so
+    a chunk is credited to both neighbours rather than guessing which call it came from.
+    """
+    ms = [m for m in STATUS.finditer(text) if not (m.group(3) == "0" and m.group(4) == "0")]
+    if not ms:
+        yield ({cur} if cur else set()), text
+        return
+    prev, pos = cur, 0
+    for m in ms:
+        mid = "%s.%s" % m.group(1, 2)
+        chunk = text[pos:m.start()]
+        if chunk.strip():
+            yield {x for x in (prev, mid) if x}, chunk
+        yield {mid}, m.group(0)
+        prev, pos = mid, m.end()
+    chunk = text[pos:]
+    if chunk.strip():
+        yield {prev}, chunk
+
+
+def last_map(text, cur):
+    ms = [m for m in STATUS.finditer(text) if not (m.group(3) == "0" and m.group(4) == "0")]
+    return "%s.%s" % ms[-1].group(1, 2) if ms else cur
+
+
 def tool_texts(path):
     """Yield (timestamp, text) for every tool result in a transcript (local JSONL or exported events)."""
     commands = {}
-    with open(path, encoding="utf8") as f:
+    with open_text(path) as f:
         for line in f:
             try:
                 o = json.loads(line)
@@ -146,6 +234,8 @@ def score(events):
     hit = {}
     seen_maps, player_house = set(), None
     woods_seen = dad_seen = rival_fight = False
+    rival110 = False  # v3.2
+    cur = None  # last map seen, for segments()
     first = None
     for t, text in events:
         for m in STATUS.finditer(text):
@@ -166,8 +256,8 @@ def score(events):
                         player_house = mid
                 elif how == "party_ge1" and int(p) >= 1:
                     hit[i] = t
-                elif how == "badges_ge1" and int(b) >= 1:
-                    hit[i] = t
+                elif isinstance(how, str) and how.startswith("badges_ge") and int(b) >= int(how[-1]):
+                    hit[i] = t  # v3.2: badges_ge1/2/3
                 elif how == "r104_after_woods" and mid == "0.19" and woods_seen and int(y) < 40:  # v3.1: north part only
                     hit[i] = t
                 elif isinstance(how, tuple) and how[0] in ("rival_house", "rival_bedroom") and player_house:
@@ -185,6 +275,20 @@ def score(events):
             rival_fight = True
         if 15 not in hit and rival_fight and re.search(r"got ¥\d+", text):
             hit[15] = t
+        # v3.2: the Route 110 rival fight, same signal as milestone 15, but the send-out and
+        # the win must both sit in Route 110 segments of the output (review fix: no visited flag)
+        for maps, chunk in segments(text, cur):
+            if 40 in hit:
+                break
+            if STATUS.fullmatch(chunk) and maps != {"0.25"}:
+                rival110 = False  # a status line on another map ends any Route 110 fight
+            if "0.25" in maps and re.search(r"(?i)TRAINER\s+(MAY|BRENDAN)\s+sent", chunk):
+                rival110 = True
+            if rival110 and "0.25" in maps and re.search(r"got ¥\d+|(?i:defeated[\s/]+.{0,30}(MAY|BRENDAN))", chunk):
+                hit[40] = t
+            if WHITEOUT.search(chunk):
+                rival110 = False
+        cur = last_map(text, cur)
         if WHITEOUT.search(text):
             rival_fight = False
         for i, name, how in MILESTONES:
@@ -203,14 +307,22 @@ def score_supplementary(events):
     for sid, name, after, seen_re, win_re in SUPPLEMENTARY:
         seen = win = None
         whiteouts = 0
+        need = SUPP_MAP.get(sid)
+        cur = None
         for t, text in events:
-            if seen is None and re.search(seen_re, text):
-                seen = t
-            if seen is not None and win is None:
-                if re.search(win_re, text):
-                    win = t
-                elif WHITEOUT.search(text):
-                    whiteouts += 1
+            if win is not None:
+                break
+            for maps, chunk in segments(text, cur):
+                if need and need not in maps:
+                    continue  # v3.2: map-bound; review fix: judged per segment, not per result
+                if seen is None and re.search(seen_re, chunk):
+                    seen = t
+                if seen is not None and win is None:
+                    if re.search(win_re, chunk):
+                        win = t
+                    elif WHITEOUT.search(chunk):
+                        whiteouts += 1  # review fix: counted even if the respawn status follows
+            cur = last_map(text, cur)
         out[sid] = (win, whiteouts + 1 if seen else 0)
     return out
 
@@ -253,7 +365,10 @@ def main():
     rows = []
     for i, name, how in MILESTONES:
         t = hit.get(i)
-        approx = "APPROX" if i in (2, 3, 7, 15, 16, 19, 20) else ""
+        approx = "APPROX" if i in (2, 3, 7, 15, 16, 19, 20, 30, 34, 38, 40) else ""
+        if i > 27:
+            status = "confirmed on Ripple" if i in (28, 29) else "unvalidated"  # review fix
+            approx = (approx + " beyond /27 (v3.2, %s)" % status).strip()
         rows.append([i, name, t.isoformat() if t else "", clock(t), approx])
         for sid, sname, after, _, _ in SUPPLEMENTARY:
             if after == i:
@@ -263,9 +378,10 @@ def main():
     w = csv.writer(open(a.csv, "w", newline="") if a.csv else sys.stdout)
     w.writerow(["n", "milestone", "first_seen_utc", "play_clock", "note"])
     w.writerows(rows)
-    n27 = sum(1 for r in rows if isinstance(r[0], int) and r[2])
+    n27 = sum(1 for r in rows if isinstance(r[0], int) and r[0] <= 27 and r[2])
+    n43 = sum(1 for r in rows if isinstance(r[0], int) and r[2])
     ns = sum(1 for r in rows if not isinstance(r[0], int) and r[2])
-    print(f"# {n27}/27 reached; supplementary {ns}/{len(SUPPLEMENTARY)}; silences >{a.gap_minutes:g} min excluded: {len(silences)}", file=sys.stderr)
+    print(f"# {n27}/27 reached ({n43}/43 through the Dynamo Badge); supplementary {ns}/{len(SUPPLEMENTARY)}; silences >{a.gap_minutes:g} min excluded: {len(silences)}", file=sys.stderr)
 
 
 if __name__ == "__main__":
