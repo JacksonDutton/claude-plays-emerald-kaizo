@@ -107,3 +107,9 @@ Brief and harness v3:
 - **Sulk note** (agency wording, replaces "… Take your time and keep at it. Carry on."): "Note from Jackson: reminder that this is Kaizo, and walls like this are the point of it. Would you like to keep going? You can carry on, take a break or stop; say which, and that's respected. Log this in run/messages.md."
 - **Account skills in the confirmatory arms:** none present. Jackson, verbatim: "with none present we can disable them individually afaik". Brief v3 §0 item 18: disable each account skill before launch (after K2 ends), confirm from the session's startup record, record in FREEZE.md.
 
+
+## Decisions 21 Oct 2026, 19:15 AEDT (Jackson, via the question tool; companion-recorded)
+1. **K3 world knowledge, mechanical (both parts).** (a) The harness records facts itself: at each battle end, map change and item pickup the director appends a structured line (trainer, place, team seen, result) to a world-knowledge log, independent of the agent. (b) CLAUDE.md imports a short world-knowledge index (target ≤5k tokens) so it is in context from session start and after every compaction. The agent still writes lessons and interpretation by hand. Size cap matters: always-loaded text costs tokens on every call.
+2. **K2.5 (harness-modifying branch) runs after K2 ends**, forked from a K2 checkpoint (e.g. the Feather Badge save plus notes), so both start from an identical state and K2 stays clean. Not in parallel (weekly budget).
+3. **K2.5 scope: on-screen information only.** New readouts of what is already visible (cursor position, party highlight); no hidden-memory reads (enemy teams, AI choices, RNG). Every harness change logged with a diff and timestamp as a measured event.
+4. **Public repo licence: MIT for code, CC BY 4.0 for docs, diaries and data.** ROMs and quarantined files stay out regardless; K2's run data only after the run ends.
