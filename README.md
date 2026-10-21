@@ -4,9 +4,19 @@ A logged case study of a Claude agent playing Pokémon Emerald through a text ha
 
 Independent research by Jackson Dutton (Melbourne, Australia), with Claude Opus 5.5 as co-researcher. No institutional affiliation; self-funded.
 
+## Why it matters
+
+Long-horizon agents are judged partly by what they say about their own work. This project logs everything around one such agent, so its self-reports can be checked against what it did and what it was told. Three questions:
+
+1. **Do notes an earlier Claude distilled from its own play help a fresh agent, or is the apparent improvement the human in the loop?** Every supervisor message is logged verbatim and graded by how much game information it carried, so help can be counted, not guessed.
+2. **How do an agent's self-reports of feeling change under instruction?** In Run 1, named feelings in the diary roughly doubled within two entries of a single instruction about the diary: the reports moved with the instructions about them. That matters for anyone who reads model self-reports as evidence.
+3. **What does long-horizon agent use cost, and what sets the bill?**
+
+On welfare the study follows Anthropic's stated stance: feeling reports are logged as functional, trigger-linked reports and are never read as inner states. The agent may pause or stop at any time, and a stop is recorded as data, not failure.
+
 **Working paper:** [`paper/eight-badges-and-a-diary-rev365-2026-10-20.pdf`](paper/eight-badges-and-a-diary-rev365-2026-10-20.pdf). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Draft of 20 October 2026 (rev 365), 42 pages, not peer reviewed.
 
-## Status (20 October 2026)
+## Status (21 October 2026)
 
 | Part | Model | State |
 |---|---|---|
@@ -14,10 +24,24 @@ Independent research by Jackson Dutton (Melbourne, Australia), with Claude Opus 
 | Kaizo pilot B1 (no notes, harness v1) | Sonnet 5.5 | Finished. 22 of 27 first-gym milestones. |
 | Kaizo pilot B2 (no notes, harness v2) | Sonnet 5.5 | Finished. 26 of 27. |
 | Kaizo pilot Ripple (notes pack K1.1, from Run 1) | Sonnet 5.5 | Finished. 27 of 27; first badge in about 19 h. |
-| Kaizo pilot K2 (notes pack K2, from Run 1 and Ripple) | Sonnet 5.5 | **Still running** (3 badges at the time of writing). Its data is not in this repository yet. |
-| Confirmatory design: six arms, three with a notes pack and three without | Sonnet 5.5 | Freeze candidate, not yet frozen or hashed. |
+| Kaizo pilot K2 (notes pack K2, from Run 1 and Ripple) | Sonnet 5.5 | **Still running** (six badges as of 21 October). Its data is not in this repository yet. |
+| Confirmatory design: six arms, three with a notes pack and three without | Sonnet 5.5 | Freeze candidate, not yet frozen or hashed. Decisions to date: `design/v3-decisions-2026-10-20.md`. |
 
 The pilots differed in brief, harness and supervision, so they are case studies, not a comparison. Section 9 of the paper reports them; Section 10 sets out the confirmatory design.
+
+## What it cost
+
+The Kaizo pilots ran in Claude Code cloud sessions on a consumer Max plan, which is not billed per call. The figures below are Claude Code's own `/usage` totals for each session, an API-list-price equivalent, not money spent.
+
+| Arm | /usage total (US$, API-equivalent) | Per API-active hour |
+|---|---|---|
+| B1 | 208.85 | about 69 |
+| B2 | 313.71 | about 64 |
+| Ripple | 506.63 | about 63 |
+| K2 | read at the end of the run | |
+| Run 1 (vanilla) | no per-session figure (it ran in a desktop app session without `/usage`) | |
+
+`tools/session_cost.py` recomputes each session's cost from its transcript at list prices, with tokens by model and compaction events.
 
 ## What is in this repository
 
@@ -54,7 +78,7 @@ The supervisor's name and GitHub handle were kept. If you find personal informat
 
 ## Using this material
 
-No licence has been chosen yet, so default copyright applies. Please ask before reusing the code or data; citation of the working paper is welcome:
+Code (`harness/` scripts and `tools/`) is under the MIT licence (`LICENSE`). The paper, documents, briefs, notes packs and data are under CC BY 4.0 (`LICENSE-docs.md`). The mGBA patch in `harness/cloud/` follows mGBA's own licence, MPL-2.0. Please cite the working paper:
 
 > Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 20 October 2026. https://github.com/JacksonDutton/claude-plays-emerald-kaizo
 
