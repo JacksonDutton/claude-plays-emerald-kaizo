@@ -2,7 +2,7 @@
 
 A logged case study of a Claude agent playing Pokémon Emerald through a text harness: how it plays, decides, slips, recovers and reports, what the supervision cost, and how far its self-written diary can be trusted.
 
-Independent research by Jackson Dutton (Melbourne, Australia), with Claude Opus 5.5 as co-researcher. No institutional affiliation; self-funded.
+Independent research by Jackson Dutton (Melbourne, Australia), with Claude Opus 5.5 as co-researcher. Jackson designed the study, supervised the runs and made every design and interpretive call; the paper was written together, with Claude producing first drafts from the logs and Jackson directing, editing and deciding what it claims. No institutional affiliation; self-funded.
 
 ## Why it matters
 
@@ -14,7 +14,7 @@ Long-horizon agents are judged partly by what they say about their own work. Thi
 
 On welfare the study follows Anthropic's stated stance: feeling reports are logged as functional, trigger-linked reports and are never read as inner states. The agent may pause or stop at any time, and a stop is recorded as data, not failure.
 
-**Working paper:** [`paper/eight-badges-and-a-diary-rev370-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev370-2026-10-21.pdf). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Draft of 21 October 2026 (rev 370), 44 pages, not peer reviewed. New in this revision: Section 9.6, K2 to six badges, with interventions 26 to 33 and new observations (a question changing screenshot use where an instruction had not, what drives context compaction, a Teleport confound, self-correction, and K2's diary beside Run 1's to the same point).
+**Working paper:** [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Draft of 21 October 2026 (rev 376), 44 pages, not peer reviewed. New in this revision: Section 9.6, K2 to six badges, with interventions 26 to 33 and new observations (a question changing screenshot use where an instruction had not, what drives context compaction, a Teleport confound, self-correction, and K2's diary beside Run 1's to the same point).
 
 ## Status (21 October 2026)
 
