@@ -14,7 +14,7 @@ Long-horizon agents are judged partly by what they say about their own work. Thi
 
 On welfare the study follows Anthropic's stated stance: feeling reports are logged as functional, trigger-linked reports and are never read as inner states. The agent may pause or stop at any time, and a stop is recorded as data, not failure.
 
-**Working paper:** [`paper/eight-badges-and-a-diary-rev365-2026-10-20.pdf`](paper/eight-badges-and-a-diary-rev365-2026-10-20.pdf). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Draft of 20 October 2026 (rev 365), 42 pages, not peer reviewed.
+**Working paper:** [`paper/eight-badges-and-a-diary-rev370-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev370-2026-10-21.pdf). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Draft of 21 October 2026 (rev 370), 44 pages, not peer reviewed. New in this revision: Section 9.6, K2 to six badges, with interventions 26 to 33 and new observations (a question changing screenshot use where an instruction had not, what drives context compaction, a Teleport confound, self-correction, and K2's diary beside Run 1's to the same point).
 
 ## Status (21 October 2026)
 
@@ -80,6 +80,6 @@ The supervisor's name and GitHub handle were kept. If you find personal informat
 
 Code (`harness/` scripts and `tools/`) is under the MIT licence (`LICENSE`). The paper, documents, briefs, notes packs and data are under CC BY 4.0 (`LICENSE-docs.md`). The mGBA patch in `harness/cloud/` follows mGBA's own licence, MPL-2.0. Please cite the working paper:
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 20 October 2026. https://github.com/JacksonDutton/claude-plays-emerald-kaizo
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 21 October 2026. https://github.com/JacksonDutton/claude-plays-emerald-kaizo
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made ROM hack by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.
