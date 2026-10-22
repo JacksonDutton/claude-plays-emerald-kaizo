@@ -43,6 +43,8 @@ The trial runs differed in their instructions, their harness and how much a huma
 
 *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 22 October 2026, 48 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2 up to Team Magma's leader. Section 10 sets out the planned study.
 
+Earlier revision, kept so old links still work: [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
+
 ## What it cost
 
 The Kaizo runs used Claude Code on a Claude Max subscription, which charges a flat monthly fee rather than per use. The figures below come from Claude Code's built-in `/usage` command. They show what each session would have cost at Anthropic's standard pay-per-use (API) prices. They are not money we actually spent.
