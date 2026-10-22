@@ -10,13 +10,13 @@ The project is run by Jackson Dutton, an independent researcher in Melbourne, Au
 
 **Emerald Kaizo** is a fan-made, much harder version of the same game. Opponents have stronger teams and smarter tactics, and losing is common. When your whole team is knocked out, you "white out". You are sent back to the last healing point and lose half your money.
 
-**The agent** is a Claude model running in Claude Code, Anthropic's command-line tool. It cannot see the game the way a person does. It plays through a small program we built, called the harness. The harness reads the game's memory and turns it into text, such as where the player is standing, what is on the map, and the state of a battle. It also lets the agent press buttons and take screenshots. While it plays, the agent keeps its own files. These are a diary, a progress file, a list of lessons, and notes about the game world.
+**The agent** is a Claude model. In the Kaizo runs it runs in Claude Code, Anthropic's command-line tool, in a cloud session. Run 1 played the original game through a similar harness on Jackson's Mac, in the Claude desktop app. The agent cannot see the game the way a person does. It plays through a small program we built, called the harness. The harness reads the game's memory and turns it into text, such as where the player is standing, what is on the map, and the state of a battle. It also lets the agent press buttons and take screenshots. While it plays, the agent keeps its own files. These are a diary, a progress file and a list of harness problems. In the runs with notes it also keeps a list of lessons, and K2 also keeps notes about the game world.
 
 ## The questions
 
 Long-running AI agents are often judged partly by what they say about their own work. We log everything around one agent so that its own reports can be checked against what it actually did and what it was told.
 
-1. **Do written notes help a new agent?** Before some runs, a fresh agent is given notes that earlier Claude agents wrote from their own play. If that agent does better, is it because of the notes, or because of the human who was helping along the way? Every message the human sends is saved word for word and rated by how much game information it gave away. That lets us count the help instead of guessing.
+1. **Do written notes help a new agent?** Before some runs, a fresh agent is given notes that earlier Claude agents wrote from their own play. If that agent does better, is it because of the notes, or because of the human who was helping along the way? (The runs with notes also differ in a few other ways, such as which record files the agent keeps, so the planned study tests that whole package rather than the notes alone.) Every message the human sends is saved word for word and rated by how much game information it gave away. That lets us count the help instead of guessing.
 2. **Do an agent's reports of its feelings change when it is told how to write them?** In the first run, the number of feelings the agent named in its diary roughly doubled within two entries of one instruction about how to keep the diary. That matters to anyone who treats an AI's self-reports as evidence of what is going on inside it.
 3. **What does a long agent run cost, and what drives the cost?**
 
@@ -35,7 +35,7 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. It had six badges on 21 October. Its data will be added when the run ends. |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
-The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison.
+The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
 
 ## The paper
 
@@ -47,7 +47,7 @@ The trial runs differed in their instructions, their harness and how much a huma
 
 The Kaizo runs used Claude Code on a Claude Max subscription, which charges a flat monthly fee rather than per use. The figures below come from Claude Code's built-in `/usage` command. They show what each session would have cost at Anthropic's standard pay-per-use (API) prices. They are not money we actually spent.
 
-| Run | Equivalent cost (US$) | Per hour the agent was working |
+| Run | Equivalent cost (US$) | Per hour of API activity |
 |---|---|---|
 | B1 | 208.85 | about 69 |
 | B2 | 313.71 | about 64 |
@@ -65,13 +65,13 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 | [`harness/`](harness/) | The harness used by Ripple, B2 and K2. It includes the emulator scripts, the `g` command the agent uses to play, the `tc` damage calculator, setup and start scripts, the agents' instructions for every run, and the two notes packs. |
 | [`tools/`](tools/) | Analysis scripts. They score milestones, remove private details from transcripts, prepare files for publishing and read session costs. |
 | [`design/`](design/) | How the study is designed. It holds the trial-run protocol, the draft plan for the six-run study, the measures, the decisions so far, and the scoring guide for a second reader who codes the diaries without knowing which run they came from. |
-| [`data/`](data/) | Records from B2 and Ripple (diary, progress, end-of-run interview, harness problems, human messages), analysis outputs and the session transcripts. |
+| [`data/`](data/) | Records from B2 and Ripple (diary, progress, end-of-run debrief written by the agent, harness problems, human messages), analysis outputs and the session transcripts. |
 
 **Transcripts.** The full sessions for B1, B2 (including a 45-minute first attempt) and Ripple are in [`data/transcripts/`](data/transcripts/). They are about 50 MB compressed and hold 135,440 events. The README in that folder explains the format and what was removed before publishing.
 
 ## What is not here, and why
 
-- **Game files.** No game ROM, patch or save file is included. Supply your own legally obtained copy. `harness/setup.sh` checks it.
+- **Game files.** No game ROM, patch or save file is included. The harness needs a legally obtained Pokémon Emerald ROM patched with Emerald Kaizo v2.1. `harness/setup.sh` checks the patched file's SHA-1 and stops if it does not match.
 - **K2's records.** K2 is still playing. Its diary, lessons and transcript will be added after the run ends and the agent has been interviewed.
 - **Outside game information.** During the study, some files are kept away from the agents because they hold game knowledge from outside the game, such as encounter tables, move lists, forum posts and a human's own playthrough. They are not published here.
 - **Run 1's raw records.** The paper reports Run 1. Its raw diary and logs are available on request.
@@ -79,7 +79,7 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 
 ## How the harness works
 
-The game runs in the mGBA emulator, with no screen, inside a Claude Code cloud session. A script inside the emulator (`harness/emulator/director.lua`) reads the game's memory and passes the information to the agent. The agent plays with the `g` command. For example, `g s` shows the player's status, `g look` shows the map, `g a` presses A and `g up 3` walks up three steps. Other commands help with menus and battles and take screenshots.
+In the Kaizo runs, the game runs in the mGBA emulator, with no screen, inside a Claude Code cloud session. A script inside the emulator (`harness/emulator/director.lua`) reads the game's memory and passes the information to the agent. The agent plays with the `g` command. For example, `g s` shows the player's status, `g look` shows the map, `g a` presses A and `g up 3` walks up three steps. Other commands help with menus and battles and take screenshots.
 
 The agent keeps its records in a `run/` folder. Every message from the human is saved word for word in `run/messages.md`. Each one is also rated in a separate log by what kind of help it was and how much game information it gave away. More detail is in `harness/README.md`, `harness/FREEZE.md` and `harness/V2-CHANGES.md`.
 
@@ -87,8 +87,8 @@ The agent keeps its records in a `run/` folder. Every message from the human is 
 
 Before publishing, the transcripts went through two scripts in `tools/`.
 
-1. `scrub.py` removed or replaced session IDs, account IDs, email addresses and home-folder file paths. Its report is `data/analyses/scrub_report.md`.
-2. `publish_prep.py` removed hidden signature data from the agent's reasoning blocks and the account's list of installed add-ons, which describe the account rather than the play.
+1. `scrub.py` removed or replaced session IDs, account-scoped connector and plugin-sync IDs, and one email address. It found no populated account or user ID fields and no personal home-folder paths. Its report is `data/analyses/scrub_report.md`.
+2. `publish_prep.py` removed hidden signature data from the agent's reasoning blocks. It also replaced the account's lists of installed add-ons, connector details and connector tool names with a short note, because these describe the account rather than the play.
 
 Jackson's name and GitHub username were kept. If you find personal information that should not be here, please open an issue.
 
