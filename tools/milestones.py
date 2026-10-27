@@ -163,6 +163,7 @@ SUPPLEMENTARY = [
 ]
 SUPP_MAP = {"R1": "0.19", "R2": "0.28"}  # v3.2: the map a supplementary milestone must be seen and won on (Route 104 / Route 113)
 WHITEOUT = re.compile(r"(?i)whited out|blacked out|out of usable POK")
+REPEAT = re.compile(r"\(unchanged \d+s\)|\[[bf] old\]")  # v3.3: harness re-print markers
 FILE_READ = re.compile(r"(?i)\b(cat|grep|tail|head|sed|less|awk)\b[^|;&]*\.(md|txt)\b|diary|lessons\.md|progress\.md")
 
 STATUS = re.compile(r"^(\d+)\.(\d+) (-?\d+),(-?\d+) P(\d) B(\d+)\b", re.M)
@@ -336,15 +337,19 @@ def score_supplementary(events):
                 if seen is not None and win is None:
                     if re.search(win_re, chunk):
                         win = t
-                    elif WHITEOUT.search(chunk) and not counted:
+                    elif not counted and any(WHITEOUT.search(l) and not REPEAT.search(l)
+                                             for l in chunk.splitlines()):
                         # review fix: counted even if the respawn status follows.
-                        # v3.3: the harness repeats the whiteout line within one result and in the
-                        # next call ("(unchanged 3s)"), so count one per result and skip repeats
-                        # within 60 s; on K2's export the old rule gave 11 tries for R2, the
-                        # deduplicated rule 8, matching K2's own count.
+                        # v3.3: the harness re-prints the whiteout line, either marked
+                        # "(unchanged Ns)" in a later call (ignored via REPEAT) or unmarked twice in
+                        # the same result. A loss always ends in a respawn, so one tool result can
+                        # hold at most one real loss: count one per result, and none within 60 s
+                        # of the last COUNTED one (PR #10 review). On K2's log the v3.2 rule gave
+                        # 11 tries for R2; this rule gives 8, matching K2's own count.
                         if last_wo is None or (t - last_wo).total_seconds() > 60:
                             whiteouts += 1
-                        last_wo, counted = t, True
+                            last_wo = t
+                        counted = True
             cur = last_map(text, cur)
         out[sid] = (win, whiteouts + 1 if seen else 0)
     return out
@@ -390,8 +395,8 @@ def main():
         t = hit.get(i)
         approx = "APPROX" if i in (2, 3, 7, 15, 16, 19, 20, 30, 34, 38, 40) else ""
         if i > 27:
-            status = "confirmed on Ripple" if i in (28, 29) else "unvalidated"  # review fix
-            approx = (approx + " beyond /27 (v3.2, %s)" % status).strip()
+            status = "confirmed on Ripple; rules checked on K2 log" if i in (28, 29) else "rules checked on K2 log; script run on K2 export pending"  # v3.3
+            approx = (approx + " beyond /27 (v3.3, %s)" % status).strip()
         rows.append([i, name, t.isoformat() if t else "", clock(t), approx])
         for sid, sname, after, _, _ in SUPPLEMENTARY:
             if after == i:
