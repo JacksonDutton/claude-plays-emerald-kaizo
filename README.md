@@ -39,7 +39,7 @@ The trial runs differed in their instructions, their harness and how much a huma
 
 ## The paper
 
-[`paper/eight-badges-and-a-diary-rev395-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev395-2026-10-27.pdf)
+[`paper/eight-badges-and-a-diary-rev400-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev400-2026-10-27.pdf)
 
 *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 27 October 2026, 50 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2 to seven badges and its pause at the weekly usage limit on 23 October. Section 10 sets out the planned study, which will run on the supervisor's own computer.
 
