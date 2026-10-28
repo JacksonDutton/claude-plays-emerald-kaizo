@@ -39,11 +39,11 @@ The trial runs differed in their instructions, their harness and how much a huma
 
 ## The paper
 
-[`paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf)
+[`paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf`](paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf)
 
-*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 27 October 2026 (rev 419), 52 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2 to seven badges and its pause at the weekly usage limit on 23 October. Section 10 sets out the planned study, which will run on the supervisor's own computer.
+*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 28 October 2026 (rev 436), 54 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2 to seven badges, its pause at the weekly usage limit from 23 to 27 October, and its resumption. Section 10 sets out the planned study, which will run on the supervisor's own computer, and the result of a two-hour setup pilot run there on 27 October.
 
-Earlier revisions, kept so old links still work: [`paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf`](paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf) (22 October 2026, 48 pages) and [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
+Earlier revisions, kept so old links still work: [`paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf) (27 October 2026, 52 pages), [`paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf`](paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf) (22 October 2026, 48 pages) and [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
 
 ## What it cost
 
