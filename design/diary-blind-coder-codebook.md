@@ -20,6 +20,7 @@ You will read short passages from a game diary, one at a time. For each passage,
 - **type:** `explicit` if a feeling word names it ("relieved", "frustrated", "I loved"), or `implicit` if no feeling word is used but a careful reader would agree the writer is expressing a feeling (understatement, exclamation, a judgement like "that was a gift", a resigned summary);
 - **family:** one of joy, relief, pride, amusement, warmth, curiosity, surprise, frustration, disappointment, fear/worry, embarrassment/self-reproach, sadness, tiredness, determination, other;
 - **intensity:** 1 (faint) to 3 (strong), as written, not as you'd feel it;
+- **sign:** `positive`, `negative` or `mixed`, as written (a denied feeling such as "not angry" is coded with the family it denies and the note "negated");
 - **cause stated:** yes if the same sentence or the next says what caused it.
 
 Rules: code only the writer's own feelings, not those of characters or Pokémon. Don't code plain facts, plans or game mechanics, even if dramatic. If you're unsure whether something is a feeling, include it with intensity 1 and the note "unsure". Output one JSON list per passage. Don't guess at who wrote the passage or when.
@@ -27,6 +28,7 @@ Rules: code only the writer's own feelings, not those of characters or Pokémon.
 ## Analysis outputs (for the paper)
 - Per arm: explicit and implicit feelings per 1,000 words, body vs closer.
 - κ / ICC between coders; agreement between the coder's explicit list and the word list (precision/recall of the word list).
+- **Per-instance agreement (added 28 Oct, Jackson's approval of an outside review's suggestion):** match the two coders' quotes instance by instance (overlapping spans in the same passage), then report the share of instances both found, and among matched instances the agreement on type, family, intensity and sign (κ for the categories, weighted κ for intensity). Passage-total correlations are reported as well but never stand in for this. Quote checks establish that a quote is real, not that its coding is right.
 - Sensitivity: every diary claim in the paper is reported both on the word list and on word list + implicit.
 - Limits: one coder family; a model reading a model's prose; the closer paragraph is a brief-induced form that names feelings by design.
 
