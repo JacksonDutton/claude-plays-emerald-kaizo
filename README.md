@@ -4,7 +4,7 @@
 
 G'day, I'm Jackson. This is my study of an AI playing Pokémon on its own.
 
-The short version: I give a Claude model a Game Boy Advance emulator, a small set of tools to read the game and press buttons, and no walkthroughs or internet. Then I let it play for days and record everything: every move it makes, every diary entry it writes, and every message I send it.
+The short version: I give a Claude model a Game Boy Advance emulator and a small set of tools to read the game and press buttons. No walkthroughs: its web tools are switched off and it's told not to look anything up outside the game. Some runs also start with notes that earlier Claude agents wrote from their own play, and whether those notes help is one of the things we're testing. Then I let it play for days and record everything: every move it makes, every diary entry it writes, and every message I send it.
 
 Why Pokémon? Because it's a long job with a scoreboard you can't fake. Eight badges, the Elite Four, the Hall of Fame. AI agents are being handed longer and longer tasks that run for hours without anyone watching, but most tests of them are short. I wanted to see what actually happens over a hundred-plus hours: where the agent gets stuck, how it gets itself unstuck, how often a human ends up stepping in, and what the whole thing costs.
 
