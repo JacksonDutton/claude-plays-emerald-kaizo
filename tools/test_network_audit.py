@@ -59,6 +59,9 @@ cases = [
     ("written shell script uses the shell patterns", [("Write", {"file_path": "/s/get.sh", "content": "curl -s example.com/x"}), B("bash get.sh")], ["client", "client"]),
     ("safe overwrite then run in one command", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF\npython3 e.py")], ["emulator-socket"]),
     ("run from inside a shell heredoc", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("bash <<'EOF'\ncd /tmp && python3 e.py\nEOF")], ["emulator-socket"] * 2),
+    ("copy made by python open().write keeps the socket (K2 conn2.py)", [B("cat > conn.py <<'EOF'\n" + EMU + "EOF\npython3 -I conn.py"), B("python3 - <<'EOF'\ns=open('conn.py').read()\nopen('conn2.py','w').write(s)\nEOF\nnohup python3 -I conn2.py g.json > o 2>&1 &"), B("python3 -I conn2.py vr1.json")], ["emulator-socket"] * 3),
+    ("cp and sed redirect copies keep the socket", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("cp a.py b.py; sed 's/x/y/' a.py > c.py"), B("python3 b.py; python3 c.py")], ["emulator-socket"] * 2),
+    ("a new script that names no saved script is not tainted", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("echo 'print(1)' > d.py"), B("python3 d.py")], ["emulator-socket"]),
     ("a script that reads a json is not a run of another", [B("cat > conn2.py <<'EOF'\n" + EMU + "EOF"), B("python3 -I vrelev.py vr1.json; python3 conn2.pyc")], ["emulator-socket"]),
 ]
 fail = 0
