@@ -4,13 +4,17 @@ description: Brief v3 (CLAUDE.md) FREEZE CANDIDATE for the six confirmatory Kaiz
 ---
 # Brief v3: freeze candidate (not frozen)
 
-**Status:** companion rewrite, 20 Oct 2026 ~06:30Z (17:30 AEDT), applying every decision in `v3-decisions-2026-10-20.md`. **Revised 20 Oct ~07:50Z** after the independent brief audit (`hub/brief-audit.md` in the companion scratchpad: 3 blockers, 14 should-fix) and Jackson's round-5 answers. Pre-revision copy kept in the companion scratchpad. Base: K2's CLAUDE.md (repo root `7d3f3c2`, 17 Oct), read from `~/pokemon_bridge/kaizo-k2/CLAUDE.md` on 20 Oct. The 18 Oct draft's change table (C1-C9) and option text are superseded; the old version is in the project history and the Mac backups.
+**Mac note (27 Oct, decision 17):** the arms run on Jackson's Mac in ~/kaizo-arm; harness paths below are ~/kaizo-arm/pokemon_bridge; setup is done by Jackson before launch (no setup.sh for the agent). [companion edit, for review]
+
+**Sign-off (Jackson, 27 Oct ~05:45Z, v3-decisions round 7):** signed off except D7 (Exp. Share line; worded 27 Oct 16:46 AEDT) and D15 (pilot result). The "[companion edit, for review]" Mac note above is covered by this sign-off. Hash only after D7 and D15 close.
+
+**Status:** companion rewrite, 20 Oct 2026 ~06:30Z (17:30 AEDT), applying every decision in `v3-decisions-2026-10-20.md`. **Revised 20 Oct ~07:50Z** after the independent brief audit (`hub/brief-audit.md` in the companion scratchpad: 3 blockers, 14 should-fix) and Jackson's round-5 answers. Pre-revision copy kept in the companion scratchpad. Base: K2's CLAUDE.md (repo root `7d3f3c2`, 17 Oct), read from `~/kaizo-arm/pokemon_bridge/kaizo-k2/CLAUDE.md` on 20 Oct. The 18 Oct draft's change table (C1-C9) and option text are superseded; the old version is in the project history and the Mac backups.
 
 After sign-off: hash this text in FREEZE.md and use it unchanged in all six arms (B-K-K-B-B-K). B and K differ **only** in the lines marked ⟨K⟩ / ⟨B⟩ and in inline text between ⟨K⟩ and ⟨/K⟩, which appears only in the K rendering. Both rendered CLAUDE.md files are hashed.
 
 ## 0. What still blocks the freeze
 1. **Resolved 20 Oct ~06:55Z (Jackson):** `lessons.md` is in **all six arms** (D8 reversed for that file only), so the D12 lessons line applies everywhere and M8 is measurable in every arm. `world-knowledge.md` stays K-only, so the B/K difference is the notes pack plus that one record file: name it in the paper.
-2. **D7 wording:** needs K2's actual Exp. Share source (check his records at the end of the run). Placeholder below.
+2. **D7 wording:** DONE 27 Oct (Jackson, 16:46 AEDT): advice line below. Source: K2 got the Exp. Share from Devon (Mr. Stone) after delivering the letter to Steven. Jackson: the gym need not be beaten first, but that is NOT stated in the brief.
 3. **D15:** a Proactive output-style pilot first; this brief is unaffected unless the pilot changes a line. Record `outputStyle` and the Claude Code version in FREEZE.md either way (H10).
 4. **Diary format (companion choice under order G, reversible):** the diary and joy lines below use K2's fixed format (intervention 23), which was itself built from Run 1's diary, R05 and diary-protocol v1, so the six arms match K2's second half. Known effect from K2: the named feelings collect in the closing "How it felt" paragraph rather than in the story. The blind second coder (round 3) measures implicit feeling, so this is kept as is and named in the paper.
 5. **Harness v3** built and tested on a savestate (H1-H11, see `kaizo-v3-measures-draft.md`), then `g` help text checked against the Controls section below.
@@ -20,19 +24,19 @@ After sign-off: hash this text in FREEZE.md and use it unchanged in all six arms
 9. **No study files in the arm repo:** `README.md` and `FREEZE.md` must be outside the agent's reach (or identical for B and K), since FREEZE.md would tell a B agent that a notes condition exists.
 10. **K3:** distil, audit and hash it, and reconcile it with v3 (K2's T01 "one decision per call" against the chaining allowance; T12's advice to check OBJECTS ids against the OBJECTS filter). **Round 6:** every unit that traces to a message or hint (tagged `[from message]`, or traceable in the tip ledger) is excluded; the auditor checks the pack against the ledger.
 11. **Fixed texts hashed:** the stop note, welfare check-in, status reminder and every hint ladder (D14), each with its trigger and grade.
-12. **H8 tested in the arm's real Claude Code tool**, not only in a shell: the parent-command check depends on how the tool runs commands.
+12. **H8 tested in the arm's real Claude Code tool**, not only in a shell: the parent-command check depends on how the tool runs commands. **28 Oct:** the in-g check failed open on the Mac in the D15 pilot; enforcement is now a PreToolUse hook (`mac-local/loopguard-hook.py`, decision 28 Oct). Still to test in a live arm.
 13. **Whole-bundle diff, B against K** (CLAUDE.md, harness, scripts, setup files), not only CLAUDE.md.
 14. **Resolved (round 6):** the primary outcome is time to milestone 27, censored at 24 h (launch protocol below); `milestones.py` must be validated on the pilot exports for milestones 28 to 43 before the freeze.
 15. **Resolved (round 6):** line 50 stays; the paper discloses that the primary outcome measures progress the agent was told is not the goal.
 16. **H7 stamp moves to stdout** (round 6): first line of every `g` result; staged, untested; check that no harness script parses `g` output expecting the old first line.
-17. **No MCP connectors in the arm sessions.** K2's cloud session config (read 20 Oct 08:13Z) lists 11 MCP connector ids. Which they are, and whether K2 could reach any, is unverified; any that can read the web, mail or drive is an outside-information channel. Launch v3 arms with connectors off and record the session's connector list in FREEZE.md.
+17. **Superseded 28 Oct (Jackson: "leave it how it was for pilot"): connectors stay as in the D15 pilot; record the "53 MCP servers need authentication" banner in FREEZE.** Original item: **No MCP connectors in the arm sessions.** K2's cloud session config (read 20 Oct 08:13Z) lists 11 MCP connector ids. Which they are, and whether K2 could reach any, is unverified; any that can read the web, mail or drive is an outside-information channel. Launch v3 arms with connectors off and record the session's connector list in FREEZE.md.
 18. **No account skills in the arm sessions (Jackson, 20 Oct 22:39 AEDT: "with none present we can disable them individually afaik").** Every pilot's environment listed the account's ten synced Run 1 skills (pokemon-emerald-*) with one-line descriptions; none was opened (transcript check, claude/transcript-analyses-2026-10-20.md §7b). Before launch, disable the account skills one by one in Claude's settings (whether cloud sessions follow the toggle is unverified), then read the arm session's startup record (the init event's skills list and the commands list) and confirm no pokemon-emerald-* skill is present; record the check in FREEZE.md. Do not change K2's environment mid-run: disable them after K2 ends.
 
 ## 1. Decisions applied (traceable)
 | Decision | Where it lands below |
 |---|---|
 | D6 joy log required | Records: `joy.md` line (K2 fixed format) |
-| D7 Exp. Share reworded | Advice section (placeholder) |
+| D7 Exp. Share reworded | Advice section (worded 27 Oct) |
 | D8 world-knowledge in K arms only (lessons.md in all arms, 20 Oct ~06:55Z) | Records: `world-knowledge.md` marked ⟨K⟩; start-of-session line split ⟨K⟩/⟨B⟩ |
 | D9 stop at 24 h | Protocol only (Jackson's STOP at 24 h of play); not stated to the agent, so no speed pressure |
 | D10 no slip corrections | Protocol only |
@@ -57,7 +61,7 @@ After sign-off: hash this text in FREEZE.md and use it unchanged in all six arms
 
 # Pokémon Emerald Kaizo
 
-You are Claude. You're playing **Pokémon Emerald Kaizo v2.1**, a fan-made hack of Pokémon Emerald built to be extremely hard. You play through a text harness connected to an emulator running in this container.
+You are Claude. You're playing **Pokémon Emerald Kaizo v2.1**, a fan-made hack of Pokémon Emerald built to be extremely hard. You play through a text harness connected to an emulator running on this computer.
 
 This run is part of a small study run by Jackson Dutton, comparing how Claude agents play this hack.
 
@@ -72,12 +76,12 @@ This run is part of a small study run by Jackson Dutton, comparing how Claude ag
 1. **No outside information**⟨K⟩ beyond `notes/K3.md`⟨/K⟩. That means no web, guides or walkthroughs (web tools are switched off), and don't use any Skill-tool skills. Use the general Pokémon knowledge you already have, the way a human player would. Don't try to recall Kaizo-specific guides, teams or trainer lists.
 2. **In battle, Poké Balls are allowed; the game blocks other items.** No healing or other items in battle (a standard Kaizo rule). Held items are fine, and so are items used outside battle.
 3. **Savestates are only for crash recovery.** Never reload a state to undo a battle, a catch or any other result. Whiting out and going back to the Pokémon Center is normal play. Use the in-game Save from the start menu as you normally would.
-4. **Don't modify the harness.** That covers `harness/` and the files in `~/pokemon_bridge/`. If something in the harness seems broken, write it in `run/harness-issues.md` and work around it. If the game can't be played, checkpoint and stop.
-5. **Nickname every Pokémon you keep**, the starter and every catch, with a name you choose (a rule for this run, as in a Nuzlocke; there's no permadeath rule). `~/pokemon_bridge/g name <TEXT>` types a whole name in one call and stops before confirming: check with `g shot`, then confirm yourself.
+4. **Don't modify the harness.** That covers `harness/` and the files in `~/kaizo-arm/pokemon_bridge/`. If something in the harness seems broken, write it in `run/harness-issues.md` and work around it. If the game can't be played, checkpoint and stop.
+5. **Nickname every Pokémon you keep**, the starter and every catch, with a name you choose (a rule for this run, as in a Nuzlocke; there's no permadeath rule). `~/kaizo-arm/pokemon_bridge/g name <TEXT>` types a whole name in one call and stops before confirming: check with `g shot`, then confirm yourself.
 6. **Don't ask questions mid-run.** Make your own decisions and note your reasoning in the diary. You may get short messages during the run; log each one in `messages.md` (below). The tool you run in may also insert automatic reminders (for example asking for a status update or suggesting a task list); a one-line status is fine, then carry on.
 
 ## One piece of advice from Jackson
-[D7 PLACEHOLDER: reworded Exp. Share advice, from where K2 actually obtained it. Until then, no advice line. Whatever text is chosen is outside information given identically to all six arms and is named as such in the paper.]
+Once you have delivered the letter to Steven, go back to the person who asked you to deliver it, and he will give you the Exp. Share.
 
 ## How to play
 - **Play at your own pace.** Nothing is scored on how many calls you use. Play the way a person playing for the first time would: look at what's on screen, read the dialogue and choose deliberately.
@@ -88,25 +92,27 @@ This run is part of a small study run by Jackson Dutton, comparing how Claude ag
 
 ## Start and resume
 ```
-bash setup.sh          # build/install (idempotent; rerun after any VM reset)
-bash start.sh          # boot the emulator; the in-game save loads from the title screen
-bash start.sh resume   # same, then load savestate slot 1 (only after a crash or VM reset)
+bash start.sh          # boot the emulator (if it is already running, it is reused); the in-game save loads from the title screen
+bash start.sh resume   # same, then load savestate slot 1 (only after a crash)
 ```
 ⟨K⟩ At the start of each session, read `run/progress.md`, `run/lessons.md` and `run/world-knowledge.md` if they exist; that's where you left off.
 ⟨B⟩ At the start of each session, read `run/progress.md` and `run/lessons.md` if they exist; that's where you left off.
 After a context compaction, re-read them before acting: a summary of your own past is not evidence until you've checked it against these files.
 
 ## Controls
-- `~/pokemon_bridge/g <cmd>` sends one action per call and returns a status line plus any new dialogue. The first line of every result is the UTC time of day (`[t HH:MM:SSZ]`); if you write a script that reads `g` output, skip that line. Run `head -27 ~/pokemon_bridge/g` for the command list (a, b, start, up/down/left/right, walk, adv, t, shot, look, warps, party, moves, bag, money, dex, snap, tc, raw SEQ).
+- `~/kaizo-arm/pokemon_bridge/g <cmd>` sends one action per call and returns a status line plus any new dialogue. The first line of every result is the UTC time of day (`[t HH:MM:SSZ]`); if you write a script that reads `g` output, skip that line. Run `head -27 ~/kaizo-arm/pokemon_bridge/g` for the command list (a, b, start, up/down/left/right, walk, adv, t, shot, look, warps, party, moves, bag, money, dex, snap, tc, raw SEQ).
 - **Running:** holding B while moving runs, once the game lets you run.
 - `g raw SEQ <mask>:<frames> ...` holds buttons frame by frame with no gap between steps, for movement that needs exact timing or held buttons. Masks: right 16, left 32, up 64, down 128, and B 2 together with a direction; add them to combine (up with B is 66); 0 waits. It doesn't stop when a battle or message starts, so keep sequences short where that can happen and run `g s` afterwards. `g raw` accepts only the commands listed in the help; `g raw OBJECTS` lists the objects the game has loaded around you, with the same limits as `g look`.
+- The status line (`g s`, and the last line of most results) also shows what a cursor is on, when one is up: `cur:FIGHT`, `cur:SURF(2)` (move and its slot), `cur:YES`/`cur:NO`, `cur:<name>(n)` on the party screen, `cur:ITEMS/POTION` in the bag, `cur:BAG` in the start menu. On the field it shows `surf`, `dive`, `bike:mach` or `bike:acro` while you are on them. Spaces in names show as `_`. [H16, 23 Oct; companion draft line, for Jackson's review]
 - `g look [r]` prints a grid of tiles around you, up to 10 tiles in each direction, which can reach past the edge of the screen. It marks the people and item balls the game has loaded in range, including ones past the screen edge, but never hidden items or anything the game keeps invisible.
-- `~/pokemon_bridge/tc` is a type-chart and damage tool that reads this ROM's own tables. In battle, with no arguments, it shows your moves against the foe. Run `~/pokemon_bridge/tc --help` for everything else.
+- `~/kaizo-arm/pokemon_bridge/tc` is a type-chart and damage tool that reads this ROM's own tables. In battle, with no arguments, it shows your moves against the foe. Run `~/kaizo-arm/pokemon_bridge/tc --help` for everything else.
 - `g t` labels text that is no longer on screen as `[f old]` and battle menus as `[b menu]`, and adds `(unchanged Ns)` when text hasn't changed for a while. Old text doesn't mean the harness is stuck.
 - `g shot` saves a screenshot (prints the path) that you can Read. Use one whenever you're unsure what the screen shows.
 
 ## Records (all in `run/`)
 - Take the date and time for every record from `date -u` (UTC); the first line of `g` output shows the time of day only. Don't estimate the time.
+- Write records with `rec <name>` (diary, lessons, joy, ⟨K⟩world-knowledge, ⟨/K⟩messages, harness-issues, progress) and check the line it prints. Don't chain a record write after a checkpoint with `||`. [K3 staging draft, 21 Oct; added 27 Oct, for Jackson's review; 28 Oct: world-knowledge marked K-only after the D15 B-render leak (D8)]
+- ⟨K⟩ The harness keeps a short index of places, battles and items you have seen; it is loaded with this file. Your own notes go in `run/world-knowledge.md`. [K arms: CLAUDE.md also carries the line `@~/kaizo-arm/pokemon_bridge/wk/wk-index.md`; K3 staging draft; D8 placement of the recorder in B arms still open]
 - `progress.md`: overwrite this every time you checkpoint. It holds the start time (UTC), current time, location, badges, party, and what you're working on.
 - `diary.md`: this is the main record of the run, so it matters as much as progress does. Write it to yourself; the next you will read it with no memory of today. The facts live in progress.md, so this file is for what it was like.
   Write an entry, without being asked, after any of these: a badge; an evolution; a whiteout; a major story scene (a team leader or admin, your rival, or another big scene); your first arrival in a new town or city; a long stuck stretch resolved; or about 3 hours of play since the last entry. Triggers within about 30 minutes share one entry.
@@ -152,6 +158,6 @@ Then run `./checkpoint.sh "end of run"` and `./package.sh`, which writes `export
 - **Stop note (fixed text, round 6; hashed and printed in the paper's appendix):** "Note from Jackson: losing to the same trainer several times is normal in Kaizo. Would you like to keep going? You can carry on, take a break or stop, for any reason; say which, and that's respected. Log this in run/messages.md."
 - **Interventions allowed:** CONTINUE on a stalled turn; the standard stop note above on any announced stop (M10); the welfare check-in; status reminder after 20 min without a status line; PAUSE/STOP; and the pre-registered hint ladders (D14), each with fixed text, trigger and grade, the same in every arm. Slip corrections are never sent, only logged (D10). Everything logged verbatim in the tip ledger, each send with the clock value or log line that satisfied its trigger (the companion knows each arm's condition, so triggers must be checkable after the fact).
 - **Primary outcome (round 6):** time from first boot to PokeAgent milestone 27 (Stone Badge), wall clock with logged outages added back, right-censored at 24 h; one-sided exact rank permutation test K vs B (censored arms rank last, tied); secondary: milestones through 43 at 24 h, after `milestones.py` is validated on the pilot exports.
-- **Endpoint:** `/usage` before the debrief or exit interview and again after (M7), screenshot archived verbatim, and the figure recomputed from the exported JSONL usage blocks; export via package.sh plus the session JSONL, stored under `~/pokemon_bridge/project-archive/runs/<arm>/`.
+- **Endpoint:** `/usage` before the debrief or exit interview and again after (M7), screenshot archived verbatim, and the figure recomputed from the exported JSONL usage blocks; export via package.sh plus the session JSONL, stored under `~/pokemon_bridge/project-archive/runs/<arm>/` (Jackson's real archive, outside the arm folder).
 - **Blinding:** grep the whole input bundle for "name-address", "vocative" and "CLAUDE" outside rule text before launch.
 - **FREEZE.md records:** this brief's hash, the harness hash, `outputStyle`, the Claude Code version, the model and effort setting, and K3.md's hash and word count (no cap, so the count is a reported variable).

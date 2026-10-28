@@ -50,17 +50,28 @@ Joy log (required in every arm, D6): count good/flat/bad per hour of play and pe
 ## 3. Harness v3 change list
 | # | Change | Decision | Status |
 |---|---|---|---|
-| H1 | Status-line HP refresh after each battle message (fix the one-turn lag; K2 L06) | adopted | not drafted (RAM work) |
-| H2 | `g party` / `g s` print the real party cursor slot from RAM | adopted | not drafted (RAM work) |
+| H1 | Status-line HP refresh after each battle message (fix the one-turn lag; K2 L06) | adopted | **P1 applied 27 Oct**: `turn` flag + `~` on HP while a turn plays out; verified live on a Kaizo savestate (lag mechanism confirmed); P2 (`g` settle) not applied |
+| H2 | `g party` / `g s` print the real party cursor slot from RAM | adopted | **covered by H16** (27 Oct): `cur:<name>(n)` on the party screen |
 | H3 | Keep `foes:a/b` | adopted | in K2 harness |
 | H4 | Keep `g name <TEXT>` | adopted | in K2 harness |
-| H5 | Resume banner says a resume after a VM restart is crash recovery | adopted | not drafted (one line) |
+| H5 | Resume banner says a resume after a VM restart is crash recovery | adopted | **applied 27 Oct** (start-mac.sh: banner + run/harness-issues.md line per resume) |
 | H6 | `g t` marks text from before a savestate load | adopted | not drafted |
-| H7 | `[t HH:MM:SSZ]` on every `g` call (stderr) | adopted | staged, `bash -n` only |
+| H7 | `[t HH:MM:SSZ]` on every `g` call (stdout, round 6) | adopted | staged; seen working on the Mac and in the rig 27 Oct |
 | H8 | Loop guard: refuse (and log) inside a shell loop or with stdout at /dev/null | **adopted (D13); narrowed 20 Oct (round 5)** | staged; narrowed regex tested on 8 command lines in the companion container; still to test inside the arm's Claude Code tool |
-| H9 | LOOK reach and objects | **keep range, disclose in the brief; keep the invisible-object filter** (Jackson, 20 Oct ~06:55Z) | staged; off-screen hiding stays off; savestate test pending |
+| H9 | LOOK reach and objects | **keep range, disclose in the brief; keep the invisible-object filter** (Jackson, 20 Oct ~06:55Z) | staged; off-screen hiding stays off; **invisible filter verified 27 Oct** (rig, Kaizo gym state) |
 | H10 | Record `outputStyle` and Claude Code version in FREEZE.md | adopted (D15 pilot first) | protocol |
 | H11 | `g raw SEQ` and its mask table (incl. B 2) in `g` help | **adopted (chaining decision)** | staged |
+| H12 | Automatic crash-recovery savestate every 10-15 min and on entering a new map; used only by `start.sh resume`, never loadable by the agent after a loss (no save-scumming) | **adopted (Jackson, 22 Oct 11:33 AEDT)** | not drafted |
+| H13 | Auto-restart the emulator when `g` gets "Connection refused" on :8888 (worker restart), then resume from the latest savestate and print a resume banner (pairs with H5) | **adopted (Jackson, 22 Oct)** | not drafted |
+| H14 | Restart log `run/restarts.log`: UTC time, savestate loaded, its age, and position before/after, written by `start.sh resume` | **adopted (Jackson, 22 Oct)** | not drafted |
+
+| H15 | WALK/GOTO refuse when a menu is open; stalled walk auto-cancels | candidate, not put to Jackson | not drafted |
+| H16 | `g s` shows `cur:<what the cursor is on>` and surf/dive/bike state (on-screen only) | **adopted (Jackson, 23 Oct: "Fix it for v3")** | applied; verified live on Kaizo savestates; SELFTEST clean |
+| H17 | Live view: frame.png ~4x/s + viewer page (display only) | **adopted (decision 8, 27 Oct)** | applied; tested in the rig and on the Mac |
+| H18 | Loop guard portable to macOS (no /proc); `g raw` without bash-4 syntax | follows decision 8 | applied; tested on the Mac |
+| — | H12-H14 | **parked** (decision 8: arms run on the Mac, no cloud worker restarts) | spec only |
+
+**Measure M12 (proposed 27 Oct, companion; SIGNED OFF by Jackson 27 Oct, v3-decisions round 7):** screenshot share of tool calls per hour, per arm. Basis: K2's rate fell from 25.2% to 11-16% within an hour of a supervisor question; H16 removes the main reason he gave for screenshots, so v3 rates are expected lower than the pilots' and the difference is reportable. Read from the session JSONL (armwatch.py counts screenshot reads).
 
 Staging folder: `~/pokemon_bridge/kaizo-v3-staging/` (README there). The live K2 harness is untouched. Every change is tested on a pilot savestate before the freeze, hashed in FREEZE.md, and never changed during the six arms.
 

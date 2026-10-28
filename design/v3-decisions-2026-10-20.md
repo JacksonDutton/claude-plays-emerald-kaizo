@@ -34,7 +34,7 @@ Asked by the companion as multiple choice at Jackson's request ("ask me all the 
 ## Open after all rounds (20 Oct ~06:50Z)
 - **D8 × D12 conflict:** D12 puts the lessons-format line in all six arms; D8 keeps lessons.md in K arms only. See brief v3 §0.
 - **H9 invisible-object filter** (staged patch hides objects the game marks invisible): keep or drop?
-- D7 wording waits for K2's Exp. Share source; D15 waits for the pilot.
+- D7 CLOSED 27 Oct (round 7); D15 waits for the pilot.
 
 ## Round 2 (Jackson, ~17:05-17:20 AEDT, "Keep going with the questions")
 ### Harness and measures (v3)
@@ -113,3 +113,47 @@ Brief and harness v3:
 2. **K2.5 (harness-modifying branch) runs after K2 ends**, forked from a K2 checkpoint (e.g. the Feather Badge save plus notes), so both start from an identical state and K2 stays clean. Not in parallel (weekly budget).
 3. **K2.5 scope: on-screen information only.** New readouts of what is already visible (cursor position, party highlight); no hidden-memory reads (enemy teams, AI choices, RNG). Every harness change logged with a diff and timestamp as a measured event.
 4. **Public repo licence: MIT for code, CC BY 4.0 for docs, diaries and data.** ROMs and quarantined files stay out regardless; K2's run data only after the run ends.
+
+
+## Open question 22 Oct 2026, 15:29 AEDT (Jackson; not yet decided)
+5. **Run the six confirmatory arms locally on Jackson's Mac instead of Claude Code cloud sessions.** Jackson: "next session we can run claude code in a local session on my mac right"; "thats locally on the mgba on my mac, so i can watch without it having to narrate". Reason: K2's cloud worker was replaced repeatedly (22 Oct alone at 00:25Z, 01:09Z and 04:13:30Z; env_manager_log "Environment runner started", session_mode resume, "warm spare"; no exit code or reason in the session events), killing the emulator each time. Companion notes, for the decision:
+   - All six arms must use the same environment; decide and record before the freeze; the D15 short pilot runs on the chosen setup.
+   - Comparability: B1, B2, Ripple and K2 were cloud runs; the paper states the change and the restart evidence.
+   - Watching: mGBA with a window on the Mac lets Jackson watch live. Narration is still required by the brief as data (status lines are part of the record); dropping or changing it would be a separate, all-arm brief decision.
+   - Harness identity: the cloud harness uses a patched headless mGBA built for Linux (harness/cloud/). Options: (a) a macOS mGBA build with the same Lua director and a window (watchable; harness differs from the pilots), or (b) a Linux VM on the Mac running the identical headless build (byte-identical harness, but not watchable without a separate video path). Trade-off to settle.
+   - Mac upkeep: caffeinate, mains power, no sleep or lid close for 24 h per arm; the agent gets a shell on Jackson's own machine, so give it a dedicated folder or macOS user and settings scoped to the game folder only.
+   - Same subscription and usage limits; companion monitoring reads local logs instead of the cloud event stream.
+   Paper line (Jackson's lesson, companion wording to check): in K2's four-day cloud session the worker was replaced at least five times (confirmed live: 18 Oct ~10:50Z, 20 Oct 10:36Z, and three on 22 Oct; exact count from the export), so long-horizon agent tasks in cloud sessions need state that survives a restart (frequent checkpoints, an emulator that restarts itself). Cause unknown (platform side).
+
+## Decisions 27 Oct 2026, ~15:35 AEDT (Jackson, via the question tool; companion-recorded)
+6. **K2 restart message (after the 27 Oct 6 PM reset):** resume note plus a chatty reminder, plus (Jackson 15:28 AEDT) the story reminder (int 39) and the cutscene screenshot-burst rule (int 40 as corrected). Final text (companion wording): "Note from Jackson: the weekly usage has reset, so the pause is over. Pick up from run/progress.md and carry on as before, and keep a short status line in chat every few calls so I can follow along. Two reminders: the story counts too, so the diary is for what happens in the world and to its people, not only the fights; and when something big happens on screen between text boxes in a major story scene, take one burst of about ten screenshots so the moment is on record (no shots needed for ordinary dialogue). Log this in run/messages.md."
+7. **Monitoring after the restart:** half-hourly while Jackson is up, hourly overnight; pause rule at 95% weekly again (heads-up at 93%).
+8. **Decision 5 settled (answered under the H13 question): the six arms run on Jackson's Mac, headless, with a way to watch live; if a live viewer is too hard, headless on the Mac without one.** Consequences: H12-H14 (cloud worker-restart recovery) are mostly moot and parked; the paper states that the pilots were cloud runs and the confirmatory arms local; Mac upkeep (caffeinate, mains power, no sleep) and a scoped folder or macOS user for the agent apply; the D15 pilot runs on this setup.
+9. **D8 recorder:** keep the K3 recorder in all six arms with its log in ~/pokemon_bridge/wk/; the paper discloses that a B-arm agent could find it by browsing.
+10. **Isolation on the Mac:** a dedicated folder on Jackson's own account (not a separate macOS user). Companion plan: each arm gets its own folder, e.g. `~/kaizo-arms/<arm>/`, used as HOME for that arm's session (`HOME=~/kaizo-arms/<arm> claude`), so the harness's `~/pokemon_bridge` resolves inside it and never touches Jackson's real ~/pokemon_bridge (Run 1, Brendan's saves, the archive); plus Claude Code permission rules in that HOME denying reads/writes outside it. Needs one test: Claude Code login and Keychain access under the alternate HOME.
+11. **Surface:** Claude Code CLI in Terminal, in the arm's folder; version and outputStyle recorded in FREEZE.md.
+12. **K2.5:** forks from K2's final save.
+13. **Run 2 (API credit, expires 11 Nov):** decide on 1 Nov as planned; companion prepares a costed plan before then.
+14. **D15 Proactive-style pilot:** alongside K2 this week (Jackson, 27 Oct ~15:55 AEDT), on the Mac setup (test arm ~/kaizo-arms/test); short (1-2 h), excluded from analysis; both draw on the same weekly allowance, so the 95% pause rule covers both.
+15. **Account skills in the arms:** confirmed 27 Oct that claude.ai account skills (including nine pokemon-emerald-* skills from Run 1) sync into each arm's Claude Code config. Jackson switches them off on claude.ai before each arm and back on after; the launcher (mac-local/arm-launch.sh) refuses to start while any skill is synced. Pilots had them listed (brief item 18); disclose.
+16. **Permission mode for the arms:** allow list + sandbox with `--permission-mode default` (no auto-mode classifier), as in the pilots. Claude Code 2.1.301 announces auto mode as the new default, so the mode is set explicitly and recorded in FREEZE.md.
+17. **Isolation v2 (supersedes item 10):** real HOME (a fake HOME triggered a macOS "keychain cannot be found / Reset To Defaults" prompt that could wipe Jackson's saved passwords; he cancelled it). Arms run one at a time in ~/kaizo-arm (archived after each), harness paths via KAIZO_PB, Claude config per arm in ~/.kaizo-cfg/<arm>, Claude Code sandbox denying the rest of his home. Probed 27 Oct: game works, his files and the token are unreachable. Details: kaizo-v3-staging/mac-local/README-mac-local.md.
+18. **D15 pilot timing:** after the 27 Oct 6 PM reset, alongside K2; 2 h cap; prepared in ~/kaizo-arm (kaizo-v3-staging/mac-local/D15-PILOT.md). The fake-HOME test folder (~/kaizo-arms) was deleted at Jackson's request.
+19. **Claude Code auto-memory in the arms:** ON (Claude Code's default), and recorded: each arm's `~/.kaizo-cfg/<arm>/projects/<repo>/memory/` is archived with the arm and counted as part of its record (per-arm config dirs keep it from crossing arms). Version pin for the pilot and arms: Claude Code 2.1.301 (copy at ~/.kaizo-cfg/bin; K2 cloud ran 2.1.309; disclose).
+    Update 27 Oct 16:20 AEDT: Jackson switched the skills off; the game skills left the sync; 14 general skills still sync and are recorded, not blocking (launcher blocks pokemon|emerald|kaizo|frontier|harness names).
+
+## Round 7 (Jackson, question tool, 27 Oct 2026 ~05:45Z / 16:45 AEDT)
+- **M12 screenshot share:** signed off as written (secondary, descriptive; no test).
+- **K2.5 stop rule:** next badge or 24 h, whichever first; censored at 24 h.
+- **K2.5 permission text:** "harness updated" only; does not name the cursor readout.
+- **v3 brief:** signed off except D7 (Exp. Share wording) and D15 (pilot result).
+- **D7 Exp. Share wording (Jackson, chat, 27 Oct 16:46 AEDT, verbatim):** "K2 got his experience share from Devon after he had delivered the letter to Stephen, but it doesn't necessarily mean you have to beat the gym to go back and get the experience share. But don't include that in the brief. Only include that once you've delivered it to Stephen, you can go back to who asked you to deliver the letter and he'll give you the experience share." Brief line (identical in all six arms, named in the paper as outside information): "Once you have delivered the letter to Steven, go back to the person who asked you to deliver it, and he will give you the Exp. Share." (Spelled Steven, the in-game name.) D7 CLOSED; only D15 remains before hashing.
+
+## 28 Oct 2026 (D15 pilot follow-ups; Jackson in chat, 12:52-12:54 AEDT)
+- **H8 loop guard on the Mac:** enforce it with a Claude Code PreToolUse hook. The hook is in the arm settings and reads the exact Bash command. It blocks `g` inside a shell loop, or `g` with stdout to /dev/null, and logs each refusal to guard.log. The in-g check stays as a backup. Jackson picked the recommended option over "g fails closed" and "drop the guard". Reason: in the D15 pilot the in-g check failed open (a for-loop of g ran, no guard.log), most likely because the sandbox blocks `ps`.
+- **Connectors:** leave as in the pilot. Jackson first picked "strip them (--strict-mcp-config)", then at 12:54 AEDT said "Connectors just leave it how it was for pilot". Record the "53 MCP servers need authentication" banner in FREEZE as part of the environment. Skills stay off (decision 15).
+- **28 Oct, question tool, ~13:10 AEDT:**
+  - Live test of the H8 hook: folded into the arm-1 smoke test.
+  - K2 exit interview: the companion runs it straight away when K2 ends (/usage first, then k2-exit-interview.md one question at a time, answers verbatim) and tells Jackson as it starts.
+  - Fellowships (closes 28 Oct): left parked.
+  - Run 2 decision (due 1 Nov): wait for K2's end and its cost reading.
