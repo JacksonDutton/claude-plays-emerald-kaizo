@@ -1,6 +1,6 @@
 ---
 name: kaizo-v3-fixed-texts-draft
-description: SIGNED OFF by Jackson 28 Oct 2026 ~13:55 AEDT (question tool, 'Sign off as written'): every message the companion may send a v3 confirmatory arm, with its exact text, trigger, grade and send rule. D14 generic hint ladder (Jackson 28 Oct: location-free, no game facts). Hash after sign-off; same in all six arms.
+description: SIGNED OFF by Jackson 28 Oct 2026 ~13:55 AEDT (question tool, 'Sign off as written'); send rules amended ~14:25 AEDT after the PR #15 review (texts unchanged) and re-hashed: every message the companion may send a v3 confirmatory arm, with its exact text, trigger, grade and send rule. D14 generic hint ladder (Jackson 28 Oct: location-free, no game facts). Hash after sign-off; same in all six arms.
 ---
 # v3 fixed texts and triggers (signed off 28 Oct 2026; hashed, see FREEZE-v3)
 
@@ -18,6 +18,10 @@ Slip corrections are never sent (D10). Nothing here names a place, trainer, item
   - never with an empty input box;
   - never more than one text in the same 10 minutes, except PAUSE and STOP.
 - **When two triggers fire together**, send in this order: STOP, PAUSE, welfare, stop note, CONTINUE, ladder, status reminder.
+- **Amended 28 Oct (Jackson, after the PR #15 review; texts unchanged):**
+  - **STOP is terminal.** Once F7 is sent, nothing else is sent to that arm.
+  - **One PAUSE per pause episode.** The companion logs each active cause (usage, outage, Mac problem). While a pause is in force, no further PAUSE is sent, and no other text either, except STOP. The Continue text goes out only when every cause in that episode has cleared.
+  - **Welfare covers an announced stop.** If F3 is sent for the same announcement that would trigger F2, F2 is not sent: F3 already offers keep going, a break or a stop. Otherwise F2 is exempt from the 10-minute spacing, like PAUSE and STOP.
 - **The send** is typed into the arm's terminal by the procedure in FREEZE (`do script`, then a separate Return).
 
 ## F1. CONTINUE

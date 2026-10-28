@@ -10,7 +10,7 @@ Standard library only.
 import re, sys, argparse
 
 COORD = re.compile(r'\(\s*\d{1,3}\s*,\s*\d{1,3}\s*\)')
-MAPID = re.compile(r'(?<![\w.])\d{1,2}\.\d{1,3}(?![\w.%])')          # 24.85, 0.44 (not 1.5x, 50%)
+MAPID = re.compile(r'(?<![\w.×])\d{1,2}\.\d{1,3}(?![\w.%×])(?!\s*(?:x|×|times)\b)')  # 24.85, 0.44; not 1.5x, x1.5, 1.5 times, 50% (PR #15 review)
 HEX = re.compile(r'\b0x[0-9a-fA-F]{3,}\b')
 # Run nicknames (Run 1 Claude-Brendan, Ripple, K2 and the D15 pilot). Extend with --extra-names.
 NICKS = ['ZAP','PEBBLE','ECHO','WISP','SNIP','NIMBUS','CINDER','TREMOR','TALON','ANVIL','VIGIL','FORGE','GRIT',
@@ -32,12 +32,15 @@ TIP = re.compile(r'\[from tip[^\]]*\]', re.I)
 # knowledge is cut by the auditor, kaizo-K3-candidates section 5).
 TRAINERS = ['Roxanne','Brawly','Wattson','Flannery','Norman','Winona','Tate','Liza','Juan','Wallace','Sidney',
             'Phoebe','Glacia','Drake','Steven','Maxie','Archie','Tabitha','Shelly','Matt','Courtney','Wally']
-TRN = re.compile(r'\b(' + '|'.join(TRAINERS) + r')\b')
+TRN = re.compile(r'\b(' + '|'.join(TRAINERS + [t.upper() for t in TRAINERS]) + r')\b')  # Title case or ALL CAPS
 DIRS = re.compile(r'\b(north|south|east|west|northeast|northwest|southeast|southwest|upstairs|downstairs)\b', re.I)
 
 def build(extra):
     names = NICKS + [n.strip() for n in extra if n.strip()]
-    nick = re.compile(r'\b(' + '|'.join(map(re.escape, names)) + r')\b')
+    # PR #15 review: match a name in ALL CAPS or in Title case (the distiller may retype ZAP as Zap);
+    # lower case stays unmatched on purpose, because several nicknames are ordinary words (echo, forge, grit).
+    forms = sorted({v for n in names for v in (n.upper(), n.capitalize())}, key=len, reverse=True)
+    nick = re.compile(r'\b(' + '|'.join(map(re.escape, forms)) + r')\b')
     place = re.compile(r'\b(' + '|'.join(PLACES) + r')\b', re.I)
     return nick, place
 
@@ -65,23 +68,25 @@ def main():
     extra = open(a.extra_names).read().split('\n') if a.extra_names else []
     nick, place = build(extra)
     kept, rep = [], []
+    # Each report row carries the input line and, for kept lines, the line number in the OUTPUT file,
+    # which is what the auditor cites (PR #15 review: input numbers drift after removals).
     for i, line in enumerate(open(a.inp, encoding='utf-8'), 1):
         rs = reasons(line, nick, place, a.drop_tip)
         hard = [x for x in rs if not x.startswith(('direction', 'trainer', 'tip tag'))]
         if hard:
-            rep.append((i, 'REMOVED', ';'.join(rs), line.strip()[:200]))
+            rep.append((i, '', 'REMOVED', ';'.join(rs), line.strip()[:200]))
             continue
+        kept.append(line)
         if rs:
             act = 'COUNT' if all(x.startswith('tip tag') for x in rs) else 'FLAG'
-            rep.append((i, act, ';'.join(rs), line.strip()[:200]))
-        kept.append(line)
+            rep.append((i, len(kept), act, ';'.join(rs), line.strip()[:200]))
     open(a.out, 'w', encoding='utf-8').writelines(kept)
     if a.report:
         with open(a.report, 'w', encoding='utf-8') as f:
-            f.write('line\taction\treason\ttext\n')
+            f.write('in_line\tout_line\taction\treason\ttext\n')
             for r in rep: f.write('\t'.join(map(str, r)) + '\n')
-    n_rm = sum(1 for r in rep if r[1] == 'REMOVED'); n_fl = sum(1 for r in rep if r[1] == 'FLAG')
-    n_tip = sum(1 for r in rep if 'tip tag' in r[2])
+    n_rm = sum(1 for r in rep if r[2] == 'REMOVED'); n_fl = sum(1 for r in rep if r[2] == 'FLAG')
+    n_tip = sum(1 for r in rep if r[2] != 'REMOVED' and 'tip tag' in r[3])   # kept lines only (PR #15 review)
     print('lines in %d, removed %d, flagged for audit %d, tip-tagged kept %d, out %d' % (i, n_rm, n_fl, n_tip, len(kept)))
 
 if __name__ == '__main__':

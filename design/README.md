@@ -9,7 +9,7 @@ Working documents from the project, first copied on 20 October 2026 and updated 
 | `kaizo-brief-v3-draft.md` | Freeze candidate of the agent brief for the six confirmatory arms, with the notes-arm and no-notes-arm lines marked. Not yet frozen. |
 | `kaizo-v3-measures-draft.md` | Measures for the confirmatory arms: slip taxonomy, diary and joy-log coding, harness v3 change list. |
 | `v3-decisions-2026-10-20.md` | The supervisor's answers to every open design question for v3, with the options as offered. |
-| `kaizo-v3-fixed-texts.md` | Every message the companion may send a confirmatory arm (F1-F7), with exact text, trigger, grade and send rule. Signed off by the supervisor on 28 Oct; sha256 36a44cc7ce873876…; any change after that is a reported deviation. |
+| `kaizo-v3-fixed-texts.md` | Every message the companion may send a confirmatory arm (F1-F7), with exact text, trigger, grade and send rule. Signed off by the supervisor on 28 Oct, with the send rules amended the same day after review (texts unchanged); sha256 d9a9090f09ac821d…; any later change is a reported deviation. |
 | `kaizo-K3-extraction-kit.md` | How the K3 notes pack is built from K2's own files: sources, distiller and auditor prompts, the mechanical filter (`tools/k3_filter.py`), provenance exclusion, sign-off and hash. To run after K2 ends. |
 | `diary-protocol.md` | The diary-writing protocol and every dated instruction that changed how diary entries are written. |
 | `diary-blind-coder-codebook.md` | Codebook and procedure for the blind second coder of diary feeling. |

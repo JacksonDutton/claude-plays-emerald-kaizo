@@ -83,6 +83,13 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 
 **`k2-names.txt`.** Every nickname K2 gave, taken from his final party, box and diary at end of run. Check the built-in list against it.
 
+**Filter details (after the PR #15 review, 28 Oct).**
+- Nicknames are matched in ALL CAPS and in Title case. Lower case is not matched, because several nicknames are ordinary words (echo, forge, grit).
+- Trainer names are matched in Title case and ALL CAPS.
+- Decimals followed by "x", "×" or "times", or preceded by "×", are not treated as map ids.
+- The report lists input and output line numbers.
+- The tip-tagged count covers kept lines only.
+
 **Tests, 28 Oct.**
 - K2.md:
   - default settings: 127 lines in, 0 removed, 0 flagged, 22 tip-tagged lines kept (21 units plus the tag legend);
@@ -96,7 +103,7 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 - **Gets:**
   - `K3-filtered.md`;
   - the filter report;
-  - `kaizo-K3-candidates.md`, sections 2, 4 and 5;
+  - `kaizo-K3-candidates.md`, sections 2, 4 and 5. It is quarantined from play agents, so it is not in the public repository. The companion's copy is on the supervisor's Mac at `~/pokemon_bridge/project-archive/quarantine-moved-2026-10-21/`. It is extended at end of run with K2's lessons from L105 on (companion-todo, end-of-run item 8);
   - the K2 rows of `tip-ledger.md` (DIR 1-2, order-D hints, interventions 1-70);
   - K2's `run/messages.md`;
   - the v3 `g help` text, for reconciliation only.
@@ -115,7 +122,9 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 > Also list each FLAG line in the filter report and say "remove" or "keep", with a reason. List nothing else. If you are unsure, list the line and say "unsure"; the decision is Jackson's.
 
 **Afterwards.**
+- The auditor cites `out_line` numbers, which match `K3-filtered.md`; the report also gives `in_line`.
 - The companion removes every listed line exactly as listed. "Unsure" lines go to Jackson.
+- Jackson also reads the filter's REMOVED rows before sign-off. The filter can over-remove: a capitalised word that is also a nickname, such as "Forge" at the start of a sentence, or a bare decimal next to a word. Any line he wants back is restored verbatim and noted in the build record.
 - The auditor's list and the removal diff go into `K3-build-record.md`.
 
 ## 5. Sign-off and hash
