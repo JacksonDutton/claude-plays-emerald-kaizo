@@ -8,6 +8,7 @@ Python 3, standard library only. Each script's docstring gives its full usage an
 | `scrub.py` | First privacy pass over an exported session event stream: replaces session and account identifiers, email addresses and home-directory usernames. `--verify IN OUT` reports anything left. |
 | `publish_prep.py` | Second pass, for publication: drops thinking signatures and replaces the account's skill, command, connector and plugin lists with a count note. |
 | `session_cost.py` | Reads Claude Code's own cost total from a transcript and recomputes cost at list prices per unique message, with tokens by model and compaction events. Reads `.jsonl` or `.jsonl.gz`. |
+| `k3_filter.py` | Mechanical filter for the K3 notes pack (step 4 of the knowledge-extraction protocol). It removes whole lines that contain coordinates, map ids, hex addresses, run nicknames, Hoenn place names, or `[from message]`/`[from hint]` tags. It flags direction words and named trainers for the auditor, and counts inherited `[from tip]` lines. It writes a TSV report. It is meant to run on the distiller's output, not on raw run files. |
 
 Pipeline used for the published transcripts:
 

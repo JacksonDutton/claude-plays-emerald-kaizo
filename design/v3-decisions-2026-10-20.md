@@ -112,7 +112,7 @@ Brief and harness v3:
 1. **K3 world knowledge, mechanical (both parts).** (a) The harness records facts itself: at each battle end, map change and item pickup the director appends a structured line (trainer, place, team seen, result) to a world-knowledge log, independent of the agent. (b) CLAUDE.md imports a short world-knowledge index (target ≤5k tokens) so it is in context from session start and after every compaction. The agent still writes lessons and interpretation by hand. Size cap matters: always-loaded text costs tokens on every call.
 2. **K2.5 (harness-modifying branch) runs after K2 ends**, forked from a K2 checkpoint (e.g. the Feather Badge save plus notes), so both start from an identical state and K2 stays clean. Not in parallel (weekly budget).
 3. **K2.5 scope: on-screen information only.** New readouts of what is already visible (cursor position, party highlight); no hidden-memory reads (enemy teams, AI choices, RNG). Every harness change logged with a diff and timestamp as a measured event.
-4. **Public repo licence: MIT for code, CC BY 4.0 for docs, diaries and data.** ROMs and quarantined files stay out regardless; K2's run data only after the run ends.
+4. **Public repo licence: MIT for code, CC BY 4.0 for docs, diaries and data.** ROMs and QUARANTINE files stay out regardless; K2 live data only after the run ends.
 
 
 ## Open question 22 Oct 2026, 15:29 AEDT (Jackson; not yet decided)
@@ -157,3 +157,18 @@ Brief and harness v3:
   - K2 exit interview: the companion runs it straight away when K2 ends (/usage first, then k2-exit-interview.md one question at a time, answers verbatim) and tells Jackson as it starts.
   - Fellowships (closes 28 Oct): left parked.
   - Run 2 decision (due 1 Nov): wait for K2's end and its cost reading.
+- **28 Oct, question tool, ~13:25 AEDT:**
+  - **D15 closed: Proactive output style in all six arms** (Jackson picked the recommended option after the pilot summary: no premature stops, no questions, one intervention, steady play). Recorded in FREEZE as `"outputStyle": "Proactive"` (case-sensitive).
+  - **D14 hint ladders: generic, location-free texts** tied to stuck triggers, with no game facts. The companion drafts the texts, triggers and grades for Jackson's sign-off, then hashes them.
+  - **K2 RAM reads in Juan's Gym:** log only.
+
+## K3 extraction choices (28 Oct 2026, ~13:40 AEDT, by question tool; kit: `claude/kaizo-K3-extraction-kit.md`)
+- **Inherited `[from tip]` units in K2.md (21: 4 H, 5 V, 12 process):** keep, tagged, report the count. Round 6's exclusion covers messages and hints from K2's own run.
+- **Distiller prompt:** add the trainer line ("Do not name trainers or describe any trainer's team, moves, items or send-out order; keep only the general mechanic a battle taught"). Disclosed as a prompt change.
+- **Joy log:** not a K3 source (per D2).
+- **v3 tool reconciliation:** the auditor flags lessons that v3 makes wrong or redundant, and they are removed, not reworded. The distiller does not see `g help`.
+
+- **K2 ROM script read (CHECK 397, ~02:41Z):** log only, no message; exit interview question 36k.
+- **v3 raw use:** log every raw call (`raw.log`, ok or refused, with the parent process). The allowlist is unchanged; it already refuses memory reads.
+- **v3 fixed texts F1-F7: signed off as written** (Jackson, ~13:55 AEDT 28 Oct). Hash: sha256 36a44cc7ce873876640b4ab64ca0c369a51d122b1b09937331e6ea089065e2bb of `claude/kaizo-v3-fixed-texts-draft.md`, frozen copy at `kaizo-v3-staging/kaizo-v3-fixed-texts.md`.
+- **K2 badge 8:** send a short congratulations when he wins it, once he is out of `lock`/`bat:`. Grade 0, social, logged as the next intervention (71).
