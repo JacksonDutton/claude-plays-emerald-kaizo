@@ -53,6 +53,12 @@ cases = [
     ("re-run via nohup and ./", [("Write", {"file_path": "/s/conn2.py", "content": EMU}), B("(nohup python3 -I conn2.py g.json > o 2>&1 &)"), B("./conn2.py")], ["emulator-socket"] * 3),
     ("editing or reading a saved script is not a run", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("sed -i 's/a/b/' e.py; cat e.py; cat >> e.py <<'EOF'\nprint(1)\nEOF")], ["emulator-socket"]),
     ("overwritten without the socket, then run", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF"), B("python3 e.py")], ["emulator-socket"]),
+    ("redirection after the heredoc delimiter", [B("cat <<'EOF' > s/ev.py\n" + EMU + "EOF"), B("python3 \"s/ev.py\"")], ["emulator-socket"] * 2),
+    ("an earlier command's redirection is not this heredoc's target", [B("echo x > a.py; cat <<'EOF' > b.py\n" + EMU + "EOF"), B("python3 a.py"), B("python3 b.py")], ["emulator-socket"] * 2),
+    ("source, absolute path and interpreter option with a value", [B("cat > n.sh <<'EOF'\nexec 3<>/dev/tcp/127.0.0.1/8888\nEOF"), B("source n.sh"), B("/tmp/w/n.sh"), B("cd w && python3 -W ignore n.sh")], ["emulator-socket"] * 4),
+    ("written shell script uses the shell patterns", [("Write", {"file_path": "/s/get.sh", "content": "curl -s example.com/x"}), B("bash get.sh")], ["client", "client"]),
+    ("safe overwrite then run in one command", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF\npython3 e.py")], ["emulator-socket"]),
+    ("run from inside a shell heredoc", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("bash <<'EOF'\ncd /tmp && python3 e.py\nEOF")], ["emulator-socket"] * 2),
     ("a script that reads a json is not a run of another", [B("cat > conn2.py <<'EOF'\n" + EMU + "EOF"), B("python3 -I vrelev.py vr1.json; python3 conn2.pyc")], ["emulator-socket"]),
 ]
 fail = 0
@@ -65,6 +71,13 @@ rows, bad = run([B("ls")], raw_lines=["{not json"])
 ok = bad == 1; fail += not ok
 print(("PASS" if ok else "FAIL"), "malformed line is counted, not ignored")
 rows, _ = run([B("cat > ev.py <<'EOF'\n" + EMU + "EOF"), B("python3 ev.py")])
+ok = all(r[5].startswith("re-runs ev.py: ") for r in run([B("cat > ev.py <<'EOF'\n" + EMU + "EOF"), B("python3 - <<'EOF'\n" + EMU + "EOF\npython3 ev.py")])[0][1:])
+fail += not ok
+print(("PASS" if ok else "FAIL"), "re-run label kept when the same category is also found directly")
+err = json.dumps({"event_type": "user", "created_at": "t", "payload": {"message": {"content": [{"type": "tool_result", "tool_use_id": "c1", "is_error": True}]}}})
+rows2, _ = run([("Write", {"file_path": "/s/e.py", "content": EMU}), ("Write", {"file_path": "/s/e.py", "content": "print(1)"}), B("python3 e.py")], raw_lines=[err])
+ok = [r[4] for r in rows2] == ["emulator-socket", "emulator-socket"]; fail += not ok
+print(("PASS" if ok else "FAIL"), "a failed overwrite does not clear a saved socket script", "" if ok else rows2)
 ok = rows[-1][5].startswith("re-runs ev.py: "); fail += not ok
 print(("PASS" if ok else "FAIL"), "re-run rows name the script", "" if ok else rows[-1][5])
 sys.exit(1 if fail else 0)

@@ -100,7 +100,7 @@ def tool_calls(ev):
             yield c.get("id", ""), c.get("name", ""), c.get("input") or {}
 
 
-HEREDOC = re.compile(r"([^\n]*)<<-?\s*(['\"]?)(\w+)\2[^\n]*\n(.*?)\n\s*\3\b", re.S)
+HEREDOC = re.compile(r"([^\n]*)<<-?\s*(['\"]?)(\w+)\2([^\n]*)\n(.*?)\n\s*\3\b", re.S)
 COMMIT_MSG = re.compile(r"git\s+commit\b[^&;|]*?-m\s+(\"[^\"]*\"|'[^']*')", re.S)
 
 
@@ -110,30 +110,54 @@ def split_bash(cmd):
     Commit messages are dropped."""
     code = []
     def sub(m):
-        if not PROSE_FILE.search(m.group(1)):
-            code.append(m.group(4))
-        return m.group(1) + "<<HEREDOC"
+        if not PROSE_FILE.search(m.group(1) + m.group(4)):
+            code.append(m.group(5))
+        return m.group(1) + "<<HEREDOC" + m.group(4)
     shell = COMMIT_MSG.sub("git commit -m MSG", HEREDOC.sub(sub, cmd))
     return shell, code
 
 
-SCRIPT_NAME = r"\w[\w.-]*\.(?:py|sh|js|mjs|cjs|rb|pl|php)"
-WRITE_TARGET = re.compile(r"(>>?)\s*['\"]?(?:[^\s'\"]*/)?(" + SCRIPT_NAME + r")['\"]?")
-RUNNER = r"(?:\b(?:python3?(?:\.\d+)?|bash|sh|zsh|node|ruby|perl|php)\s+(?:-\S+\s+)*|\./)(?:[^\s'\";&|]*/)?"
+SCRIPT_NAME = r"\w[\w.-]*\.(?:py|sh|bash|zsh|js|mjs|cjs|ts|rb|pl|php|ps1|go|lua)"
+SHELL_SCRIPT = re.compile(r"\.(?:sh|bash|zsh)$")
+REDIRECT = re.compile(r"(>>?)\s*['\"]?(?:[^\s'\";&|]*/)?(" + SCRIPT_NAME + r")['\"]?")
+SEGMENT_BREAK = re.compile(r".*(?:;|&&|\|\||\|(?!\|)|&(?!&)|\n)", re.S)
+# How a saved script is started: an interpreter (options may take one value each), source or ".", or a path
+# in command position (./x.sh, /tmp/s/x.py, s/x.py). The name may be quoted.
+OPTS = r"(?:-[^\s;&|]*\s+(?:[^-\s;&|][^\s;&|]*\s+)??)*?"
+INTERP = (r"\b(?:python[\d.]*|bash|sh|zsh|node|deno|ts-node|ruby|perl|php|lua|pwsh|powershell|go\s+run|source)\s+"
+          + OPTS + r"|(?:^|[;&|(]|&&|\|\||\bnohup|\btimeout\s+\S+|\bexec)\s*\.\s+")
+CMD_POS = r"(?:^|[;&|(\n]|&&|\|\||\bnohup\s|\btimeout\s+\S+\s|\bexec\s)\s*"
 
 
 def heredoc_scripts(cmd):
-    """(mode, script name, body) for each heredoc written to a script file: mode '>' replaces, '>>' appends."""
+    """(mode, script name, body) for each heredoc written to a script file: mode '>' replaces, '>>' appends.
+    The target is the redirection in the heredoc's own command, before or after the << delimiter."""
     out = []
     for m in HEREDOC.finditer(cmd):
-        t = WRITE_TARGET.search(m.group(1))
+        own = SEGMENT_BREAK.sub("", m.group(1))  # drop earlier commands on the same line
+        t = REDIRECT.search(own + " " + m.group(4))
         if t:
-            out.append((t.group(1), t.group(2), m.group(4)))
+            out.append((t.group(1), t.group(2), m.group(5)))
     return out
 
 
 def runs_script(shell, name):
-    return re.search(RUNNER + re.escape(name) + r"(?![\w.-])", shell) is not None
+    n = r"['\"]?(?:[^\s'\";&|]*/)?" + re.escape(name) + r"['\"]?(?![\w.-])"
+    return (re.search(r"(?:" + INTERP + r")" + n, shell, re.M) is not None
+            or re.search(CMD_POS + r"['\"]?(?:\.{0,2}/|[\w~.-]+/)[^\s'\";&|]*?" + re.escape(name) + r"['\"]?(?![\w.-])",
+                         shell, re.M) is not None)
+
+
+def failed_calls(path):
+    """tool_use ids whose result came back as an error, so a write that failed does not change what we
+    believe a saved script contains."""
+    ids = set()
+    for ev in events(path, [0]):
+        msg = (ev.get("payload") or ev).get("message") or {}
+        for c in msg.get("content") or [] if isinstance(msg.get("content"), list) else []:
+            if isinstance(c, dict) and c.get("type") == "tool_result" and c.get("is_error"):
+                ids.add(c.get("tool_use_id", ""))
+    return ids
 
 
 def remote_urls(text):
@@ -191,10 +215,14 @@ def scan_shell(text):
 
 def audit(path):
     """Rows of (file, created_at, tool_use_id, tool, category, text). A script the agent saved with network or
-    emulator-socket code is remembered by file name, and every later command that runs it (python3 x.py, ./x.sh)
-    is a hit too, marked "re-runs x.py": otherwise a saved script would be counted once, when it was written.
-    Names are matched without their folder, and a script that only imports another module is not followed."""
+    emulator-socket code is remembered by file name, and every later command that runs it (python3 x.py, ./x.sh,
+    source x.sh) is a hit too, marked "re-runs x.py": otherwise a saved script would be counted once, when it
+    was written. Known limits, which err towards reporting a run for a person to check: names are matched
+    without their folder; a mention of "python3 x.py" in quoted text counts as a run; an Edit only adds
+    categories (it shows a fragment, not the whole file); a script that only imports another module is not
+    followed; parallel tool calls are taken in the order they were issued."""
     rows, bad = [], [0]
+    failed = failed_calls(path)
     saved = {}  # script name -> categories found in its code
     for ev in events(path, bad):
         ts = ev.get("created_at", "")
@@ -208,21 +236,24 @@ def audit(path):
                 cats = scan_shell(shell)
                 for b in bodies:
                     cats |= scan_shell(b)
-                reruns = {n: set(c) for n, c in saved.items() if c and runs_script(shell, n)}
-                rerun_cats = set().union(*reruns.values()) if reruns else set()
                 for mode, script, body in heredoc_scripts(cmd):
                     found = scan_shell(body)
                     saved[script] = found | (saved.get(script, set()) if mode == ">>" else set())
+                run_text = "\n".join([shell] + bodies)  # heredoc bodies fed to a shell or python can run scripts
+                reruns = {n: set(c) for n, c in saved.items() if c and runs_script(run_text, n)}
+                rerun_cats = set().union(*reruns.values()) if reruns else set()
                 for cat in sorted(cats | rerun_cats):
-                    note = "" if cat in cats else "re-runs " + ", ".join(sorted(n for n, c in reruns.items() if cat in c)) + ": "
+                    names = sorted(n for n, c in reruns.items() if cat in c)
+                    note = "re-runs " + ", ".join(names) + ": " if names else ""
                     rows.append((path, ts, cid, name, cat, note + cmd[:300].replace("\n", " | ")))
             elif name in WRITE_TOOLS:
                 fp = str(inp.get("file_path", "") or inp.get("notebook_path", ""))
                 body = " ".join(str(inp.get(k, "")) for k in ("content", "new_string", "new_source"))
                 body += " ".join(str(e.get("new_string", "")) for e in inp.get("edits", []) or [])
-                cats = {"url"} & scan_code(body) if PROSE_FILE.search(fp) else scan_code(body)
+                scan = scan_shell if SHELL_SCRIPT.search(fp) else scan_code
+                cats = {"url"} & scan_code(body) if PROSE_FILE.search(fp) else scan(body)
                 base = os.path.basename(fp)
-                if re.fullmatch(SCRIPT_NAME, base):
+                if re.fullmatch(SCRIPT_NAME, base) and cid not in failed:
                     saved[base] = cats | (saved.get(base, set()) if name != "Write" else set())
                 for cat in sorted(cats):
                     rows.append((path, ts, cid, name, cat, f"{fp}: {body[:200]}".replace("\n", " | ")))
