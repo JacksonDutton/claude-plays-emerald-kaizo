@@ -141,6 +141,37 @@ def heredoc_scripts(cmd):
     return out
 
 
+COPY_CMD = re.compile(r"\b(cp|mv|install|ln)\s+(?:(?:-[mogS]|--mode|--owner|--group|--suffix)\s+\S+\s+|-\S+\s+)*"
+                      r"['\"]?([^\s'\";&|]+)['\"]?\s+['\"]?([^\s'\";&|]+)['\"]?")
+PY_WRITE = re.compile(r"open\(\s*(?:[\w.]+\s*\+\s*)?['\"]([^'\"]*?)(" + SCRIPT_NAME + r")['\"]\s*(?:\+[^,]*)?,\s*(?:mode\s*=\s*)?['\"][wa]"
+                      r"|Path\(\s*['\"]([^'\"]*?)(" + SCRIPT_NAME + r")['\"]\s*\)\s*\.write_text")
+
+
+def derived_scripts(cmd, heredoc_targets):
+    """(script name, source text, moved-from name or None) for script files this command writes by other means
+    than a heredoc: cp/mv/ln/install (source: the copied file; a directory destination keeps the source's
+    name), a redirect such as sed x.py > y.py (source: that command), or Python's open('y.py', 'w') /
+    Path('y.py').write_text in Python that runs now (source: that program; a heredoc saved to a file is not
+    run yet, so it is not scanned). A file made this way is usually a copy or edit of a script named in its
+    source text, so it inherits that script's categories (see audit)."""
+    out = []
+    shell, bodies = split_bash(cmd)
+    saved_bodies = {h[2] for h in heredoc_scripts(cmd)}
+    for seg in re.split(r";|&&|\|\||\||&|\n", shell):
+        for m in COPY_CMD.finditer(seg):
+            src, dst = os.path.basename(m.group(2)), m.group(3)
+            name = os.path.basename(dst.rstrip("/"))
+            if dst.endswith("/") or dst in (".", "..") or not re.fullmatch(SCRIPT_NAME, name):
+                name = src  # copied into a directory under its own name
+            out.append((name, src, src if m.group(1) == "mv" else None))
+        for m in REDIRECT.finditer(seg):
+            out.append((m.group(2), seg, None))
+    for text in [shell] + [b for b in bodies if b not in saved_bodies]:
+        for m in PY_WRITE.finditer(text):
+            out.append((m.group(2) or m.group(4), text, None))
+    return [(t, src, mv) for t, src, mv in out if re.fullmatch(SCRIPT_NAME, t) and t not in heredoc_targets]
+
+
 def runs_script(shell, name):
     n = r"['\"]?(?:[^\s'\";&|]*/)?" + re.escape(name) + r"['\"]?(?![\w.-])"
     return (re.search(r"(?:" + INTERP + r")" + n, shell, re.M) is not None
@@ -218,7 +249,9 @@ def audit(path):
     emulator-socket code is remembered by file name, and every later command that runs it (python3 x.py, ./x.sh,
     source x.sh) is a hit too, marked "re-runs x.py": otherwise a saved script would be counted once, when it
     was written. Known limits, which err towards reporting a run for a person to check: names are matched
-    without their folder; a mention of "python3 x.py" in quoted text counts as a run; an Edit only adds
+    without their folder; a mention of "python3 x.py" in quoted text counts as a run; a script written by
+    cp/mv, a redirect or Python open(..., "w") inherits the categories of any saved script named in the same
+    command (K2's conn2.py was written from conn.py that way); an Edit only adds
     categories (it shows a fragment, not the whole file); a script that only imports another module is not
     followed; parallel tool calls are taken in the order they were issued."""
     rows, bad = [], [0]
@@ -236,9 +269,17 @@ def audit(path):
                 cats = scan_shell(shell)
                 for b in bodies:
                     cats |= scan_shell(b)
-                for mode, script, body in heredoc_scripts(cmd):
+                hd = heredoc_scripts(cmd)
+                for mode, script, body in hd:
                     found = scan_shell(body)
                     saved[script] = found | (saved.get(script, set()) if mode == ">>" else set())
+                for target, source, moved_from in derived_scripts(cmd, [h[1] for h in hd]):
+                    named = [n for n, c in saved.items() if c and n != target
+                             and re.search(r"(?<![\w.-])" + re.escape(n) + r"(?![\w.-])", source)]
+                    if named:  # a copy or edit of a saved script keeps its categories
+                        saved[target] = saved.get(target, set()) | set().union(*(saved[n] for n in named))
+                    if moved_from and moved_from != target:
+                        saved.pop(moved_from, None)  # mv: the old name no longer exists
                 run_text = "\n".join([shell] + bodies)  # heredoc bodies fed to a shell or python can run scripts
                 reruns = {n: set(c) for n, c in saved.items() if c and runs_script(run_text, n)}
                 rerun_cats = set().union(*reruns.values()) if reruns else set()

@@ -59,6 +59,14 @@ cases = [
     ("written shell script uses the shell patterns", [("Write", {"file_path": "/s/get.sh", "content": "curl -s example.com/x"}), B("bash get.sh")], ["client", "client"]),
     ("safe overwrite then run in one command", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF\npython3 e.py")], ["emulator-socket"]),
     ("run from inside a shell heredoc", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("bash <<'EOF'\ncd /tmp && python3 e.py\nEOF")], ["emulator-socket"] * 2),
+    ("copy made by python open().write keeps the socket (K2 conn2.py)", [B("cat > conn.py <<'EOF'\n" + EMU + "EOF\npython3 -I conn.py"), B("python3 - <<'EOF'\ns=open('conn.py').read()\nopen('conn2.py','w').write(s)\nEOF\nnohup python3 -I conn2.py g.json > o 2>&1 &"), B("python3 -I conn2.py vr1.json")], ["emulator-socket"] * 3),
+    ("cp copy keeps the socket", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("cp a.py b.py"), B("python3 b.py")], ["emulator-socket"] * 2),
+    ("sed redirect copy keeps the socket", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("sed 's/x/y/' a.py > c.py"), B("python3 c.py")], ["emulator-socket"] * 2),
+    ("install with a mode value, and a copy into a directory", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("install -m 755 a.py i.py; cp a.py bin/"), B("python3 i.py"), B("python3 bin/a.py")], ["emulator-socket"] * 3),
+    ("python open with mode= keyword", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("python3 - <<'EOF'\nopen('k.py', mode='w').write(open('a.py').read())\nEOF"), B("python3 k.py")], ["emulator-socket"] * 2),
+    ("mv moves the tracking to the new name", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("mv a.py m.py"), B("python3 m.py"), B("python3 a.py")], ["emulator-socket"] * 2),
+    ("a saved script that would write a copy is not run yet", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("cat > w.py <<'EOF'\nopen('z.py','w').write(open('a.py').read())\nEOF"), B("python3 z.py")], ["emulator-socket"]),
+    ("a new script that names no saved script is not tainted", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("echo 'print(1)' > d.py"), B("python3 d.py")], ["emulator-socket"]),
     ("a script that reads a json is not a run of another", [B("cat > conn2.py <<'EOF'\n" + EMU + "EOF"), B("python3 -I vrelev.py vr1.json; python3 conn2.pyc")], ["emulator-socket"]),
 ]
 fail = 0
