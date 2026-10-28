@@ -29,3 +29,8 @@ Rules: code only the writer's own feelings, not those of characters or Pokémon.
 - κ / ICC between coders; agreement between the coder's explicit list and the word list (precision/recall of the word list).
 - Sensitivity: every diary claim in the paper is reported both on the word list and on word list + implicit.
 - Limits: one coder family; a model reading a model's prose; the closer paragraph is a brief-induced form that names feelings by design.
+
+## Protocol change, 27 Oct 2026 (after the 69 re-code; Fable review postscript)
+- At least two coders per batch; the second codes every unit of the batch, in REVERSED order (order check every time). This replaces the 20% double-coding in step 4 for all passes from 27 Oct; reliability (κ, ICC) is computed on the full second pass.
+- Retain coder reasoning (thinking) where the platform allows; record when it is not retained. In the 22 Oct pass and the 27 Oct re-code it was not retained (c4's single thinking block is empty).
+- Report implicit-feeling comparisons with the coder-to-coder spread (re-code of batch 3: implicit 49-69, sd ~9; explicit 45-55). Phase claims lean on the explicit series.

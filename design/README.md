@@ -1,6 +1,6 @@
 # Design documents
 
-Working documents from the project, copied as they stood on 20 October 2026. They were written for the study team (the supervisor and the companion Claude session), so they use its shorthand: arms B1, B2, Ripple (also K1.1) and K2; "the companion" is the Claude Opus session that monitors runs, logs interventions and keeps the record. Session identifiers are redacted. Times are UTC unless marked AEDT (UTC+11).
+Working documents from the project, first copied on 20 October 2026 and updated on 28 October 2026 (`kaizo-milestone-times.md` and `transcript-analyses-2026-10-20.md` are still the 20 October copies). They were written for the study team (the supervisor and the companion Claude session), so they use its shorthand: arms B1, B2, Ripple (also K1.1) and K2; "the companion" is the Claude Opus session that monitors runs, logs interventions and keeps the record. Session identifiers are redacted. Times are UTC unless marked AEDT (UTC+11).
 
 | File | What it is |
 |---|---|
