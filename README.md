@@ -1,5 +1,27 @@
 # Claude plays Pokémon Emerald (and Emerald Kaizo)
 
+## From Jackson
+
+G'day, I'm Jackson. This is my study of an AI playing Pokémon on its own.
+
+The short version: I give a Claude model a Game Boy Advance emulator and a small set of tools to read the game and press buttons. No walkthroughs: its web tools are switched off and it's told not to look anything up outside the game. Some runs also start with notes that earlier Claude agents wrote from their own play, and whether those notes help is one of the things we're testing. Then I let it play for days and record everything: every move it makes, every diary entry it writes, and every message I send it.
+
+Why Pokémon? Because it's a long job with a scoreboard you can't fake. Eight badges, the Elite Four, the Hall of Fame. AI agents are being handed longer and longer tasks that run for hours without anyone watching, but most tests of them are short. I wanted to see what actually happens over a hundred-plus hours: where the agent gets stuck, how it gets itself unstuck, how often a human ends up stepping in, and what the whole thing costs.
+
+Why Kaizo? Our first run beat the original game, all eight badges and the Hall of Fame. Emerald Kaizo is a fan-made hard mode where every trainer is built to wipe you, and it's far less written about online, so the model has much less to lean on from what it picked up in training. It has to lose, work out why, and change what it does.
+
+The part I care about most is whether we can trust what the agent says about itself. It keeps a diary and talks about how things feel. I don't treat that as proof of anything going on inside it, but I can check its account against the record of what it actually did and what it was told. In the first run, one instruction from me about how to write the diary roughly doubled the number of feelings it named within two entries. If people are going to use an AI's self-reports as evidence, that's worth knowing.
+
+I count my own help as well. Every message I send is saved word for word and graded by how much game information it gives away, so when the agent wins, I can say how much of that win was mine.
+
+I'm an independent researcher: no lab, no institution, no funding. Claude works on this with me as a co-researcher, and the section below says who did what.
+
+Where it's at on 28 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges after more than a hundred whiteouts and is heading for the Elite Four. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
+
+The rest of this README is the careful version.
+
+## About the project
+
 This project follows an AI model, Claude, as it plays a Pokémon game on its own for days at a time. It records everything the AI does, everything it writes about itself, and every message a human sends it. The aim is to see how well an AI agent works over a very long task, how much human help it really needs, what that costs, and whether its own account of its play can be trusted.
 
 The project is run by Jackson Dutton, an independent researcher in Melbourne, Australia. It has no institutional backing and is self-funded. Claude (Anthropic's Opus model) works on it as a co-researcher. Jackson designed the study, watched over the runs and made every decision about design and interpretation. The paper was written together. Claude wrote first drafts from the logs, and Jackson directed, edited and decided what the paper claims.
@@ -32,7 +54,7 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | B1 | Kaizo, no notes, first harness | Sonnet 5.5 | Finished. Reached 22 of the 27 milestones. |
 | B2 | Kaizo, no notes, second harness | Sonnet 5.5 | Finished. Reached 26 of 27. |
 | Ripple | Kaizo, first notes pack (from Run 1) | Sonnet 5.5 | Finished. Reached all 27 and won the first badge in about 19 hours. |
-| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it had seven badges and was at the eighth gym, after a four-day pause at the weekly usage limit (23 to 27 October). Its data will be added when the run ends. |
+| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). It is now looking for the Elite Four. Its data will be added when the run ends. |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
 The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
