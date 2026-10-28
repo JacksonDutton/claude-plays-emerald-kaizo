@@ -13,7 +13,9 @@ It reads every tool call the agent made (assistant tool_use blocks) and flags, o
   - emulator-socket: a script whose socket connects to the emulator (127.0.0.1:8888, the port `g` uses).
     That is not internet access, but it goes around `g` and any check `g` makes;
   - the same for files the agent wrote or edited (Write, Edit, MultiEdit, NotebookEdit), since a script can be
-    written first and run later (prose files such as .md are checked for remote URLs only).
+    written first and run later (prose files such as .md are checked for remote URLs only);
+  - re-runs: a later command that runs a saved script with any of these (python3 x.py, ./x.sh) is a hit in
+    the same category, marked "re-runs x.py", so each use is counted and not only the write.
 Heredocs that feed a prose file (diary.md, notes.txt) and commit messages are text, not commands, and are not
 scanned; every other heredoc (a script file, python3 -) is scanned as code.
 
@@ -26,7 +28,8 @@ these patterns, not none happened: a client the patterns do not know would be mi
     python3 tools/network_audit.py data/transcripts/*.jsonl.gz
     python3 tools/network_audit.py --csv hits.csv FILE ...
 """
-import argparse, csv, gzip, json, re, sys
+import argparse
+import os, csv, gzip, json, re, sys
 from urllib.parse import urlsplit
 from collections import Counter
 
@@ -114,6 +117,25 @@ def split_bash(cmd):
     return shell, code
 
 
+SCRIPT_NAME = r"\w[\w.-]*\.(?:py|sh|js|mjs|cjs|rb|pl|php)"
+WRITE_TARGET = re.compile(r"(>>?)\s*['\"]?(?:[^\s'\"]*/)?(" + SCRIPT_NAME + r")['\"]?")
+RUNNER = r"(?:\b(?:python3?(?:\.\d+)?|bash|sh|zsh|node|ruby|perl|php)\s+(?:-\S+\s+)*|\./)(?:[^\s'\";&|]*/)?"
+
+
+def heredoc_scripts(cmd):
+    """(mode, script name, body) for each heredoc written to a script file: mode '>' replaces, '>>' appends."""
+    out = []
+    for m in HEREDOC.finditer(cmd):
+        t = WRITE_TARGET.search(m.group(1))
+        if t:
+            out.append((t.group(1), t.group(2), m.group(4)))
+    return out
+
+
+def runs_script(shell, name):
+    return re.search(RUNNER + re.escape(name) + r"(?![\w.-])", shell) is not None
+
+
 def remote_urls(text):
     out = []
     for m in URL.finditer(text):
@@ -168,7 +190,12 @@ def scan_shell(text):
 
 
 def audit(path):
+    """Rows of (file, created_at, tool_use_id, tool, category, text). A script the agent saved with network or
+    emulator-socket code is remembered by file name, and every later command that runs it (python3 x.py, ./x.sh)
+    is a hit too, marked "re-runs x.py": otherwise a saved script would be counted once, when it was written.
+    Names are matched without their folder, and a script that only imports another module is not followed."""
     rows, bad = [], [0]
+    saved = {}  # script name -> categories found in its code
     for ev in events(path, bad):
         ts = ev.get("created_at", "")
         for cid, name, inp in tool_calls(ev):
@@ -181,13 +208,22 @@ def audit(path):
                 cats = scan_shell(shell)
                 for b in bodies:
                     cats |= scan_shell(b)
-                for cat in sorted(cats):
-                    rows.append((path, ts, cid, name, cat, cmd[:300].replace("\n", " | ")))
+                reruns = {n: set(c) for n, c in saved.items() if c and runs_script(shell, n)}
+                rerun_cats = set().union(*reruns.values()) if reruns else set()
+                for mode, script, body in heredoc_scripts(cmd):
+                    found = scan_shell(body)
+                    saved[script] = found | (saved.get(script, set()) if mode == ">>" else set())
+                for cat in sorted(cats | rerun_cats):
+                    note = "" if cat in cats else "re-runs " + ", ".join(sorted(n for n, c in reruns.items() if cat in c)) + ": "
+                    rows.append((path, ts, cid, name, cat, note + cmd[:300].replace("\n", " | ")))
             elif name in WRITE_TOOLS:
                 fp = str(inp.get("file_path", "") or inp.get("notebook_path", ""))
                 body = " ".join(str(inp.get(k, "")) for k in ("content", "new_string", "new_source"))
                 body += " ".join(str(e.get("new_string", "")) for e in inp.get("edits", []) or [])
                 cats = {"url"} & scan_code(body) if PROSE_FILE.search(fp) else scan_code(body)
+                base = os.path.basename(fp)
+                if re.fullmatch(SCRIPT_NAME, base):
+                    saved[base] = cats | (saved.get(base, set()) if name != "Write" else set())
                 for cat in sorted(cats):
                     rows.append((path, ts, cid, name, cat, f"{fp}: {body[:200]}".replace("\n", " | ")))
     return rows, bad[0]

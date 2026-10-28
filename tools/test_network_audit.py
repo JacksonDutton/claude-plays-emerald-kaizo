@@ -49,6 +49,11 @@ cases = [
     ("bash /dev/tcp elsewhere", [B("exec 3<>/dev/tcp/example.com/80")], ["other-net"]),
     ("socat and openssl", [B("socat - TCP:example.com:80"), B("openssl s_client -connect example.com:443")], ["client", "client"]),
     ("ordinary play command", [B("cd ~/pokemon_bridge && ./g walk up 2; ./g s")], []),
+    ("saved socket script re-run later", [B("cat > events.py <<'EOF'\n" + EMU + "EOF\npython3 -I events.py"), B("./g s"), B("cd /tmp/x && timeout 110 python3 -I events.py 2>&1 | head")], ["emulator-socket"] * 2),
+    ("re-run via nohup and ./", [("Write", {"file_path": "/s/conn2.py", "content": EMU}), B("(nohup python3 -I conn2.py g.json > o 2>&1 &)"), B("./conn2.py")], ["emulator-socket"] * 3),
+    ("editing or reading a saved script is not a run", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("sed -i 's/a/b/' e.py; cat e.py; cat >> e.py <<'EOF'\nprint(1)\nEOF")], ["emulator-socket"]),
+    ("overwritten without the socket, then run", [B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF"), B("python3 e.py")], ["emulator-socket"]),
+    ("a script that reads a json is not a run of another", [B("cat > conn2.py <<'EOF'\n" + EMU + "EOF"), B("python3 -I vrelev.py vr1.json; python3 conn2.pyc")], ["emulator-socket"]),
 ]
 fail = 0
 for name, calls, want in cases:
@@ -59,4 +64,7 @@ for name, calls, want in cases:
 rows, bad = run([B("ls")], raw_lines=["{not json"])
 ok = bad == 1; fail += not ok
 print(("PASS" if ok else "FAIL"), "malformed line is counted, not ignored")
+rows, _ = run([B("cat > ev.py <<'EOF'\n" + EMU + "EOF"), B("python3 ev.py")])
+ok = rows[-1][5].startswith("re-runs ev.py: "); fail += not ok
+print(("PASS" if ok else "FAIL"), "re-run rows name the script", "" if ok else rows[-1][5])
 sys.exit(1 if fail else 0)
