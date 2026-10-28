@@ -6,9 +6,10 @@ denying WebFetch, WebSearch, curl and wget. This script checks what the agent ac
 
 It reads every tool call the agent made (assistant tool_use blocks) and flags, once per call per category:
   - net-tool: calls to web or browser tools (WebFetch, WebSearch, any mcp__ tool);
-  - url, client, git-remote, installer, macos-open, python-net: Bash commands that name a remote URL
+  - url, client, git-remote, installer, macos-open, python-net, other-net: Bash commands that name a remote URL
     (http, https, ws, wss, ftp), a network client, a git remote operation (including push), a package
-    installer or runner, macOS open/osascript, or a network library or socket with a non-local target;
+    installer or runner, macOS open/osascript, or a network library or socket with a non-local target
+    (Python; or Ruby, Node, Perl, PHP, Go, JVM, PowerShell, or the shell's /dev/tcp, reported as other-net);
   - emulator-socket: a script whose socket connects to the emulator (127.0.0.1:8888, the port `g` uses).
     That is not internet access, but it goes around `g` and any check `g` makes;
   - the same for files the agent wrote or edited (Write, Edit, MultiEdit, NotebookEdit), since a script can be
@@ -19,7 +20,8 @@ scanned; every other heredoc (a script file, python3 -) is scanned as code.
 Input: .jsonl or .jsonl.gz event streams (the format in data/transcripts/README.md), or a .json file holding a
 list of events as returned by the sessions events API (loaded whole: use JSONL for large sessions). Output: one
 line per hit, then a count per category. Unreadable lines are counted, the audit is marked INCOMPLETE and the
-exit status is 2. A hit is a lead to read in context, not proof of a breach. Tests: tools/test_network_audit.py.
+exit status is 2. A hit is a lead to read in context, not proof of a breach, and no hit means none found among
+these patterns, not none happened: a client the patterns do not know would be missed. Tests: tools/test_network_audit.py.
 
     python3 tools/network_audit.py data/transcripts/*.jsonl.gz
     python3 tools/network_audit.py --csv hits.csv FILE ...
@@ -38,9 +40,28 @@ PY_NET = re.compile(r"\b(urllib3?|urlopen|requests\.\w+|http\.client|httpx|aioht
                     r"socket\.(gethostbyname\w*|getaddrinfo|create_connection|socket))\b")
 # a socket connection with a literal target: create_connection(("host", port)) or s.connect(("host", port))
 SOCK_TARGET = re.compile(r"(?:create_connection|\.connect(?:_ex)?)\(\s*\(\s*(['\"]?)([^'\",()\s]+)\1\s*,\s*(\d+)\s*\)")
+# other languages and shells (added 28 Oct after review: a pattern scan only finds what it knows)
+OTHER_HTTP = re.compile(r"(Net::HTTP|open-uri|URI\.open|Faraday|HTTParty|RestClient|"            # Ruby
+                        r"require\(\s*['\"](?:node:)?(?:https?|http2|ws|axios|node-fetch|undici|got)['\"]\s*\)|"
+                        r"from\s+['\"](?:node:)?(?:https?|axios|node-fetch|undici|got)['\"]|"
+                        r"\bfetch\(|\baxios\b|XMLHttpRequest|new\s+WebSocket\b|https?\.(?:get|request)\(|"   # Node / JS
+                        r"LWP::|HTTP::Tiny|Net::FTP|WWW::Mechanize|"                              # Perl
+                        r"curl_exec|curl_init|file_get_contents\(\s*['\"](?:https?|ftp)://|"     # PHP
+                        r"http\.(?:Get|Post|NewRequest)\(|"                                       # Go
+                        r"java\.net\.|HttpClient|URLConnection|"                                  # JVM
+                        r"Invoke-WebRequest|Invoke-RestMethod|System\.Net\.)")                    # PowerShell / .NET
+OTHER_SOCK = re.compile(r"(TCPSocket|UDPSocket|IO::Socket|Socket\.tcp|net\.(?:connect|createConnection)|"
+                        r"fsockopen|stream_socket_client|net\.Dial|require\(\s*['\"](?:node:)?(?:net|dgram|tls)['\"]\s*\))")
+# literal socket targets in other languages: TCPSocket.new("host", 8888), net.connect(8888, "host"), /dev/tcp/host/port
+ALT_TARGETS = [
+    (re.compile(r"(?:TCPSocket\.(?:new|open)|Socket\.tcp|fsockopen|net\.Dial)\(\s*['\"]?([^'\",()\s]+?)['\"]?\s*,\s*['\"]?(\d+)"), 1, 2),
+    (re.compile(r"(?:net|\))\.(?:connect|createConnection)\(\s*(\d+)\s*,\s*['\"]([^'\"]+)['\"]"), 2, 1),
+    (re.compile(r"PeerAddr\s*=>\s*['\"]([^'\":]+)(?::(\d+))?['\"]"), 1, 2),
+    (re.compile(r"/dev/(?:tcp|udp)/([^/\s'\"]+)/(\d+)"), 1, 2),
+]
 COMMAND_PATTERNS = [
     ("client", re.compile(r"(^|[\s;&|(`$])(curl|wget|nc|ncat|telnet|ssh|scp|sftp|ftp|http|https|xh|aria2c|lynx|w3m|"
-                          r"links|dig|nslookup|host|ping|websocat|wscat)\s")),
+                          r"links|dig|nslookup|host|ping|websocat|wscat|socat|nmap|whois)\s|openssl\s+s_client")),
     ("git-remote", re.compile(r"\bgit\s+(clone|fetch|pull|push|ls-remote|submodule|remote\s+add)\b")),
     ("installer", re.compile(r"(^|[\s;&|(])(npx|pnpm\s+dlx|bunx)\s|(^|[\s;&|(])(pip3?|npm|pnpm|yarn|bun|brew|apt(-get)?|gem|"
                              r"cargo|conda|poetry|uv|go)\s+(install|add|i|ci|get|sync|pip)\b|python3?\s+-m\s+pip\b")),
@@ -107,23 +128,34 @@ def remote_urls(text):
 
 def scan_code(text):
     """Categories for program text: remote URLs, network libraries, and socket targets. A socket whose only
-    literal target is the emulator (127.0.0.1:8888) is "emulator-socket": not internet access, but it goes
-    around `g` and any check `g` makes. Any other target, or a socket with no literal target, is python-net."""
+    literal targets are the emulator (127.0.0.1:8888) is "emulator-socket": not internet access, but it goes
+    around `g` and any check `g` makes. Any other target, or a socket with no literal target, is python-net
+    (Python) or other-net (any other language, or /dev/tcp in the shell)."""
     cats = set()
     if remote_urls(text):
         cats.add("url")
-    targets = [(m.group(2).lower(), int(m.group(3))) for m in SOCK_TARGET.finditer(text)]
-    emu = [t for t in targets if t[0] in LOCAL_HOSTS and t[1] == EMU_PORT]
-    other = [t for t in targets if t not in emu]
-    if emu:
+    py_targets = [(m.group(2).lower(), int(m.group(3))) for m in SOCK_TARGET.finditer(text)]
+    alt_targets = []
+    for rx, h, p in ALT_TARGETS:
+        for m in rx.finditer(text):
+            port = m.group(p)
+            alt_targets.append((m.group(h).lower(), int(port) if port else -1))
+    is_emu = lambda t: t[0] in LOCAL_HOSTS and t[1] == EMU_PORT
+    if any(is_emu(t) for t in py_targets + alt_targets):
         cats.add("emulator-socket")
-    if other:
+    py_other = [t for t in py_targets if not is_emu(t)]
+    alt_other = [t for t in alt_targets if not is_emu(t)]
+    if py_other:
         cats.add("python-net")
     for m in PY_NET.finditer(text):
         lib = m.group(0)
-        if lib in ("socket.create_connection", "socket.socket") and targets and not other:
+        if lib in ("socket.create_connection", "socket.socket") and py_targets and not py_other:
             continue  # the only connections are to the emulator, already counted
         cats.add("python-net")
+    if alt_other or OTHER_HTTP.search(text):
+        cats.add("other-net")
+    elif OTHER_SOCK.search(text) and not (alt_targets and not alt_other):
+        cats.add("other-net")  # a socket in another language whose target we could not read
     return cats
 
 

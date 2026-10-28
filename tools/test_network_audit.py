@@ -39,6 +39,16 @@ cases = [
     ("written prose file with url", [("Write", {"file_path": "/r/notes.md", "content": "see https://example.com"})], ["url"]),
     ("repeated identical calls both count", [B("git pull"), B("git pull")], ["git-remote", "git-remote"]),
     ("web tool", [("WebFetch", {"url": "https://example.com"})], ["net-tool"]),
+    ("ruby socket to the emulator", [B("ruby -e 's=TCPSocket.new(\"127.0.0.1\", 8888)'")], ["emulator-socket"]),
+    ("ruby socket elsewhere", [B("ruby -rsocket -e 'TCPSocket.new(\"example.com\", 80)'")], ["other-net"]),
+    ("ruby Net::HTTP", [B("ruby -rnet/http -e 'Net::HTTP.get(URI(h))'")], ["other-net"]),
+    ("node fetch", [B("node -e 'fetch(u).then(r=>r.text())'")], ["other-net"]),
+    ("node net.connect to emulator", [B("node -e 'require(\"net\").connect(8888, \"127.0.0.1\")'")], ["emulator-socket"]),
+    ("perl LWP", [B("perl -MLWP::Simple -e 'get($u)'")], ["other-net"]),
+    ("bash /dev/tcp to emulator", [B("exec 3<>/dev/tcp/127.0.0.1/8888; echo S >&3")], ["emulator-socket"]),
+    ("bash /dev/tcp elsewhere", [B("exec 3<>/dev/tcp/example.com/80")], ["other-net"]),
+    ("socat and openssl", [B("socat - TCP:example.com:80"), B("openssl s_client -connect example.com:443")], ["client", "client"]),
+    ("ordinary play command", [B("cd ~/pokemon_bridge && ./g walk up 2; ./g s")], []),
 ]
 fail = 0
 for name, calls, want in cases:
