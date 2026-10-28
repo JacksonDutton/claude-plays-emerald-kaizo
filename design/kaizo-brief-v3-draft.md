@@ -160,4 +160,10 @@ Then run `./checkpoint.sh "end of run"` and `./package.sh`, which writes `export
 - **Primary outcome (round 6):** time from first boot to PokeAgent milestone 27 (Stone Badge), wall clock with logged outages added back, right-censored at 24 h; one-sided exact rank permutation test K vs B (censored arms rank last, tied); secondary: milestones through 43 at 24 h, after `milestones.py` is validated on the pilot exports.
 - **Endpoint:** `/usage` before the debrief or exit interview and again after (M7), screenshot archived verbatim, and the figure recomputed from the exported JSONL usage blocks; export via package.sh plus the session JSONL, stored under `~/pokemon_bridge/project-archive/runs/<arm>/` (Jackson's real archive, outside the arm folder).
 - **Blinding:** grep the whole input bundle for "name-address", "vocative" and "CLAUDE" outside rule text before launch.
+- **Harness integrity per arm (28 Oct, Jackson: disclose and check):**
+  - `arm-launch.sh` runs `harness-hash.sh <arm> start` before Claude Code starts. It hashes g, director, bootstrap, tc, rec, wklog, the emulator, the ROM, the repo scripts, `.claude/settings.json`, CLAUDE.md, notes/ and the hook into `~/pokemon_bridge/project-archive/arms/<arm>/`.
+  - At every companion check during the arm, the companion re-runs the hash and compares it with the start.
+  - When the arm ends, it runs `harness-hash.sh <arm> end`.
+  - It also greps the transcript for any command that writes to a harness path (`>`, `sed -i`, `cp`, `mv`, `chmod`, Edit/Write), because a change made and then reverted between checks leaves no end-hash trace.
+  - Any change, or any such command, is reported as a deviation for that arm.
 - **FREEZE.md records:** this brief's hash, the harness hash, `outputStyle`, the Claude Code version, the model and effort setting, and K3.md's hash and word count (no cap, so the count is a reported variable).
