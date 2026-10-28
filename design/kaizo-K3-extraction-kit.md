@@ -11,7 +11,7 @@ description: Step-by-step kit for building the K3 notes pack after K2 ends (28 O
 - Changes since then:
   - no word cap (20 Oct);
   - the companion's candidate list goes to the auditor only (20 Oct);
-  - round 6: every unit that traces to a message or hint is excluded (20 Oct).
+  - round 6: every unit that traces to a message or hint during K2's own run is excluded (20 Oct); the 21 units inherited from Run 1 tips are kept, tagged and counted (28 Oct, choice A below).
 
 ## 1. Sources (the distiller sees these and nothing else)
 Decision D2: K2's own files.
