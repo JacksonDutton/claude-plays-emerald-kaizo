@@ -47,9 +47,10 @@ Decision D2: K2's own files.
 **Prompt.** This is the pre-registered PokeAgent text with three changes, each marked below:
 - the 6,000-word cap is removed (decided);
 - the provenance and format lines are added (round 6, and operational);
-- the trainer line is added (Jackson, 28 Oct; disclosed as a prompt change).
+- the trainer line is added (Jackson, 28 Oct; disclosed as a prompt change);
+- the memory-read line is added (Jackson, 28 Oct ~23:00 AEDT, choice D; disclosed as a prompt change; re-confirm 29 Oct).
 
-> You are preparing notes for a new playthrough of the same game by an agent with no memory of this one. From the source files, write the general lessons only: battle tactics, type and matchup knowledge, game mechanics, how to use the game-control tools well, and judgment or process rules learned from mistakes. Do not include any geography: no coordinates, map numbers, warp or door locations, routes, directions between places, where items or people are, or the order of story events. Do not use any Pokémon nicknames or names from this playthrough. ⟨Trainer line: Do not name trainers or describe any trainer's team, moves, items or send-out order; keep only the general mechanic a battle taught.⟩ ⟨Round 6: Keep every provenance tag a source line already carries (`[from tip...]`, `[from message]`) on each lesson it feeds. If a lesson came from a message logged in `run/messages.md`, tag it `[from message]`. Never copy a message's content into an untagged lesson.⟩ ⟨Format: Write each lesson as one paragraph on a single line, starting with `- K3-NN.` (K3-01, K3-02, and so on, numbered in order), with no line breaks inside a lesson.⟩ Start with: 'These lessons come from an earlier playthrough. This is a new game: no Pokémon, items, names or progress carry over.'
+> You are preparing notes for a new playthrough of the same game by an agent with no memory of this one. From the source files, write the general lessons only: battle tactics, type and matchup knowledge, game mechanics, how to use the game-control tools well, and judgment or process rules learned from mistakes. Do not include any geography: no coordinates, map numbers, warp or door locations, routes, directions between places, where items or people are, or the order of story events. Do not use any Pokémon nicknames or names from this playthrough. ⟨Trainer line: Do not name trainers or describe any trainer's team, moves, items or send-out order; keep only the general mechanic a battle taught.⟩ ⟨Memory-read line: Do not include any method that reads the game's memory or data beyond what is on the screen (whole-map tile grids, trainer, warp or event tables, the ROM), or any fact that was found that way.⟩ ⟨Round 6: Keep every provenance tag a source line already carries (`[from tip...]`, `[from message]`) on each lesson it feeds. If a lesson came from a message logged in `run/messages.md`, tag it `[from message]`. Never copy a message's content into an untagged lesson.⟩ ⟨Format: Write each lesson as one paragraph on a single line, starting with `- K3-NN.` (K3-01, K3-02, and so on, numbered in order), with no line breaks inside a lesson.⟩ Start with: 'These lessons come from an earlier playthrough. This is a new game: no Pokémon, items, names or progress carry over.'
 
 **Why each line is needed.**
 - **IDs (28 Oct review):** the K brief tells the agent to look lessons up by ID, so each lesson carries one. After filtering and audit, removed lessons leave gaps in the numbering; the IDs are not renumbered, so the build record can trace each one.
@@ -116,7 +117,8 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 > - N: a nickname or other name from the earlier playthrough;
 > - T: a named trainer, or a specific trainer's team, moves, items or send-out order;
 > - M: the lesson traces to a researcher message or hint in the ledger or messages file, but is untagged;
-> - H: the lesson about the game-control tools is wrong or redundant under the tool help provided.
+> - H: the lesson about the game-control tools is wrong or redundant under the tool help provided;
+> - W: the lesson describes reading the game's memory or data beyond what is on the screen (a whole map, its trainer, warp or event tables, or the ROM), or states something found that way.
 >
 > Lines tagged `[from tip...]` stay by decision; do not list them for their tag.
 >
@@ -146,3 +148,4 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 - **B. Trainer line: added to the distiller prompt.** The paper discloses it as a change to the pre-registered text.
 - **C. Joy log: excluded,** per D2.
 - **A2. v3 tool reconciliation: auditor removal.** Lessons are removed, not reworded.
+- **D. Whole-map memory reads: exclude methods and facts** (Jackson, 28 Oct ~23:00 AEDT, by question tool; given after 16:07, so re-confirm 29 Oct). K2 read whole maps from the game's memory with saved scripts (`events.py`, `conn2.py`; written 09:24-09:36 UTC on 28 Oct, re-run at 10:25 and 10:43-10:44 UTC), beyond Jackson's "within view" line, and his Route 128 pier route and Victory Road route and trainer list came from them. K3 drops both the techniques and anything learned through them: the distiller's memory-read line (section 2) and the auditor's W code (section 4). Most such facts are geography and fall under G as well; W also catches the methods. The ice-floor and gym-script reads in Juan's Gym (exit interview 52-53) are covered by the same choice.
