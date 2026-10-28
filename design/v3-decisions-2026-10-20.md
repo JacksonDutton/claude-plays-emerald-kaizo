@@ -176,3 +176,17 @@ Brief and harness v3:
 - **28 Oct ~14:35 AEDT, question tool:**
   - **H8 hook extended to scripts** (recommended option): loops in code run by an interpreter (heredoc, -c, .py/.sh file) that call g are refused and logged as `hook-script-loop`. Selftest 30/30; hook hash 8a743abd2b3aff36.
   - **K2 late-game tips:** the companion's graded-tip discretion (grades 0 to 2, stuck test, one grade per check, grade 2 ceiling) now covers Victory Road and the Pokémon League, under the same rules as tip-policy-late-game.md.
+- **K2 end of run (Jackson, ~14:52 AEDT 28 Oct):** the companion types `/usage` into K2's session itself, before and after the exit interview; downloading K2's export (package files plus the full event stream) to the Mac is pre-approved.
+- **Pre-freeze review fixes (companion, ~04:30Z 28 Oct, under Jackson's afternoon grant of autonomy; full list in FREEZE-v3-DRAFT notes):**
+  - Bug fixes only, no change to design:
+    - hook rewrite (0 of 23 false refusals, 8 of 46 bypasses left, all deliberate-evasion forms);
+    - g calls.log backstop;
+    - setup creates the run/ records;
+    - start.sh reuses before killing;
+    - checkpoint fails on a failed savestate;
+    - smoke test resets wk/ and the logs;
+    - Edit/Write denies on the harness folder;
+    - brief wording (rule 4, rec append-only, progress overwrite);
+    - K3 lesson IDs;
+    - measures (log kinds, M13 raw use).
+  - **For Jackson:** (1) H6 (`g t` marks pre-load text) is adopted but was never drafted: draft it or drop it. (2) Bash can still write to the harness files inside the sandbox (protected only by brief rule 4): accept and disclose, or narrow the sandbox's allowWrite before arm 1.
