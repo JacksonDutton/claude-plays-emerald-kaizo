@@ -202,3 +202,4 @@ Brief and harness v3:
   3. **Coder agreement is reported per coded instance** (family, intensity, sign), not only as passage totals. Quote checks establish the quotes, not the coding.
   4. **Freeze before v3 starts:** memory access (the in-view rule, wording still to be signed off), permitted tool-building, stop and restart rules, assistance rules and the primary outcome.
   5. **Priority claims stay at "first documented, as far as we can find"**, with the setup described precisely (an agent playing through this harness, with documented assistance and tool access).
+  - Follow-through (28 Oct, after review on PR 21): M8b (recurrence with opportunities) and M13 (supervision dimensions) added to `kaizo-v3-measures-draft.md`; a `sign` field and per-instance agreement added to `diary-blind-coder-codebook.md`; the v3 harness's emulator socket now binds to 127.0.0.1 only (it listened on every interface), recorded in FREEZE-v3-DRAFT with a smoke-test item.
