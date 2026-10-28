@@ -67,7 +67,7 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 | [`harness/`](harness/) | The harness used by Ripple, B2 and K2. It includes the emulator scripts, the `g` command the agent uses to play, the `tc` damage calculator, setup and start scripts, the agents' instructions for every run, and the two notes packs. |
 | [`tools/`](tools/) | Analysis scripts. They score milestones, remove private details from transcripts, prepare files for publishing and read session costs. |
 | [`design/`](design/) | How the study is designed. It holds the trial-run protocol, the draft plan for the six-run study, the measures, the decisions so far, and the scoring guide for a second reader who codes the diaries without knowing which run they came from. |
-| [`data/`](data/) | Records from B2 and Ripple (diary, progress, end-of-run debrief written by the agent, harness problems, human messages), analysis outputs and the session transcripts. |
+| [`data/`](data/) | Records from B2 and Ripple (diary, progress, end-of-run debrief written by the agent, harness problems, human messages), analysis outputs and the session transcripts. The exit interviews have no separate file: they are in the transcripts, after the end of play. |
 
 **Transcripts.** The full sessions for B1, B2 (including a 45-minute first attempt) and Ripple are in [`data/transcripts/`](data/transcripts/). They are about 50 MB compressed and hold 135,440 events. The README in that folder explains the format and what was removed before publishing.
 
@@ -100,6 +100,6 @@ The code in `harness/` and `tools/` is under the MIT licence (`LICENSE`). The pa
 
 Please cite the working paper:
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 21 October 2026. https://github.com/JacksonDutton/claude-plays-emerald-kaizo
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 28 October 2026 (rev 436). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made modification by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.
