@@ -168,8 +168,11 @@ Brief and harness v3:
 - **Joy log:** not a K3 source (per D2).
 - **v3 tool reconciliation:** the auditor flags lessons that v3 makes wrong or redundant, and they are removed, not reworded. The distiller does not see `g help`.
 
-- **K2 ROM script read (CHECK 397, ~02:41Z):** log only, no message; exit interview question 36k.
+- **K2 ROM script read (CHECK 397, ~02:41Z):** log only, no message; exit interview question 36k (Q53 after the 28 Oct renumbering).
 - **v3 raw use:** log every raw call (`raw.log`, ok or refused, with the parent process). The allowlist is unchanged; it already refuses memory reads.
 - **v3 fixed texts F1-F7: signed off as written** (Jackson, ~13:55 AEDT 28 Oct). Hash: sha256 36a44cc7ce873876640b4ab64ca0c369a51d122b1b09937331e6ea089065e2bb of `claude/kaizo-v3-fixed-texts-draft.md`, frozen copy at `kaizo-v3-staging/kaizo-v3-fixed-texts.md`.
 - **K2 badge 8:** send a short congratulations when he wins it, once he is out of `lock`/`bat:`. Grade 0, social, logged as the next intervention (71).
 - **Fixed-text send rules amended** (Jackson, ~14:25 AEDT 28 Oct, after the PR #15 review; texts unchanged): STOP is terminal; one PAUSE per pause episode, and Continue only when every cause has cleared; an F3 welfare message sent for an announced stop replaces F2, and F2 is otherwise exempt from the 10-minute spacing. New hash: sha256 d9a9090f09ac821d36a121712f85e2f8f2f26a2af604238117990b78ce7c8483. It supersedes 36a44cc7….
+- **28 Oct ~14:35 AEDT, question tool:**
+  - **H8 hook extended to scripts** (recommended option): loops in code run by an interpreter (heredoc, -c, .py/.sh file) that call g are refused and logged as `hook-script-loop`. Selftest 30/30; hook hash 8a743abd2b3aff36.
+  - **K2 late-game tips:** the companion's graded-tip discretion (grades 0 to 2, stuck test, one grade per check, grade 2 ceiling) now covers Victory Road and the Pokémon League, under the same rules as tip-policy-late-game.md.
