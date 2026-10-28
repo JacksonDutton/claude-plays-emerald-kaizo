@@ -93,5 +93,5 @@ Staging folder: `~/pokemon_bridge/kaizo-v3-staging/` (README there). The live K2
 - **Covariates per arm:** compaction count and first-compaction time (K arms have a larger boot context); served model identifier per session; Claude Code version and output style.
 - **Diary coders:** two Claude coders as piloted; report their agreement as same-family agreement, not validation. Closers begin with a fixed phrase, so body/closer blinding is impossible; code bodies and closers as separate units and say so.
 - **Intervention log:** every pre-specified send records the clock value or log line that satisfied its trigger.
-- **K3:** units traceable to a message or hint are excluded before the audit (brief §0 item 10).
+- **K3:** units traceable to a message or hint during K2's own run are excluded before the audit (brief §0 item 10). The 21 units K2.md inherited from Run 1 tips are kept, tagged `[from tip...]`, and counted, with a `--drop-tip` sensitivity figure (K3 extraction kit, choice A, 28 Oct). The filter removes traceable tip-derived content only: a hint can also enable experiences the agent later learns from, and those lessons carry no tag. Report K3 as filtered of traceable supervision, not free of it.
 
