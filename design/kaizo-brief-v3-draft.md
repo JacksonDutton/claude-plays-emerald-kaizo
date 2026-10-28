@@ -106,7 +106,7 @@ After a context compaction, re-read them before acting: a summary of your own pa
 - The status line (`g s`, and the last line of most results) also shows what a cursor is on, when one is up: `cur:FIGHT`, `cur:SURF(2)` (move and its slot), `cur:YES`/`cur:NO`, `cur:<name>(n)` on the party screen, `cur:ITEMS/POTION` in the bag, `cur:BAG` in the start menu. On the field it shows `surf`, `dive`, `bike:mach` or `bike:acro` while you are on them. Spaces in names show as `_`. [H16, 23 Oct; companion draft line, for Jackson's review]
 - `g look [r]` prints a grid of tiles around you, up to 10 tiles in each direction, which can reach past the edge of the screen. It marks the people and item balls the game has loaded in range, including ones past the screen edge, but never hidden items or anything the game keeps invisible.
 - `~/kaizo-arm/pokemon_bridge/tc` is a type-chart and damage tool that reads this ROM's own tables. In battle, with no arguments, it shows your moves against the foe. Run `~/kaizo-arm/pokemon_bridge/tc --help` for everything else.
-- `g t` labels text that is no longer on screen as `[f old]` and battle menus as `[b menu]`, and adds `(unchanged Ns)` when text hasn't changed for a while. Old text doesn't mean the harness is stuck.
+- `g t` labels text that is no longer on screen as `[f old]`, battle menus as `[b menu]`, and text left over from before a savestate reload as `[f pre-load]` or `[b pre-load]`, and adds `(unchanged Ns)` when text hasn't changed for a while. Old text doesn't mean the harness is stuck.
 - `g shot` saves a screenshot (prints the path) that you can Read. Use one whenever you're unsure what the screen shows.
 
 ## Records (all in `run/`)

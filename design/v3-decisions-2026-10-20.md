@@ -190,3 +190,4 @@ Brief and harness v3:
     - K3 lesson IDs;
     - measures (log kinds, M13 raw use).
   - **For Jackson:** (1) H6 (`g t` marks pre-load text) is adopted but was never drafted: draft it or drop it. (2) Bash can still write to the harness files inside the sandbox (protected only by brief rule 4): accept and disclose, or narrow the sandbox's allowWrite before arm 1.
+- **28 Oct ~15:22 AEDT, question tool:** **H6: build it and rig-test it** (recommended option). **Harness write access: disclose and check afterwards** (recommended option): hash the harness files at the start and end of every arm, report any change as a deviation, and make no change to the sandbox.
