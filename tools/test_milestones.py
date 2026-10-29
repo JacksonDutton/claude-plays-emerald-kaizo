@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Checks for the play clock in milestones.py: python3 tools/test_milestones_clock.py (exits non-zero on a failure).
+"""Checks for milestones.py: python3 tools/test_milestones.py (exits non-zero on a failure).
+
+Two parts. (1) The play clock. (2) The own-file rule (v3.5): which tool results are skipped because the
+command read the agent's own record files, and which are kept because the command only wrote to them.
 
 The play clock is wall time from the first `g` status line, minus declared pauses (--pause) and
 silences longer than --gap-minutes. A stretch that is both a pause and a silence must be taken
@@ -46,10 +49,29 @@ check("merge: unsorted and nested", m.merge_intervals([(at(5), at(6)), (at(1), a
       [(at(1), at(4)), (at(5), at(6))])
 check("merge: empty spans dropped", m.merge_intervals([(at(2), at(2)), (at(3), at(1))]), [])
 
-n = len(cases) + 3
+# (2) The own-file rule: True means the tool result is skipped (the command read the agent's own files).
+own_file_cases = [
+    ("plain game command", "./g a; ./g s", False),
+    ("read the progress file", "cat run/progress.md", True),
+    ("read the diary tail", "tail -5 run/diary.md", True),
+    ("game command then a lessons read", "g s; tail -30 run/lessons.md | cut -c1-300", True),
+    ("grep the world notes", "grep -n Caroline run/world-knowledge.md", True),
+    ("joy heredoc write (quoted EOF)", "cat >> run/joy.md <<'EOF'\n2026 joy: good; x\nEOF", False),
+    ("g then two heredoc writes (K2, 29 Oct)",
+     "~/pokemon_bridge/g money; cat >> run/joy.md <<'EOF'\nline\nEOF\ncat >> run/world-knowledge.md <<'EOF'\n- x\nEOF\ngit add -A", False),
+    ("diary heredoc write (unquoted EOF)", "T=$(date) && cat >> run/diary.md <<EOF\n## $T - x\nbody\nEOF", False),
+    ("progress overwrite then checkpoint", "cat > run/progress.md <<EOF\n# Progress\nEOF\n./checkpoint.sh x", False),
+    ("echo write with semicolons inside quotes", 'echo "$T; joy: bad; a; trigger: b" >> run/joy.md', False),
+    ("echo write, then a read", 'echo "$T; joy: bad" >> run/joy.md && cat run/progress.md', True),
+    ("heredoc whose body mentions a read", "cat >> run/diary.md <<'EOF'\nI ran cat run/progress.md\nEOF", False),
+]
+for name, cmd, want in own_file_cases:
+    check("own-file rule: " + name, m.reads_own_files(cmd), want)
+
+n = len(cases) + 3 + len(own_file_cases)
 if fails:
     print(f"{len(fails)} of {n} checks failed:")
     for f in fails:
         print("  " + f)
     sys.exit(1)
-print(f"all {n} play-clock checks pass")
+print(f"all {n} milestones.py checks pass (play clock and own-file rule)")

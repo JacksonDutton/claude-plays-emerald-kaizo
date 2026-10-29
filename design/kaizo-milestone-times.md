@@ -87,6 +87,7 @@ Scored with claude/tools/milestones.py **v3.1** on the archived session event st
 | 26 Rustboro Gym | — | 6:53:20 | 10:18:06 |
 | 27 Stone Badge | — | — | 19:07:33 (20:28:15Z) |
 
+**29 Oct note:** `milestones.py` v3.5 starts B1's clock 5 s earlier (08:55:27.72Z; a `g` call chained with a record write is no longer skipped), so the B1 clocks in this table read 5 s low against `data/analyses/milestones-v3.1-B1.csv`. B2 and Ripple are unchanged.
 Agreement with the table above: within about 1–5 minutes everywhere except where the anchor differs. Ripple's table clock starts at diary creation (01:24:32Z), the scorer's at the first `g` line (01:20:41Z): that and the silence rule account for Ripple R1 ≈9h57m vs 10h01m41s. Ripple's badge is 13 min later on the scorer than in the table (≈18h54m), from the same causes plus the table's pause subtraction (unverified split).
 **Whiteouts from the transcripts** (in-game "whited out / out of usable POKéMON" lines, ≥3 min apart, excluding the agent's file reads): B1 **10**, B2 **15**, **Ripple 16** (its own count was 15; from about 09:49Z its diary numbers whiteouts one too low, so its Trainer Red loss at 10:51Z was its 6th whiteout, not the 5th). The paper's arms table now says "16 by transcript (own count 15)" (rev 362).
 **Still open:** milestones 28–43 (needs map ids checked against pret, then a run on K2's export); R2 on K2's export.

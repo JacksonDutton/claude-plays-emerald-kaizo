@@ -1,0 +1,6 @@
+# Sourcery: skip the folders that hold data, figures and the paper PDF, so reviews spend their weekly
+# diff budget on code and design text (29 Oct 2026, Jackson's decision). Whether ignored paths stop
+# counting toward the budget is unverified.
+ignore:
+  - data
+  - paper
