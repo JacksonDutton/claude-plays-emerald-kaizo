@@ -10,6 +10,7 @@ authors:
   - family-names: Dutton
     given-names: Jackson
   - name: "Claude (Anthropic)"
+doi: 10.5281/zenodo.23751628
 repository-code: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
 license:
   - MIT
@@ -29,6 +30,7 @@ preferred-citation:
       given-names: Jackson
     - name: "Claude (Anthropic)"
   status: preprint
+  doi: 10.5281/zenodo.23751628
   notes: "Working paper, draft of 29 October 2026 (rev 476)."
   url: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
   year: 2026

@@ -1,6 +1,6 @@
 # Claude plays Pokémon Emerald (and Emerald Kaizo)
 
-[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml)
+[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23751628.svg)](https://doi.org/10.5281/zenodo.23751628)
 
 ## From Jackson
 
@@ -170,8 +170,8 @@ Jackson's name and GitHub username were kept. If you find personal information t
 
 The code in `harness/` and `tools/` is under the MIT licence (`LICENSE`). The paper, documents, instructions, notes packs and data are under CC BY 4.0 (`LICENSE-docs.md`). The mGBA patch in `harness/cloud/` follows mGBA's own licence, MPL-2.0.
 
-Please cite the working paper:
+Please cite the working paper. The DOI below always resolves to the latest archived version. Each release also has its own DOI; the 29 October 2026 release is [10.5281/zenodo.23751629](https://doi.org/10.5281/zenodo.23751629).
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476). Zenodo. https://doi.org/10.5281/zenodo.23751628
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made modification by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.
