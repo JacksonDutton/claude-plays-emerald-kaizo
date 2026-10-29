@@ -97,6 +97,17 @@ output that the scorer does not see. On the four pilot transcripts that is 3 (B1
 first attempt), 0 (B2) and 15 (Ripple). The rule is unchanged here: treating heredoc
 writes (`cat >> run/x.md <<EOF`) as writes rather than reads would move one published time
 (B1 milestone 1, 5 s earlier), so it is left for the K2 and v3 scoring decision.
+
+v3.5 (29 Oct 2026, companion, on Jackson's decision "fix now, log the 5 s change"): writes are
+not reads. A heredoc write (`cat >> run/x.md <<'EOF' ... EOF`, `cat > f <<EOF`) or an echo/printf
+redirected into a file is removed from the command before the own-file pattern is applied, so a
+`g` call chained with a record write keeps its game output; commands that read the agent's files
+are still skipped. Effect on the published pilot tables: B1's first status line is now the one at
+08:55:27.72Z (a `g` call chained with a write, which v3.4 skipped), 5 s earlier than before, so
+B1 milestone 1 moves to that time and every later B1 play clock moves 5 s later; no UTC time
+other than milestone 1 changes, and B2 and Ripple do not change at all. 08:55:27.72Z is the
+start the R1 re-implementation (data/analyses/r1_reimpl.csv) already used. Results still
+skipped with game output in them (a read chained with `g`): 0 (B1), 0 (B2), 7 (Ripple).
 """
 import argparse, csv, gzip, json, re, sys
 from datetime import datetime, timedelta
@@ -177,6 +188,16 @@ SUPP_MAP = {"R1": "0.19", "R2": "0.28"}  # v3.2: the map a supplementary milesto
 WHITEOUT = re.compile(r"(?i)whited out|blacked out|out of usable POK")
 REPEAT = re.compile(r"\(unchanged \d+s\)|\[[bf] old\]")  # v3.3: harness re-print markers
 FILE_READ = re.compile(r"(?i)\b(cat|grep|tail|head|sed|less|awk)\b[^|;&]*\.(md|txt)\b|diary|lessons\.md|progress\.md")
+# v3.5: writes are not reads. A heredoc write (`cat >> run/x.md <<'EOF' ... EOF`, `cat > f <<EOF`) or an
+# echo/printf redirected into a file is removed from the command before FILE_READ is applied, so a `g` call
+# chained with a record write keeps its game output. Commands that read the agent's files are still skipped.
+HEREDOC_WRITE = re.compile(r"(?s)\bcat\s*>>?\s*\S+\s*<<-?\s*(['\"]?)(\w+)\1.*?\n\s*\2[ \t]*(?=\n|$)")
+ECHO_WRITE = re.compile(r"""\b(?:echo|printf)\b(?:\s+(?:"(?:[^"\\]|\\.)*"|'[^']*'|[^\s|;&<>'"]+))*\s*>>?\s*\S+""")
+
+
+def reads_own_files(cmd):
+    """True when a command reads the agent's own record files (v3.5: record writes are ignored first)."""
+    return bool(FILE_READ.search(ECHO_WRITE.sub(" ", HEREDOC_WRITE.sub(" ", cmd))))
 
 STATUS = re.compile(r"^(\d+)\.(\d+) (-?\d+),(-?\d+) P(\d) B(\d+)\b", re.M)
 
@@ -250,7 +271,7 @@ def tool_texts(path):
                     v = c.get("content")
                     if isinstance(v, list):
                         v = "\n".join(x.get("text", "") for x in v if isinstance(x, dict))
-                    if FILE_READ.search(cmd):
+                    if reads_own_files(cmd):
                         SKIPPED["own_files"] += 1
                         if G_CALL.search(cmd) and isinstance(v, str) and STATUS.search(v):
                             SKIPPED["own_files_with_g_status"] += 1

@@ -129,7 +129,7 @@ A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derive
 - every transcript is listed in the checksum manifest and matches its SHA-256;
 - re-scoring the first-gym milestones (1 to 27, and the supplementary R1) from the three pilot transcripts gives exactly the published tables in `data/analyses/`;
 - the K2 chart redraws exactly from its published CSVs;
-- the play-clock tests pass (a stretch that is both a declared pause and a silence is taken off once);
+- the milestone scorer's tests pass (a stretch that is both a declared pause and a silence is taken off once, and a game command chained with a record write keeps its game output);
 - the K3 filter's tests pass (the filter decides what the K arms inherit, so it is part of the treatment), including a regression on the published K2 pack;
 - the network-audit tests pass;
 - the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
@@ -140,7 +140,7 @@ To run the same checks locally you need only Python 3, with nothing to install:
 python3 tools/check_published.py
 python3 tools/plot_k2_progress.py && git diff --exit-code data/figures/
 python3 tools/test_k3_filter.py
-python3 tools/test_milestones_clock.py
+python3 tools/test_milestones.py
 python3 tools/test_network_audit.py
 python3 tools/network_audit.py data/transcripts/*.jsonl.gz
 ```

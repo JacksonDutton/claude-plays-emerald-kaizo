@@ -29,7 +29,7 @@ Outputs of the 20 October transcript analyses (method and results: `design/trans
 
 | File | What it is |
 |---|---|
-| `milestones-v3.1-{B1,B2,Ripple}.csv` | First-seen time of each PokeAgent first-gym milestone (1 to 27), scored from the transcripts by `tools/milestones.py` v3.1. |
+| `milestones-v3.1-{B1,B2,Ripple}.csv` | First-seen time of each PokeAgent first-gym milestone (1 to 27), scored from the transcripts by `tools/milestones.py` v3.1. The file names are kept for stable links. On 29 October B1's table was re-derived with v3.5, which no longer skips a game command chained with a record write: B1's clock now starts 5 seconds earlier (08:55:27.72Z), so its milestone 1 time and every later B1 play clock change by 5 seconds. B2 and Ripple are unchanged. |
 | `habits_*.csv`, `habits_windows.csv` | Hourly tool-use habits per arm, and the same measures before and after each compaction and human message. |
 | `narration_hourly.csv`, `narration_compaction.csv` | How often and how much the agent wrote between tool calls, per hour and around compactions. |
 | `r1_reimpl.csv`, `r1_diary.md` | The supplementary milestone R1 ("Trainer Red" beaten) rescored from the transcripts, and an audit of every non-append edit each agent made to its diary. |
