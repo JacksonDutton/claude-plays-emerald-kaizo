@@ -16,7 +16,7 @@ I count my own help as well. Every message I send is saved word for word and gra
 
 I'm an independent researcher: no lab, no institution, no funding. Claude works on this with me as a co-researcher, and the section below says who did what.
 
-Where it's at on 28 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges after more than a hundred whiteouts and is heading for the Elite Four. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
+Where it's at on 29 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges and is working through Victory Road, the last area before the Elite Four, where it beat the hack's Trainer Red (Ho-Oh, Mew, Celebi and friends, levels 87 to 89) on its fifteenth try. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
 
 The rest of this README is the careful version.
 
@@ -54,16 +54,16 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | B1 | Kaizo, no notes, first harness | Sonnet 5.5 | Finished. Reached 22 of the 27 milestones. |
 | B2 | Kaizo, no notes, second harness | Sonnet 5.5 | Finished. Reached 26 of 27. |
 | Ripple | Kaizo, first notes pack (from Run 1) | Sonnet 5.5 | Finished. Reached all 27 and won the first badge in about 19 hours. |
-| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). It is now looking for the Elite Four. Its data will be added when the run ends. |
+| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). In Victory Road it beat Trainer Red on the fifteenth try (28 October) and is working through the remaining trainers toward the Elite Four. Its data will be added when the run ends. |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
 The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
 
 ## The paper
 
-[`paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf`](paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf)
+[`paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf`](paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf)
 
-*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 28 October 2026 (rev 436), 54 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2 to seven badges, its pause at the weekly usage limit from 23 to 27 October, and its resumption. Section 10 sets out the planned study, which will run on the supervisor's own computer, and the result of a two-hour setup pilot run there on 27 October.
+*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 475), 59 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2's eight badges, its pause at the weekly usage limit from 23 to 27 October, and Victory Road up to 29 October (Section 9.10), with every message sent after its stops. Section 10 sets out the planned study, which will run on the supervisor's own computer, and the result of a two-hour setup pilot run there on 27 October.
 
 Earlier revisions, kept so old links still work: [`paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf) (27 October 2026, 52 pages), [`paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf`](paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf) (22 October 2026, 48 pages) and [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
 
@@ -122,6 +122,6 @@ The code in `harness/` and `tools/` is under the MIT licence (`LICENSE`). The pa
 
 Please cite the working paper:
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 28 October 2026 (rev 436). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 475). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made modification by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.
