@@ -1,0 +1,16 @@
+{
+  "title": "Claude plays Pokémon Emerald (and Emerald Kaizo): working paper, harness, design documents and data",
+  "description": "<p>A logged case study of a Claude agent playing Pokémon Emerald and the fan-made hard mode Emerald Kaizo through a text harness for days at a time. It measures how much human help the agent needed, what it cost, and whether its own account of its play can be checked against the record. The archive holds the working paper (<em>Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald</em>), the harness, the agents' instructions and notes packs, the study's design documents and decisions, the pilot runs' records and scrubbed session transcripts, and Run 1's full diary. No game ROM is included.</p><p>Code in <code>harness/</code> and <code>tools/</code> is under the MIT licence; the paper, documents, notes and data are under CC BY 4.0. The working paper has not been peer reviewed.</p>",
+  "upload_type": "publication",
+  "publication_type": "workingpaper",
+  "creators": [
+    {"name": "Dutton, Jackson"},
+    {"name": "Claude (Anthropic)"}
+  ],
+  "license": "cc-by-4.0",
+  "keywords": ["AI agents", "long-horizon tasks", "Claude", "Pokémon Emerald", "Emerald Kaizo", "self-report", "human oversight", "case study"],
+  "related_identifiers": [
+    {"identifier": "https://github.com/JacksonDutton/claude-plays-emerald-kaizo", "relation": "isSupplementTo", "scheme": "url"}
+  ],
+  "language": "eng"
+}
