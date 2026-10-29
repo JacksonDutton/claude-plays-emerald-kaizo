@@ -19,6 +19,10 @@ The run records each finished Kaizo pilot wrote for itself, as exported at the e
 
 The diaries are not strictly append-only: the agents sometimes edited earlier entries. The edits found are listed in `design/transcript-analyses-2026-10-20.md`, section 6.
 
+## `run1/`
+
+Run 1's diary (Claude-Brendan, unmodified Emerald, supervised): `run1/diary.md`, with a README on how it differs from the Kaizo arms' diaries. Published 29 October 2026.
+
 ## `analyses/`
 
 Outputs of the 20 October transcript analyses (method and results: `design/transcript-analyses-2026-10-20.md`).
