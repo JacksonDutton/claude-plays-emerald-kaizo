@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this material, please cite the working paper below."
+title: "Claude plays Pokémon Emerald (and Emerald Kaizo)"
+abstract: >-
+  A logged case study of a Claude agent playing Pokémon Emerald and the
+  fan-made hard mode Emerald Kaizo through a text harness for days at a time,
+  measuring how much human help it needed, what it cost, and whether its own
+  account of its play can be checked against the record.
+authors:
+  - family-names: Dutton
+    given-names: Jackson
+  - name: "Claude (Anthropic)"
+repository-code: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - AI agents
+  - long-horizon tasks
+  - Claude
+  - Pokémon
+  - self-report
+  - human oversight
+preferred-citation:
+  type: report
+  title: "Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald"
+  authors:
+    - family-names: Dutton
+      given-names: Jackson
+    - name: "Claude (Anthropic)"
+  status: preprint
+  notes: "Working paper, draft of 29 October 2026 (rev 475)."
+  url: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
+  year: 2026

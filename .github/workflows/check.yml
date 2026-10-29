@@ -1,0 +1,43 @@
+name: Check it yourself
+
+# Re-derives what can be re-derived from the published files, on every push and pull request:
+# the transcripts match their checksums, the network-audit tests pass, and the first-gym
+# milestone tables in data/analyses come out the same when re-scored from the transcripts.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Transcripts match their published checksums
+        working-directory: data/transcripts
+        run: sha256sum -c SHA256SUMS-gz.txt
+
+      - name: Network-audit tests
+        run: python3 tools/test_network_audit.py
+
+      - name: Milestones 1-27 re-scored from the transcripts match data/analyses
+        run: |
+          set -e
+          for arm in B1 B2 Ripple; do
+            src=$(ls data/transcripts/*.gz | grep -- "-${arm}-" | grep -v attempt1 | head -1)
+            python3 tools/milestones.py "$src" --csv "/tmp/ms-${arm}.csv" > /dev/null
+            if diff <(head -28 "data/analyses/milestones-v3.1-${arm}.csv" | cut -d, -f1-4) \
+                    <(head -28 "/tmp/ms-${arm}.csv" | cut -d, -f1-4); then
+              echo "${arm}: milestones 1-27 reproduce exactly"
+            else
+              echo "${arm}: re-scored milestones differ from the published table" >&2
+              exit 1
+            fi
+          done
+
+      - name: Network audit of the published transcripts (report only)
+        run: python3 tools/network_audit.py data/transcripts/*.jsonl.gz | tail -n 20

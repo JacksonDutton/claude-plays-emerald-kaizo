@@ -1,5 +1,7 @@
 # Claude plays Pokémon Emerald (and Emerald Kaizo)
 
+[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml)
+
 ## From Jackson
 
 G'day, I'm Jackson. This is my study of an AI playing Pokémon on its own.
@@ -89,16 +91,35 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 | [`harness/`](harness/) | The harness used by Ripple, B2 and K2. It includes the emulator scripts, the `g` command the agent uses to play, the `tc` damage calculator, setup and start scripts, the agents' instructions for every run, and the two notes packs. |
 | [`tools/`](tools/) | Analysis scripts. They score milestones, remove private details from transcripts, prepare files for publishing and read session costs. |
 | [`design/`](design/) | How the study is designed. It holds the trial-run protocol, the draft plan for the six-run study, the measures, the decisions so far, and the scoring guide for a second reader who codes the diaries without knowing which run they came from. |
-| [`data/`](data/) | Records from B2 and Ripple (diary, progress, end-of-run debrief written by the agent, harness problems, human messages), analysis outputs and the session transcripts. The exit interviews have no separate file: they are in the transcripts, after the end of play. |
+| [`data/`](data/) | Run 1's full diary (149 entries); records from B2 and Ripple (diary, progress, end-of-run debrief written by the agent, harness problems, human messages); analysis outputs; and the session transcripts. The exit interviews have no separate file: they are in the transcripts, after the end of play. |
 
 **Transcripts.** The full sessions for B1, B2 (including a 45-minute first attempt) and Ripple are in [`data/transcripts/`](data/transcripts/). They are about 50 MB compressed and hold 135,440 events. The README in that folder explains the format and what was removed before publishing.
+
+## Check it yourself
+
+A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derives what can be re-derived from the published files, on every change:
+- the transcripts match their published SHA-256 checksums;
+- the network-audit tests pass;
+- re-scoring milestones 1 to 27 from the three pilot transcripts gives exactly the tables in `data/analyses/`;
+- the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
+
+To run the same checks locally you need only Python 3, with nothing to install:
+
+```
+(cd data/transcripts && sha256sum -c SHA256SUMS-gz.txt)
+python3 tools/test_network_audit.py
+python3 tools/milestones.py data/transcripts/kaizo-B2-events-20261020.public.jsonl.gz
+python3 tools/network_audit.py data/transcripts/*.jsonl.gz
+```
+
+The study's short names (B1, K2, K3, F1, M8c and so on) are explained in [`GLOSSARY.md`](GLOSSARY.md). To cite this work, GitHub's "Cite this repository" button reads [`CITATION.cff`](CITATION.cff).
 
 ## What is not here, and why
 
 - **Game files.** No game ROM, patch or save file is included. The harness needs a legally obtained Pokémon Emerald ROM patched with Emerald Kaizo v2.1. `harness/setup.sh` checks the patched file's SHA-1 and stops if it does not match.
 - **K2's records.** K2 is still playing. Its diary, lessons and transcript will be added after the run ends and the agent has been interviewed.
 - **Outside game information.** During the study, some files are kept away from the agents because they hold game knowledge from outside the game, such as encounter tables, move lists, forum posts and a human's own playthrough. They are not published here.
-- **Run 1's raw records.** The paper reports Run 1. Its raw diary and logs are available on request.
+- **Run 1's other records.** Run 1's diary is published in [`data/run1/`](data/run1/). Its progress log, lessons and other working files are available on request.
 - **Personal and account details.** See the next section.
 
 ## How the harness works
