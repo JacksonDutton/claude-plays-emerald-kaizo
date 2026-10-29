@@ -129,6 +129,7 @@ A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derive
 - every transcript is listed in the checksum manifest and matches its SHA-256;
 - re-scoring the first-gym milestones (1 to 27, and the supplementary R1) from the three pilot transcripts gives exactly the published tables in `data/analyses/`;
 - the K2 chart redraws exactly from its published CSVs;
+- the K3 filter's tests pass (the filter decides what the K arms inherit, so it is part of the treatment), including a regression on the published K2 pack;
 - the network-audit tests pass;
 - the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
 
@@ -137,6 +138,7 @@ To run the same checks locally you need only Python 3, with nothing to install:
 ```
 python3 tools/check_published.py
 python3 tools/plot_k2_progress.py && git diff --exit-code data/figures/
+python3 tools/test_k3_filter.py
 python3 tools/test_network_audit.py
 python3 tools/network_audit.py data/transcripts/*.jsonl.gz
 ```
@@ -170,8 +172,10 @@ Jackson's name and GitHub username were kept. If you find personal information t
 
 The code in `harness/` and `tools/` is under the MIT licence (`LICENSE`). The paper, documents, instructions, notes packs and data are under CC BY 4.0 (`LICENSE-docs.md`). The mGBA patch in `harness/cloud/` follows mGBA's own licence, MPL-2.0.
 
-Please cite the working paper. The DOI below always resolves to the latest archived version. Each release also has its own DOI; the 29 October 2026 release is [10.5281/zenodo.23751629](https://doi.org/10.5281/zenodo.23751629).
+Please cite the working paper. There are two DOIs, and each has one use:
+- **A specific draft:** each release has its own version DOI. The 29 October 2026 release (rev 476) is [10.5281/zenodo.23751629](https://doi.org/10.5281/zenodo.23751629).
+- **The project as a whole:** the concept DOI [10.5281/zenodo.23751628](https://doi.org/10.5281/zenodo.23751628) always resolves to the latest archived version.
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476). Zenodo. https://doi.org/10.5281/zenodo.23751628
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476). Zenodo. https://doi.org/10.5281/zenodo.23751629
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made modification by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.

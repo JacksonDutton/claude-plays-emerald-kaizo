@@ -248,3 +248,20 @@ Jackson shared a partial review of the repository by an outside model (GPT; its 
 - **Left open for Jackson:** a human-coded subset (codebook, "Open").
 Checked and already in place: the smallest p of 0.05 and the complete-separation rule; "the whole notes package" in the README and paper; the closer share measured against load; the Run 1 socket precedent worded as going around `g` with no memory reads found.
 Not adopted: the review's suggestion to reframe the study's main question around long-horizon competence. The confirmatory question stays the preregistered one; the wider framing belongs in the paper's discussion.
+
+### Same day, ~14:00 AEDT: the full outside review
+GPT then sent its full review of the repository (claims checked against the repo before acting). The companion applied:
+- **Primary outcome wording** (measures, paper): "right-censored" is replaced by the rule it stood for (badge within the window, and the time; otherwise tied behind every arm that has it), with stopping analysed separately in M10. Nothing in the rule changes.
+- **Stale statements:** the K3 kit's opening now says 18 of K2.md's 21 tip units are kept (choice E); choice A carries a note; the diary comparison says Run 1's diary is published.
+- **K3 filter tests in CI** (`tools/test_k3_filter.py`): the kit's rules as test cases, checks against over-removal, an end-to-end run, and a regression on the published K2 pack.
+- **"In view" label** in the measures and the paper: "within `g look`'s reach", because the reach can extend past the Game Boy screen. The signed-off brief keeps its wording, since the same sentence defines the reach.
+- **DOI semantics:** CITATION.cff and the README cite rev 476 by its version DOI (10.5281/zenodo.23751629) and the project by its concept DOI (10.5281/zenodo.23751628). After each release, update the version DOI.
+
+**Freeze gates added** (none of these can be done before K2 ends; each is a condition of calling v3 frozen):
+1. A self-contained `v3/` package committed to the repository: the rendered B and K briefs, the harness, the loop-guard hook, the sandbox configuration, the fixed texts, the launcher, the smoke test and a hash manifest. `harness/FREEZE.md` stays as K2's historical freeze record, untouched.
+2. One normative protocol document, `v3-protocol-frozen.md`, holding only the final rules and their hashes. This log stays as the history of how they were reached.
+3. The milestone scorer validated for milestones 28 to 43 on K2's full export (for the secondary count).
+4. CI extended to check the fixed-text hash, the B against K brief diff (only the ⟨K⟩/⟨B⟩ lines differ), CITATION.cff against `.zenodo.json`, and the `v3/` manifest.
+5. A stale-state sweep of the design folder.
+
+**Open for Jackson:** the arm order. B-K-K-B-B-K was fixed in the thesis, not randomised, so the exact permutation test rests on the arms being exchangeable, not on random assignment. Either randomise the six labels before freeze with a recorded seed, or keep the order and say so in the paper.
