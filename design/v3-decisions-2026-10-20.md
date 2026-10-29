@@ -220,3 +220,21 @@ Context: Jackson asked why Brendan's diary reads so differently from K2's and ho
 - **Diary-method R-lessons:** **move them to the brief and drop them from K3** (R). R02, R03, R04 and R08 (three of them tagged `[from tip]`) are covered in the brief for all six arms, and the K3 auditor removes them and their K2-derived equivalents (new code D). R06 and R09 are play method and stay. This overrides the 28 Oct choice A for those three tip units only, so 18 inherited tip units are kept.
 - **Purpose:** **tell the arms, as Brendan was told** (not the companion's recommendation, which was to keep "what the game is like for you"). The brief names Anthropic's emotion-concepts research and says why Jackson reads the diaries. The paper's reporting rule is updated: feeling counts in v3 are partly instructed, by the purpose line and the joy feeling word, identically in all six arms. K vs B comparisons stay valid. Comparisons with K2 and Run 1 become descriptive only.
 - **Brendan's diary:** **blind-code it** (R), **add a paper paragraph** (R), **publish it in the repo after a privacy pass**, and **save the comparison to the project**. Blind coding runs with K2's coding at the end of K2's run, so both go through the identical coder setup.
+
+## 29 Oct 2026, ~13:00 AEDT: reconfirmations of the 28 Oct evening decisions, and open items (question tool)
+- **K3 and whole-map memory reads:** kit choice D is **kept** (R). Both the methods and anything learned through them are dropped.
+- **"In view" (freeze blocker, now closed):** **within `g look`'s reach**, up to 10 tiles each way (R). The brief gains one line saying that direct reads are fine for what is in view and not beyond it. The audit codes each socket script as in view or whole map. A whole-map read is a reported deviation, not a stop.
+- **Network lock ("Block more + audit"):** **kept** (R). The smoke test must still show that the emulator socket works under the lock.
+- **Emulator socket:** **kept open and measured** (R).
+- **Exit interview:** Q57, Q58 and Q59 are **all kept** (R). Q55, "did you have fun?", moves to **straight after Part A** (R) so that Part A stays comparable across arms. The v3 arms get it at the same point.
+- **Measures:** M8c, M8b, M13 and per-instance coder agreement are **all kept** (R). The five GPT-review suggestions are therefore reconfirmed.
+- **`g` commands and K3:** the harness's own commands, such as `g warps`, are **not** covered by the whole-map exclusion (R). The exclusion covers reads made around `g` only.
+- **Purpose paragraph:** **signed off as written** (29 Oct).
+- **Pronouns in the paper:** **keep "it"** (R). The chat usage and K2's own answer are disclosed.
+- **Repository:**
+  - a numbers block with a chart and three agent quotes under Jackson's intro;
+  - repo topics and a homepage link (Jackson's yes to the settings change);
+  - a GitHub Pages diary site, with K2 added after the run;
+  - the rev 476 PDF;
+  - a Zenodo DOI **now**, which needs Jackson to switch the repo on in Zenodo before the companion makes the release.
+- Still open: the companion's notes do not record what exit question 56 is, so it stays unconfirmed until it is read in the interview script.
