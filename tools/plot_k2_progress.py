@@ -10,10 +10,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG = os.path.join(ROOT, "data", "figures")
 W, H = 760, 356
 L, R, T, B = 56, 40, 90, 46          # plot margins
-XMAX, YMAX = 175, 150
+XMAX, YMAX = 175, 150                # axis maxima; main() widens them to fit the data
 
 def x(h): return L + (W - L - R) * h / XMAX
 def y(n): return H - B - (H - T - B) * n / YMAX
+
+def round_up(v, step): return step * -(-v // step)
 
 def main():
     with open(os.path.join(FIG, "k2-whiteouts.csv")) as f:
@@ -21,6 +23,9 @@ def main():
     with open(os.path.join(FIG, "k2-milestones.csv")) as f:
         ms = [(float(r["hours_of_play"]), r["milestone"], r["kind"], r["tries"]) for r in csv.DictReader(f)]
     pts.sort()
+    global XMAX, YMAX
+    XMAX = max(XMAX, int(round_up(max(p[0] for p in pts) + 4, 25)))
+    YMAX = max(YMAX, int(round_up(max(p[1] for p in pts) + 1, 50)))
     def at(h):  # cumulative whiteouts at hour h
         n = 0
         for ph, pn in pts:
@@ -76,8 +81,11 @@ def main():
               f'text-anchor="middle">R</text>')
     a(f'<text class="ink" x="{x(last_h)+6:.1f}" y="{y(last_n)+4:.1f}" font-size="12" font-weight="600">{last_n}</text>')
     a('</svg>')
-    with open(os.path.join(FIG, "k2-progress.svg"), "w") as f:
+    path = os.path.join(FIG, "k2-progress.svg")
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:          # write aside, then swap in, so a failed run never leaves a broken figure
         f.write("\n".join(out) + "\n")
+    os.replace(tmp, path)
 
 if __name__ == "__main__":
     main()

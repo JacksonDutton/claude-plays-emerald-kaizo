@@ -24,6 +24,11 @@ jobs:
       - name: Transcripts and milestone tables (tools/check_published.py)
         run: python3 tools/check_published.py
 
+      - name: The K2 chart matches its published data (data/figures)
+        run: |
+          python3 tools/plot_k2_progress.py
+          git diff --exit-code -- data/figures/k2-progress.svg
+
       - name: Network-audit tests
         run: python3 tools/test_network_audit.py
 

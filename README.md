@@ -128,6 +128,7 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derives what can be re-derived from the published files, on every change:
 - every transcript is listed in the checksum manifest and matches its SHA-256;
 - re-scoring the first-gym milestones (1 to 27, and the supplementary R1) from the three pilot transcripts gives exactly the published tables in `data/analyses/`;
+- the K2 chart redraws exactly from its published CSVs;
 - the network-audit tests pass;
 - the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
 
@@ -135,6 +136,7 @@ To run the same checks locally you need only Python 3, with nothing to install:
 
 ```
 python3 tools/check_published.py
+python3 tools/plot_k2_progress.py && git diff --exit-code data/figures/
 python3 tools/test_network_audit.py
 python3 tools/network_audit.py data/transcripts/*.jsonl.gz
 ```
