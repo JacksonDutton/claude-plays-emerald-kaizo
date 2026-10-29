@@ -17,11 +17,26 @@ def y(n): return H - B - (H - T - B) * n / YMAX
 
 def round_up(v, step): return step * -(-v // step)
 
+WORDS = "zero one two three four five six seven eight".split()
+ORD = ("zeroth first second third fourth fifth sixth seventh eighth ninth tenth eleventh twelfth thirteenth "
+       "fourteenth fifteenth sixteenth seventeenth eighteenth nineteenth twentieth").split()
+def ordinal(n):
+    if n < len(ORD): return ORD[n]
+    return f"{n}th" if 10 <= n % 100 <= 20 else f"{n}" + {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+def tries_text(t):
+    try:
+        return f"beaten on the {ordinal(int(t))} try"
+    except ValueError:
+        return "beaten"
+
 def main():
     with open(os.path.join(FIG, "k2-whiteouts.csv")) as f:
         pts = [(float(r["hours_of_play"]), int(r["cumulative_whiteouts"])) for r in csv.DictReader(f)]
     with open(os.path.join(FIG, "k2-milestones.csv")) as f:
-        ms = [(float(r["hours_of_play"]), r["milestone"], r["kind"], r["tries"]) for r in csv.DictReader(f)]
+        rows = list(csv.DictReader(f))
+    # label: the letter drawn above a non-badge dot (optional column; the name's first letter if blank)
+    ms = [(float(r["hours_of_play"]), r["milestone"], r["kind"], r["tries"]) for r in rows]
+    label = {r["milestone"]: (r.get("label") or r["milestone"][0]) for r in rows}
     pts.sort()
     global XMAX, YMAX
     XMAX = max(XMAX, int(round_up(max(p[0] for p in pts) + 4, 25)))
@@ -35,13 +50,18 @@ def main():
     for h, n in pts[1:]:
         d.append(f"H{x(h):.1f}V{y(n):.1f}")
     last_h, last_n = pts[-1]
+    nb = sum(1 for m in ms if m[2] == "badge")
+    bosses = [m for m in ms if m[2] != "badge"]           # every non-badge row is drawn and labelled from its own name
+    nb_text = WORDS[nb] if nb < len(WORDS) else str(nb)
+    boss_desc = "; ".join(f"{name}, {tries_text(tries)}" for _, name, _, tries in bosses)
+    boss_key = ". ".join(f"{label[name]}: {name}, {tries_text(tries)}" for _, name, _, tries in bosses)
     out = []
     a = out.append
     a(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
       f'aria-labelledby="t d" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">')
     a('<title id="t">K2 in Emerald Kaizo: whiteouts and badges over hours of play</title>')
     a(f'<desc id="d">Cumulative whiteouts rise from 0 to {last_n} over {last_h:.0f} hours of play. '
-      'Badges 1 to 8 are marked on the line, with Trainer Red, beaten on the fifteenth try, near the end.</desc>')
+      f'Badges 1 to {nb} are marked on the line' + (f', with {boss_desc}.' if bosses else '.') + '</desc>')
     a('<style>.bg{fill:#fcfcfb}.ink{fill:#0b0b0b}.ink2{fill:#52514e}.grid{stroke:#e4e3df;stroke-width:1}'
       '.axis{stroke:#9a9993;stroke-width:1}.line{fill:none;stroke:#2a78d6;stroke-width:2;stroke-linejoin:round}'
       '.dot{fill:#2a78d6;stroke:#fcfcfb;stroke-width:2}.red{fill:#eb6834;stroke:#fcfcfb;stroke-width:2}'
@@ -50,9 +70,9 @@ def main():
       '.red{fill:#d95926;stroke:#1a1a19}}</style>')
     a(f'<rect class="bg" width="{W}" height="{H}" rx="8"/>')
     a(f'<text class="ink" x="{L}" y="28" font-size="16" font-weight="600">K2 in Emerald Kaizo: '
-      f'{last_n} whiteouts and eight badges in {last_h:.0f} hours of play</text>')
-    a(f'<text class="ink2" x="{L}" y="48" font-size="12">Line: cumulative whiteouts. Dots 1-8: badges. '
-      'R: Trainer Red, beaten on the 15th try.</text>')
+      f'{last_n} whiteouts and {nb_text} badges in {last_h:.0f} hours of play</text>')
+    a(f'<text class="ink2" x="{L}" y="48" font-size="12">Line: cumulative whiteouts. Dots 1-{nb}: badges.'
+      + (f' {boss_key}.' if bosses else '') + '</text>')
     a(f'<text class="ink2" x="{L}" y="65" font-size="12">Hours of play exclude the 23-27 Oct usage pause. '
       'Data and script: data/figures/, tools/plot_k2_progress.py.</text>')
     for n in range(0, YMAX + 1, 50):
@@ -75,10 +95,10 @@ def main():
             a(f'<text class="ink" x="{cx:.1f}" y="{cy-10:.1f}" font-size="11" font-weight="600" '
               f'text-anchor="middle">{badge}</text>')
         else:
-            a(f'<circle class="red" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>Trainer Red, beaten on try '
-              f'{tries}, hour {h:.1f}</title></circle>')
+            a(f'<circle class="red" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>{name}, {tries_text(tries)}, '
+              f'hour {h:.1f}</title></circle>')
             a(f'<text class="ink" x="{cx:.1f}" y="{cy-10:.1f}" font-size="11" font-weight="600" '
-              f'text-anchor="middle">R</text>')
+              f'text-anchor="middle">{label[name]}</text>')
     a(f'<text class="ink" x="{x(last_h)+6:.1f}" y="{y(last_n)+4:.1f}" font-size="12" font-weight="600">{last_n}</text>')
     a('</svg>')
     path = os.path.join(FIG, "k2-progress.svg")

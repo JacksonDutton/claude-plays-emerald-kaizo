@@ -36,6 +36,18 @@ Outputs of the 20 October transcript analyses (method and results: `design/trans
 | `checkins.md` | Every non-tool message injected into each pilot, human-typed or harness-generated. |
 | `scrub_report.md` | What `tools/scrub.py` found and replaced. The list of the account's connected services is removed from this public copy. |
 
+## `figures/`
+
+The K2 progress chart on the front page, drawn by `tools/plot_k2_progress.py` from the two CSVs beside it. CI redraws it and fails if it changes.
+
+| File | What it is |
+|---|---|
+| `k2-whiteouts.csv` | Cumulative whiteouts by hours of play, from the companion's live record. Hours exclude the 23 to 27 October usage pause. The early rows are checkpoints (several whiteouts to a row, some reconciled from prize money); from Victory Road on, one row per whiteout. |
+| `k2-milestones.csv` | The badges and Trainer Red, with the try each was won on. `label` is the letter drawn above a non-badge dot. |
+| `k2-progress.svg` | The chart. |
+
+Interim: these come from the live record, not K2's export, and will be re-derived from its transcript when the run ends.
+
 ## `transcripts/`
 
 The pilot session transcripts (gzipped JSON Lines), with checksums. See `transcripts/README.md`.

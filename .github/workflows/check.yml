@@ -2,8 +2,8 @@ name: Check it yourself
 
 # Re-derives what can be re-derived from the published files, on every push and pull request:
 # every transcript is in the checksum manifest and matches it, the first-gym milestone tables in
-# data/analyses come out the same when re-scored from the transcripts, the K3 filter and network-audit tests pass,
-# and the network audit runs over the published transcripts (full output, failing if it is incomplete).
+# data/analyses come out the same when re-scored from the transcripts, the K2 chart redraws from its CSVs, the K3
+# filter, play-clock and network-audit tests pass, and the network audit runs over the published transcripts (full output, failing if it is incomplete).
 
 on:
   push:
@@ -31,6 +31,9 @@ jobs:
 
       - name: K3 filter tests (it builds what the K arms inherit)
         run: python3 tools/test_k3_filter.py
+
+      - name: Play-clock tests (tools/milestones.py)
+        run: python3 tools/test_milestones_clock.py
 
       - name: Network-audit tests
         run: python3 tools/test_network_audit.py
