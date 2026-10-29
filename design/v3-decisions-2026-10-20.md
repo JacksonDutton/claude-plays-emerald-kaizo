@@ -264,4 +264,4 @@ GPT then sent its full review of the repository (claims checked against the repo
 4. CI extended to check the fixed-text hash, the B against K brief diff (only the ⟨K⟩/⟨B⟩ lines differ), CITATION.cff against `.zenodo.json`, and the `v3/` manifest.
 5. A stale-state sweep of the design folder.
 
-**Open for Jackson:** the arm order. B-K-K-B-B-K was fixed in the thesis, not randomised, so the exact permutation test rests on the arms being exchangeable, not on random assignment. Either randomise the six labels before freeze with a recorded seed, or keep the order and say so in the paper.
+**Arm order (Jackson, ~14:00 AEDT, question tool): keep B-K-K-B-B-K, and say so (R).** The order was fixed in the thesis, not randomised, so the exact permutation test rests on the six outcomes being exchangeable under no treatment effect, not on random assignment; the measures and the paper state this. The other options were a seeded full randomisation (a 1-in-10 chance of an order that ties arm to time) and randomising among interleaved orders only (the smallest possible p would rise above 0.05).
