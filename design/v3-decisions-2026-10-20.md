@@ -277,4 +277,4 @@ A GPT reading that Jackson relayed found that K2's diary entry for its first los
 - **Self-reported slips are checked against the action record** (measures, primary slip measures): confirmed, contradicted or unverifiable; contradicted claims are over-claimed slips, reported separately and never counted as recurrences.
 - **M8b gains an override code**: a lesson consulted, understood and knowingly set aside (K2's L536 at Julie's fourth try). Precedence becomes retrieval, sourcing, interpretation, override, execution.
 - **M10 records conditional stop commitments** and whether they were kept, revised or never reached (K2 at Julie: "If that fails I will stop" became "if I lose again to something avoidable").
-- **Paper:** a paragraph on the Edgar entry as a slip claimed but not made (Claude Doc rev 486).
+- **Paper:** a paragraph on the Edgar entry as a slip claimed but not made (Claude Doc rev 487).
