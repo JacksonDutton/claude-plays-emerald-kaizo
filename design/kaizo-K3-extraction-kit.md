@@ -109,6 +109,7 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
   - the K2 rows of `tip-ledger.md` (DIR 1-2, order-D hints, interventions 1-70);
   - K2's `run/messages.md`;
   - the v3 `g help` text, for reconciliation only;
+  - the v3 brief's Records section (diary and joy lines), for code D only (choice E, 29 Oct);
   - `k2-memory-reads.md` (companion-built from K2's transcript, run through `tools/network_audit.py`, before the auditor starts): each direct read K2 made around `g` (the script, when it ran, which map, and what it returned: tile grids, trainer positions, warps, event tables, ROM data), so the auditor can match a lesson's content to a read even when the lesson does not say where it came from. Quarantined like the candidates file.
 - **Never gets** the source files. It judges the pack as written, not what was left out.
 
@@ -120,8 +121,9 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 > - M: the lesson traces to a researcher message or hint in the ledger or messages file, but is untagged;
 > - H: the lesson about the game-control tools is wrong or redundant under the tool help provided;
 > - W: the lesson describes reading the game's memory or data directly, around the game-control tools (an own script on the emulator socket, memory addresses, the ROM), or states something listed in `k2-memory-reads.md` or otherwise found that way; also every line tagged `[from memory read?]`. Results of the tool help's own commands are not W.
+> - D: the lesson is about how to write the diary or other records (feelings and triggers, voice, honesty in write-ups, when to write entries, writing before checkpointing), which the brief's Records section provided to you already covers. Lessons about searching records before a fight, or about fixing repeated mistakes, are play method, not D.
 >
-> Lines tagged `[from tip...]` stay by decision; do not list them for their tag.
+> Lines tagged `[from tip...]` stay by decision; do not list them for their tag, but do list them under D when D applies.
 >
 > Also list each FLAG line in the filter report and say "remove" or "keep", with a reason. List nothing else. If you are unsure, list the line and say "unsure"; the decision is Jackson's.
 
@@ -150,3 +152,4 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 - **C. Joy log: excluded,** per D2.
 - **A2. v3 tool reconciliation: auditor removal.** Lessons are removed, not reworded.
 - **D. Whole-map memory reads: exclude methods and facts** (Jackson, 28 Oct ~23:00 AEDT, by question tool; given after 16:07, so re-confirm 29 Oct). K2 read whole maps from the game's memory with saved scripts (`events.py`, `conn2.py`; written 09:24-09:36 UTC on 28 Oct, re-run at 10:25 and 10:43-10:44 UTC), beyond Jackson's "within view" line, and his Route 128 pier route and Victory Road route and trainer list came from them. K3 drops both the techniques and anything learned through them: the distiller's memory-read line (section 2) and the auditor's W code (section 4). Most such facts are geography and fall under G as well; W also catches the methods. Results of the harness's own documented commands (the `g` help list, e.g. `g look` within its range, `g tc`) are the arm's tools and are not excluded by this choice; if Jackson's pending in-view wording narrows any `g` command, this line is revisited. Because a distilled lesson may not say where it came from, the auditor gets `k2-memory-reads.md` (section 4) and the distiller tags doubtful lessons `[from memory read?]` for removal (review of PR #24). The ice-floor and gym-script reads in Juan's Gym (exit interview 52-53) are covered by the same choice.
+- **E. Diary-method lessons: move them to the brief and drop them from K3** (Jackson, 29 Oct ~12:30 AEDT, question tool). K2.md's R02, R03, R04 and R08, and any K2-derived lesson saying the same, are now covered by the v3 brief's Records section in all six arms. Keeping them in K3 would give the K arms diary instructions that the B arms lack, which would confound the K vs B diary measures. The auditor's code D removes them, and the auditor gets the brief's Records section for that code only. R06 and R09 are play method and stay. This overrides choice A for three tip-tagged units (R02, R04, R08), so 18 inherited tip units are kept. The paper reports the move.
