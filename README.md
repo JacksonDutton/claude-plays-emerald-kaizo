@@ -63,11 +63,11 @@ The trial runs differed in their instructions, their harness and how much a huma
 
 ## The paper
 
-[`paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf`](paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf)
+[`paper/eight-badges-and-a-diary-rev476-2026-10-29.pdf`](paper/eight-badges-and-a-diary-rev476-2026-10-29.pdf)
 
-*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 475), 59 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2's eight badges, its pause at the weekly usage limit from 23 to 27 October, and Victory Road up to 29 October (Section 9.10), with every message sent after its stops. Section 10 sets out the planned study, which will run on the supervisor's own computer, and the result of a two-hour setup pilot run there on 27 October.
+*Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476), 60 pages. It has not been peer reviewed. Section 9 covers the trial runs, including K2's eight badges, its pause at the weekly usage limit from 23 to 27 October, and Victory Road up to 29 October (Section 9.10), with every message sent after its stops. Section 10 sets out the planned study, including what its diary rules take from Run 1's diary and what they leave out, which will run on the supervisor's own computer, and the result of a two-hour setup pilot run there on 27 October.
 
-Earlier revisions, kept so old links still work: [`paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf) (27 October 2026, 52 pages), [`paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf`](paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf) (22 October 2026, 48 pages) and [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
+Earlier revisions, kept so old links still work: [`paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf`](paper/eight-badges-and-a-diary-rev475-2026-10-29.pdf) (29 October 2026, 59 pages), [`paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf`](paper/eight-badges-and-a-diary-rev436-2026-10-28.pdf) (28 October 2026, 54 pages), [`paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf`](paper/eight-badges-and-a-diary-rev419-2026-10-27.pdf) (27 October 2026, 52 pages), [`paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf`](paper/eight-badges-and-a-diary-rev379-2026-10-22.pdf) (22 October 2026, 48 pages) and [`paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf`](paper/eight-badges-and-a-diary-rev376-2026-10-21.pdf) (21 October 2026, 44 pages).
 
 ## What it cost
 
@@ -142,6 +142,6 @@ The code in `harness/` and `tools/` is under the MIT licence (`LICENSE`). The pa
 
 Please cite the working paper:
 
-> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 475). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
+> Dutton, J., with Claude (Anthropic). *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 29 October 2026 (rev 476). https://github.com/JacksonDutton/claude-plays-emerald-kaizo
 
 Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc. Emerald Kaizo is a fan-made modification by its own authors. This project is not affiliated with or endorsed by any of them, or by Anthropic.
