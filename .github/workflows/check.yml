@@ -1,0 +1,31 @@
+name: Check it yourself
+
+# Re-derives what can be re-derived from the published files, on every push and pull request:
+# every transcript is in the checksum manifest and matches it, the first-gym milestone tables in
+# data/analyses come out the same when re-scored from the transcripts, the network-audit tests pass,
+# and the network audit runs over the published transcripts (full output, failing if it is incomplete).
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Transcripts and milestone tables (tools/check_published.py)
+        run: python3 tools/check_published.py
+
+      - name: Network-audit tests
+        run: python3 tools/test_network_audit.py
+
+      - name: Network audit of the published transcripts (report only; fails if the audit is incomplete)
+        run: python3 tools/network_audit.py data/transcripts/*.jsonl.gz
