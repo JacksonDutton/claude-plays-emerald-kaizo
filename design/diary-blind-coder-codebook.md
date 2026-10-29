@@ -42,8 +42,8 @@ The coders are hosted models that can change without notice. Freezing the codebo
 - **Model:** the identifier requested, the served identifier where the platform shows it, effort or temperature, the client and its version, and the start and end times (UTC).
 - **Prompt:** the complete text given to the coder (the "Instructions to the coder" section as it stood, plus any wrapper), stored verbatim with its sha256.
 - **Units:** the blinding script's commit, the sha256 of the key file (the key itself stays with the companion until unblinding), the shuffle seed, and each batch's unit ids in the order shown (forward for the first coder, reversed for the second).
-- **Outputs:** the coder's raw output, verbatim and hashed, before any parsing; the parser or scoring script's commit; and the retained reasoning, or a note that the platform did not keep it.
-- **Publication:** the records and raw outputs are published with the arm's other records, after the same privacy pass.
+- **Outputs:** the coder's raw output, verbatim and hashed, before any parsing or privacy pass; if the privacy pass changes it, the published version is hashed too, with a list of what the pass changed, so a reader can verify the published file and see how it differs from the original; the parser or scoring script's commit; and the retained reasoning, or a note that the platform did not keep it.
+- **Publication:** the records and outputs are published with the arm's other records, after the same privacy pass, with both hashes.
 
 Passes before this date (22 Oct, the 27 Oct re-code) keep what they recorded; fields they did not record are listed as missing, not reconstructed.
 
