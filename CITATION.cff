@@ -11,6 +11,13 @@ authors:
     given-names: Jackson
   - name: "Claude (Anthropic)"
 doi: 10.5281/zenodo.23751628
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23751628
+    description: "Concept DOI: the project as a whole; always resolves to the latest archived version."
+  - type: doi
+    value: 10.5281/zenodo.23751629
+    description: "Version DOI: the 29 October 2026 release (working paper rev 476)."
 repository-code: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
 license:
   - MIT
@@ -30,7 +37,7 @@ preferred-citation:
       given-names: Jackson
     - name: "Claude (Anthropic)"
   status: preprint
-  doi: 10.5281/zenodo.23751628
-  notes: "Working paper, draft of 29 October 2026 (rev 476)."
+  doi: 10.5281/zenodo.23751629
+  notes: "Working paper, draft of 29 October 2026 (rev 476). This is the version DOI for that release; to cite the project as a whole, use the concept DOI 10.5281/zenodo.23751628."
   url: "https://github.com/JacksonDutton/claude-plays-emerald-kaizo"
   year: 2026

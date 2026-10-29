@@ -36,3 +36,15 @@ Rules: code only the writer's own feelings, not those of characters or Pokémon.
 - At least two coders per batch; the second codes every unit of the batch, in REVERSED order (order check every time). This replaces the 20% double-coding in step 4 for all passes from 27 Oct; reliability (κ, ICC) is computed on the full second pass.
 - Retain coder reasoning (thinking) where the platform allows; record when it is not retained. In the 22 Oct pass and the 27 Oct re-code it was not retained (c4's single thinking block is empty).
 - Report implicit-feeling comparisons with the coder-to-coder spread (re-code of batch 3: implicit 49-69, sd ~9; explicit 45-55). Phase claims lean on the explicit series.
+
+## Coder freeze record (29 Oct 2026, after an outside review)
+The coders are hosted models that can change without notice. Freezing the codebook is therefore not enough; every coding pass also freezes and keeps a record of how it was run, so another researcher can inspect exactly what was done. One record per coder instance, stored with the pass:
+- **Model:** the identifier requested, the served identifier where the platform shows it, effort or temperature, the client and its version, and the start and end times (UTC).
+- **Prompt:** the complete text given to the coder (the "Instructions to the coder" section as it stood, plus any wrapper), stored verbatim with its sha256.
+- **Units:** the blinding script's commit, the sha256 of the key file (the key itself stays with the companion until unblinding), the shuffle seed, and each batch's unit ids in the order shown (forward for the first coder, reversed for the second).
+- **Outputs:** the coder's raw output, verbatim and hashed, before any parsing or privacy pass; if the privacy pass changes it, the published version is hashed too, with a list of what the pass changed, so a reader can verify the published file and see how it differs from the original; the parser or scoring script's commit; and the retained reasoning, or a note that the platform did not keep it.
+- **Publication:** the records and outputs are published with the arm's other records, after the same privacy pass, with both hashes.
+
+Passes before this date (22 Oct, the 27 Oct re-code) keep what they recorded; fields they did not record are listed as missing, not reconstructed.
+
+**Open (Jackson's decision, not yet taken):** a human-coded subset, for example about 50 blinded units coded by someone who has not read the diaries, to compare with the Claude coders. Two Claude coders agreeing is same-family agreement; one human comparison is the direct answer to that objection.

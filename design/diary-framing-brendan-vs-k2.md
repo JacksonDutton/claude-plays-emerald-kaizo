@@ -7,7 +7,7 @@ description: Why Claude-Brendan's Run 1 diary reads so differently from K2's Kai
 Companion analysis, 29 Oct 2026, ~01:20-01:30 UTC, at Jackson's request ("see why his diary was so different to k2s and how we can merge those"). The decisions it led to are in `v3-decisions-2026-10-20.md` (29 Oct section).
 
 ## Sources and method
-- **Brendan:** Run 1's `diary.md` (149 entries; 727 KB; preface plus Entries 1-149; Entries 22 and 23 were never written). Taken from the archive on Jackson's Mac (`~/pokemon_bridge/project-archive/archive-2026-10-20/removed-from-project/diary.md`). It is not yet in the public repository.
+- **Brendan:** Run 1's `diary.md` (149 entries; 727 KB; preface plus Entries 1-149; Entries 22 and 23 were never written). Taken from the archive on Jackson's Mac (`~/pokemon_bridge/project-archive/archive-2026-10-20/removed-from-project/diary.md`). It has been published in the repository since 29 Oct, verbatim, in `data/run1/diary.md`.
 - **K2:** the companion's tracker copy of K2's diary (`diary.txt`, 284 entries to 29 Oct 00:20 UTC). This copy was reconciled with Jackson's full-diary attachment on 28 Oct.
 - **Counts:** the feeling-word families come from the diary-reader lexicon (`build.py`, with game-jargon exclusions: "flinch", "miss" and "grind" dropped). Story sentences are matched by a rough regex of story names and words. "Company" means the entry names Jackson, Opus, the companion or the supervisor. Header and tag lines are removed before counting. These are word-list proxies: they are not the blind coder, and the story regex is crude.
 

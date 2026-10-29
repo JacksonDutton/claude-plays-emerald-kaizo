@@ -11,7 +11,7 @@ description: Step-by-step kit for building the K3 notes pack after K2 ends (28 O
 - Changes since then:
   - no word cap (20 Oct);
   - the companion's candidate list goes to the auditor only (20 Oct);
-  - round 6: every unit that traces to a message or hint during K2's own run is excluded (20 Oct); the 21 units inherited from Run 1 tips are kept, tagged and counted (28 Oct, choice A below).
+  - round 6: every unit that traces to a message or hint during K2's own run is excluded (20 Oct); the units inherited from Run 1 tips are kept, tagged and counted (28 Oct, choice A below): 18 of K2.md's 21, since choice E (29 Oct) moves three of them (R02, R04, R08) to the brief.
 
 ## 1. Sources (the distiller sees these and nothing else)
 Decision D2: K2's own files.
@@ -98,6 +98,7 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
   - with `--drop-tip`: 22 removed, leaving 4,892 of 6,581 words.
 - K2's raw diary: 560 of 1,564 lines removed (443 nickname hits, 268 place). This confirms the candidates finding: the filter must run on the distilled text, not the raw sources.
 - A synthetic case behaves as specified.
+- From 29 Oct these cases, the K2.md counts above and the over-removal checks (multipliers, percentages, lower-case words) are encoded in `tools/test_k3_filter.py`, which CI runs on every change.
 
 ## 4. Auditor
 **Setup.**
@@ -147,7 +148,7 @@ python3 k3_filter.py K3-distilled.md K3-filtered.md --report K3-filter-report.ts
 - distiller and auditor model and effort.
 
 ## 6. Jackson's choices (28 Oct 2026, ~13:40 AEDT, by question tool)
-- **A. Inherited tip units: keep, tagged, and report the count.** Round 6 covers messages and hints in K2's own run. The 21 `[from tip...]` units in K2.md came from Run 1 tips: 4 H (B01, B22, B23, B24), 5 V and 12 process or tools. They stay, as they did for K1 and K2, and the paper reports the count. A `--drop-tip` sensitivity figure (1,689 of 6,581 words) may be reported alongside.
+- **A. Inherited tip units: keep, tagged, and report the count.** Round 6 covers messages and hints in K2's own run. The 21 `[from tip...]` units in K2.md came from Run 1 tips: 4 H (B01, B22, B23, B24), 5 V and 12 process or tools. They stay, as they did for K1 and K2, and the paper reports the count. A `--drop-tip` sensitivity figure (1,689 of 6,581 words) may be reported alongside. *(Amended by choice E, 29 Oct: three of the 21 are diary-method lessons and move to the brief, so 18 are kept.)*
 - **B. Trainer line: added to the distiller prompt.** The paper discloses it as a change to the pre-registered text.
 - **C. Joy log: excluded,** per D2.
 - **A2. v3 tool reconciliation: auditor removal.** Lessons are removed, not reworded.

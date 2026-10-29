@@ -10,6 +10,7 @@ Python 3, standard library only. Each script's docstring gives its full usage an
 | `session_cost.py` | Reads Claude Code's own cost total from a transcript and recomputes cost at list prices per unique message, with tokens by model and compaction events. Reads `.jsonl` or `.jsonl.gz`. |
 | `check_published.py` | Re-derives what can be re-derived from the published files: every transcript is in the checksum manifest and matches it, and milestones 1 to 27 (plus R1), re-scored from the B1, B2 and Ripple transcripts, match the published tables in `data/analyses/`. Run by the repository's CI on every change. |
 | `k3_filter.py` | Mechanical filter for the K3 notes pack (step 4 of the knowledge-extraction protocol). It removes whole lines that contain coordinates, map ids, hex addresses, run nicknames, Hoenn place names, or `[from message]`/`[from hint]` tags. It flags direction words and named trainers for the auditor, and counts inherited `[from tip]` lines. It writes a TSV report. It is meant to run on the distiller's output, not on raw run files. |
+| `test_k3_filter.py` | Checks `k3_filter.py` against the rules in the K3 extraction kit: what is removed whole, what is flagged for the auditor, what is kept and counted, what must not be removed (multipliers, percentages, lower-case words), an end-to-end run with its report, and a regression on the published K2 pack. Run in CI. |
 
 Pipeline used for the published transcripts:
 
