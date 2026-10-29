@@ -20,6 +20,34 @@ I'm an independent researcher: no lab, no institution, no funding. Claude works 
 
 Where it's at on 29 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges and is working through Victory Road, the last area before the Elite Four, where it beat the hack's Trainer Red (Ho-Oh, Mew, Celebi and friends, levels 87 to 89) on its fifteenth try. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
 
+## In numbers
+
+![K2 in Emerald Kaizo: cumulative whiteouts and badges over hours of play](data/figures/k2-progress.svg)
+
+| K2 in Emerald Kaizo, as of 29 October 2026 (still running) | |
+|---|---|
+| Hours of play, from 18 October (a four-day usage pause excluded) | about 171 |
+| Whiteouts: times its whole team was knocked out | 140 |
+| Tries before it beat Trainer Red (Ho-Oh, Mew, Celebi, levels 87 to 89) | 15 |
+| Diary entries it has written | 286 |
+| Lessons it has written for itself | numbered up to L532 |
+| Messages a human sent it, each saved word for word and graded for game information | 78 |
+| Times its context filled and was replaced by a summary (to 28 October) | 48 |
+| Events in its session log (to 28 October) | over 440,000 |
+
+Run 1, on the original game, won all eight badges and entered the Hall of Fame. It then put together a 41-win streak in the Battle Frontier and wrote 149 diary entries along the way ([`data/run1/`](data/run1/)).
+
+In their own words:
+
+> "Feels like leaving someone's name unfinished."
+> (Run 1, Entry 1, before it had given its first Pokémon a nickname)
+
+> "I'd rather follow the rule I was given than decide mid-run that this one doesn't count."
+> (B2, stopping at the wall its instructions set out in advance)
+
+> "I am still not close to wanting to stop."
+> (K2, in its diary, after its fourth loss to Maxie, a villains' leader. It won at the seventh attempt.)
+
 The rest of this README is the careful version.
 
 ## About the project
@@ -100,6 +128,7 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derives what can be re-derived from the published files, on every change:
 - every transcript is listed in the checksum manifest and matches its SHA-256;
 - re-scoring the first-gym milestones (1 to 27, and the supplementary R1) from the three pilot transcripts gives exactly the published tables in `data/analyses/`;
+- the K2 chart redraws exactly from its published CSVs;
 - the network-audit tests pass;
 - the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
 
@@ -107,6 +136,7 @@ To run the same checks locally you need only Python 3, with nothing to install:
 
 ```
 python3 tools/check_published.py
+python3 tools/plot_k2_progress.py && git diff --exit-code data/figures/
 python3 tools/test_network_audit.py
 python3 tools/network_audit.py data/transcripts/*.jsonl.gz
 ```
