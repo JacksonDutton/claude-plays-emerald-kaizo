@@ -14,7 +14,7 @@ Standard library only. Usage (from the repository root):
     python3 tools/check_published.py [--analyses DIR]
 Exit status 0 when everything matches, 1 otherwise.
 """
-import argparse, csv, hashlib, os, subprocess, sys, tempfile
+import argparse, contextlib, csv, hashlib, io, os, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRANSCRIPTS = os.path.join(ROOT, "data", "transcripts")
@@ -52,6 +52,19 @@ def check_transcripts():
     return ok
 
 
+def rescore(transcript, out):
+    """Run tools/milestones.py in this process (no subprocess, no shell) and write its table to `out`."""
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import milestones
+    argv = sys.argv
+    sys.argv = ["milestones.py", transcript, "--csv", out]
+    try:
+        with contextlib.redirect_stderr(io.StringIO()):
+            milestones.main()
+    finally:
+        sys.argv = argv
+
+
 def rows_by_n(path):
     with open(path, newline="") as f:
         return {r["n"]: r for r in csv.DictReader(f)}
@@ -63,9 +76,7 @@ def check_milestones(analyses):
         published = rows_by_n(os.path.join(analyses, f"milestones-v3.1-{arm}.csv"))
         fd, out = tempfile.mkstemp(suffix=".csv"); os.close(fd)
         try:
-            subprocess.run([sys.executable, os.path.join(ROOT, "tools", "milestones.py"),
-                            os.path.join(TRANSCRIPTS, transcript), "--csv", out],
-                           check=True, stdout=subprocess.DEVNULL)
+            rescore(os.path.join(TRANSCRIPTS, transcript), out)
             rescored = rows_by_n(out)
         finally:
             os.remove(out)
