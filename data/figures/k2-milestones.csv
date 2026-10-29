@@ -1,10 +1,10 @@
-hours_of_play,milestone,kind,tries,utc_2026
-7.2,Stone,badge,2,18 Oct 08:54
-10.38,Knuckle,badge,1,18 Oct ~12:05
-31.9,Dynamo,badge,5,19 Oct 09:36
-58.93,Heat,badge,6,20 Oct ~12:38
-65.67,Balance,badge,10,20 Oct ~19:22
-74.87,Feather,badge,1,21 Oct ~04:34
-115.71,Mind,badge,1,22 Oct 21:24
-153.96,Rain,badge,12,28 Oct 08:25
-167.1,Red,boss,15,28 Oct 21:54
+hours_of_play,milestone,kind,tries,utc_2026,label
+7.2,Stone,badge,2,18 Oct 08:54,
+10.38,Knuckle,badge,1,18 Oct ~12:05,
+31.9,Dynamo,badge,5,19 Oct 09:36,
+58.93,Heat,badge,6,20 Oct ~12:38,
+65.67,Balance,badge,10,20 Oct ~19:22,
+74.87,Feather,badge,1,21 Oct ~04:34,
+115.71,Mind,badge,1,22 Oct 21:24,
+153.96,Rain,badge,12,28 Oct 08:25,
+167.1,Trainer Red,boss,15,28 Oct 21:54,R

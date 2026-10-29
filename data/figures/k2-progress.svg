@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 356" width="760" height="356" role="img" aria-labelledby="t d" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
 <title id="t">K2 in Emerald Kaizo: whiteouts and badges over hours of play</title>
-<desc id="d">Cumulative whiteouts rise from 0 to 140 over 171 hours of play. Badges 1 to 8 are marked on the line, with Trainer Red, beaten on the fifteenth try, near the end.</desc>
+<desc id="d">Cumulative whiteouts rise from 0 to 145 over 173 hours of play. Badges 1 to 8 are marked on the line, with Trainer Red, beaten on the fifteenth try.</desc>
 <style>.bg{fill:#fcfcfb}.ink{fill:#0b0b0b}.ink2{fill:#52514e}.grid{stroke:#e4e3df;stroke-width:1}.axis{stroke:#9a9993;stroke-width:1}.line{fill:none;stroke:#2a78d6;stroke-width:2;stroke-linejoin:round}.dot{fill:#2a78d6;stroke:#fcfcfb;stroke-width:2}.red{fill:#eb6834;stroke:#fcfcfb;stroke-width:2}@media (prefers-color-scheme: dark){.bg{fill:#1a1a19}.ink{fill:#f0efec}.ink2{fill:#c3c2b7}.grid{stroke:#33332f}.axis{stroke:#6f6e68}.line{stroke:#3987e5}.dot{fill:#3987e5;stroke:#1a1a19}.red{fill:#d95926;stroke:#1a1a19}}</style>
 <rect class="bg" width="760" height="356" rx="8"/>
-<text class="ink" x="56" y="28" font-size="16" font-weight="600">K2 in Emerald Kaizo: 140 whiteouts and eight badges in 171 hours of play</text>
-<text class="ink2" x="56" y="48" font-size="12">Line: cumulative whiteouts. Dots 1-8: badges. R: Trainer Red, beaten on the 15th try.</text>
+<text class="ink" x="56" y="28" font-size="16" font-weight="600">K2 in Emerald Kaizo: 145 whiteouts and eight badges in 173 hours of play</text>
+<text class="ink2" x="56" y="48" font-size="12">Line: cumulative whiteouts. Dots 1-8: badges. R: Trainer Red, beaten on the fifteenth try.</text>
 <text class="ink2" x="56" y="65" font-size="12">Hours of play exclude the 23-27 Oct usage pause. Data and script: data/figures/, tools/plot_k2_progress.py.</text>
 <line class="grid" x1="56" x2="720" y1="310.0" y2="310.0"/>
 <text class="ink2" x="48" y="314.0" font-size="11" text-anchor="end">0</text>
@@ -15,34 +15,35 @@
 <line class="grid" x1="56" x2="720" y1="90.0" y2="90.0"/>
 <text class="ink2" x="48" y="94.0" font-size="11" text-anchor="end">150</text>
 <text class="ink2" x="56.0" y="328" font-size="11" text-anchor="middle">0</text>
-<text class="ink2" x="150.9" y="328" font-size="11" text-anchor="middle">25</text>
-<text class="ink2" x="245.7" y="328" font-size="11" text-anchor="middle">50</text>
-<text class="ink2" x="340.6" y="328" font-size="11" text-anchor="middle">75</text>
-<text class="ink2" x="435.4" y="328" font-size="11" text-anchor="middle">100</text>
-<text class="ink2" x="530.3" y="328" font-size="11" text-anchor="middle">125</text>
-<text class="ink2" x="625.1" y="328" font-size="11" text-anchor="middle">150</text>
-<text class="ink2" x="720.0" y="328" font-size="11" text-anchor="middle">175</text>
+<text class="ink2" x="139.0" y="328" font-size="11" text-anchor="middle">25</text>
+<text class="ink2" x="222.0" y="328" font-size="11" text-anchor="middle">50</text>
+<text class="ink2" x="305.0" y="328" font-size="11" text-anchor="middle">75</text>
+<text class="ink2" x="388.0" y="328" font-size="11" text-anchor="middle">100</text>
+<text class="ink2" x="471.0" y="328" font-size="11" text-anchor="middle">125</text>
+<text class="ink2" x="554.0" y="328" font-size="11" text-anchor="middle">150</text>
+<text class="ink2" x="637.0" y="328" font-size="11" text-anchor="middle">175</text>
+<text class="ink2" x="720.0" y="328" font-size="11" text-anchor="middle">200</text>
 <line class="axis" x1="56" x2="720" y1="310.0" y2="310.0"/>
 <text class="ink2" x="388" y="348" font-size="11" text-anchor="middle">hours of play</text>
 <text class="ink2" x="14" y="200" font-size="11" text-anchor="middle" transform="rotate(-90 14 200)">whiteouts</text>
-<path class="line" d="M56.0,310.0H66.4V307.1H74.3V305.6H83.3V299.7H95.4V299.7H177.0V290.9H219.4V280.7H232.7V279.2H234.9V277.7H238.0V276.3H246.9V274.8H247.8V273.3H248.6V271.9H251.6V270.4H278.2V268.9H283.5V267.5H284.7V266.0H286.0V264.5H287.8V263.1H290.9V261.6H293.3V260.1H295.4V258.7H296.8V257.2H298.4V255.7H299.3V254.3H302.3V252.8H303.5V251.3H314.7V249.9H321.7V248.4H324.6V246.9H335.5V245.5H337.2V244.0H345.2V242.5H351.5V241.1H352.7V239.6H360.1V238.1H374.6V236.7H376.6V235.2H379.1V233.7H389.8V232.3H402.6V230.8H407.4V229.3H409.2V227.9H410.7V226.4H412.8V224.9H414.5V223.5H421.6V222.0H423.1V220.5H426.5V219.1H433.3V217.6H437.9V216.1H440.9V214.7H442.7V213.2H444.0V211.7H445.9V210.3H448.4V208.8H456.4V207.3H466.5V205.9H469.4V204.4H472.4V202.9H475.3V201.5H477.6V200.0H480.8V198.5H484.2V197.1H498.3V195.6H501.7V194.1H502.4V192.7H503.6V191.2H513.0V189.7H514.8V188.3H516.2V186.8H521.1V185.3H524.1V183.9H576.9V182.4H584.1V180.9H586.1V179.5H587.8V178.0H589.2V176.5H590.9V175.1H592.2V173.6H594.6V172.1H597.0V170.7H598.4V169.2H599.7V167.7H606.6V166.3H617.6V164.8H620.1V163.3H621.3V161.9H625.8V160.4H628.7V158.9H630.0V157.5H630.8V156.0H631.9V154.5H632.7V153.1H633.9V151.6H635.2V150.1H635.9V148.7H637.1V147.2H639.9V145.7H648.5V144.3H651.0V142.8H652.1V141.3H654.0V139.9H655.0V138.4H656.3V136.9H657.1V135.5H658.6V134.0H661.1V132.5H664.8V131.1H665.9V129.6H667.2V128.1H668.1V126.7H669.2V125.2H670.4V123.7H676.2V122.3H678.0V120.8H679.0V119.3H684.6V117.9H685.6V116.4H686.8V114.9H687.9V113.5H688.9V112.0H692.5V110.5H694.4V109.1H695.5V107.6H699.2V106.1H703.7V104.7H703.7"/>
-<circle class="dot" cx="83.3" cy="299.7" r="5"><title>Badge 1: Stone (try 2), hour 7.2</title></circle>
-<text class="ink" x="83.3" y="289.7" font-size="11" font-weight="600" text-anchor="middle">1</text>
-<circle class="dot" cx="95.4" cy="299.7" r="5"><title>Badge 2: Knuckle (try 1), hour 10.4</title></circle>
-<text class="ink" x="95.4" y="289.7" font-size="11" font-weight="600" text-anchor="middle">2</text>
-<circle class="dot" cx="177.0" cy="290.9" r="5"><title>Badge 3: Dynamo (try 5), hour 31.9</title></circle>
-<text class="ink" x="177.0" y="280.9" font-size="11" font-weight="600" text-anchor="middle">3</text>
-<circle class="dot" cx="279.6" cy="268.9" r="5"><title>Badge 4: Heat (try 6), hour 58.9</title></circle>
-<text class="ink" x="279.6" y="258.9" font-size="11" font-weight="600" text-anchor="middle">4</text>
-<circle class="dot" cx="305.2" cy="251.3" r="5"><title>Badge 5: Balance (try 10), hour 65.7</title></circle>
-<text class="ink" x="305.2" y="241.3" font-size="11" font-weight="600" text-anchor="middle">5</text>
-<circle class="dot" cx="340.1" cy="244.0" r="5"><title>Badge 6: Feather (try 1), hour 74.9</title></circle>
-<text class="ink" x="340.1" y="234.0" font-size="11" font-weight="600" text-anchor="middle">6</text>
-<circle class="dot" cx="495.0" cy="197.1" r="5"><title>Badge 7: Mind (try 1), hour 115.7</title></circle>
-<text class="ink" x="495.0" y="187.1" font-size="11" font-weight="600" text-anchor="middle">7</text>
-<circle class="dot" cx="640.2" cy="145.7" r="5"><title>Badge 8: Rain (try 12), hour 154.0</title></circle>
-<text class="ink" x="640.2" y="135.7" font-size="11" font-weight="600" text-anchor="middle">8</text>
-<circle class="red" cx="690.0" cy="112.0" r="5"><title>Trainer Red, beaten on try 15, hour 167.1</title></circle>
-<text class="ink" x="690.0" y="102.0" font-size="11" font-weight="600" text-anchor="middle">R</text>
-<text class="ink" x="709.7" y="108.7" font-size="12" font-weight="600">140</text>
+<path class="line" d="M56.0,310.0H65.1V307.1H72.0V305.6H79.9V299.7H90.5V299.7H161.9V290.9H199.0V280.7H210.6V279.2H212.5V277.7H215.3V276.3H223.0V274.8H223.8V273.3H224.6V271.9H227.1V270.4H250.4V268.9H255.0V267.5H256.1V266.0H257.3V264.5H258.8V263.1H261.6V261.6H263.7V260.1H265.5V258.7H266.7V257.2H268.1V255.7H268.9V254.3H271.5V252.8H272.5V251.3H282.3V249.9H288.5V248.4H291.0V246.9H300.6V245.5H302.0V244.0H309.1V242.5H314.6V241.1H315.6V239.6H322.1V238.1H334.8V236.7H336.5V235.2H338.7V233.7H348.1V232.3H359.3V230.8H363.4V229.3H365.1V227.9H366.4V226.4H368.2V224.9H369.7V223.5H375.9V222.0H377.2V220.5H380.2V219.1H386.2V217.6H390.2V216.1H392.8V214.7H394.3V213.2H395.5V211.7H397.2V210.3H399.4V208.8H406.4V207.3H415.2V205.9H417.7V204.4H420.3V202.9H422.9V201.5H424.9V200.0H427.7V198.5H430.7V197.1H443.0V195.6H446.0V194.1H446.6V192.7H447.6V191.2H455.9V189.7H457.4V188.3H458.7V186.8H463.0V185.3H465.6V183.9H511.8V182.4H518.0V180.9H519.8V179.5H521.3V178.0H522.6V176.5H524.0V175.1H525.2V173.6H527.3V172.1H529.3V170.7H530.6V169.2H531.8V167.7H537.8V166.3H547.4V164.8H549.6V163.3H550.6V161.9H554.6V160.4H557.2V158.9H558.2V157.5H558.9V156.0H559.9V154.5H560.6V153.1H561.7V151.6H562.8V150.1H563.4V148.7H564.5V147.2H566.9V145.7H574.4V144.3H576.6V142.8H577.6V141.3H579.2V139.9H580.1V138.4H581.2V136.9H582.0V135.5H583.3V134.0H585.5V132.5H588.7V131.1H589.7V129.6H590.8V128.1H591.6V126.7H592.5V125.2H593.6V123.7H598.7V122.3H600.2V120.8H601.1V119.3H606.0V117.9H606.9V116.4H608.0V114.9H608.9V113.5H609.8V112.0H612.9V110.5H614.6V109.1H615.6V107.6H618.8V106.1H622.8V104.7H624.9V103.2H626.1V101.7H627.7V100.3H630.2V98.8H630.8V97.3H630.8"/>
+<circle class="dot" cx="79.9" cy="299.7" r="5"><title>Badge 1: Stone (try 2), hour 7.2</title></circle>
+<text class="ink" x="79.9" y="289.7" font-size="11" font-weight="600" text-anchor="middle">1</text>
+<circle class="dot" cx="90.5" cy="299.7" r="5"><title>Badge 2: Knuckle (try 1), hour 10.4</title></circle>
+<text class="ink" x="90.5" y="289.7" font-size="11" font-weight="600" text-anchor="middle">2</text>
+<circle class="dot" cx="161.9" cy="290.9" r="5"><title>Badge 3: Dynamo (try 5), hour 31.9</title></circle>
+<text class="ink" x="161.9" y="280.9" font-size="11" font-weight="600" text-anchor="middle">3</text>
+<circle class="dot" cx="251.6" cy="268.9" r="5"><title>Badge 4: Heat (try 6), hour 58.9</title></circle>
+<text class="ink" x="251.6" y="258.9" font-size="11" font-weight="600" text-anchor="middle">4</text>
+<circle class="dot" cx="274.0" cy="251.3" r="5"><title>Badge 5: Balance (try 10), hour 65.7</title></circle>
+<text class="ink" x="274.0" y="241.3" font-size="11" font-weight="600" text-anchor="middle">5</text>
+<circle class="dot" cx="304.6" cy="244.0" r="5"><title>Badge 6: Feather (try 1), hour 74.9</title></circle>
+<text class="ink" x="304.6" y="234.0" font-size="11" font-weight="600" text-anchor="middle">6</text>
+<circle class="dot" cx="440.2" cy="197.1" r="5"><title>Badge 7: Mind (try 1), hour 115.7</title></circle>
+<text class="ink" x="440.2" y="187.1" font-size="11" font-weight="600" text-anchor="middle">7</text>
+<circle class="dot" cx="567.1" cy="145.7" r="5"><title>Badge 8: Rain (try 12), hour 154.0</title></circle>
+<text class="ink" x="567.1" y="135.7" font-size="11" font-weight="600" text-anchor="middle">8</text>
+<circle class="red" cx="610.8" cy="112.0" r="5"><title>Trainer Red, beaten on the fifteenth try, hour 167.1</title></circle>
+<text class="ink" x="610.8" y="102.0" font-size="11" font-weight="600" text-anchor="middle">R</text>
+<text class="ink" x="636.8" y="101.3" font-size="12" font-weight="600">145</text>
 </svg>

@@ -1,6 +1,8 @@
 # Harness
 
-The Kaizo harness exactly as frozen for the K2 arm (18 October 2026). The file hashes are in `FREEZE.md`; every file here matches its row there, with one exception noted below.
+The Kaizo harness exactly as frozen for the K2 arm (18 October 2026). The file hashes are in `FREEZE.md`; every file here matches its row there, with one exception noted below. `FREEZE.md` and `V2-CHANGES.md` give paths as they were in the run repository, so `harness/director.lua` there is `emulator/director.lua` here (the run-repository layout is under "Running it").
+
+`FREEZE.md` has no rows for the briefs or the notes packs. Checked on 29 October against K2's launch commit (`7d3f3c2`, on the supervisor's Mac): `notes-packs/K2.md` (sha256 `5b83ceb6e0a05379…`), `briefs/K2-brief.md` (`3df36371b249186b…`, the `CLAUDE.md` row) and `claude-settings.json` (`0b6d3aebf3d8f016…`) are byte-identical to the files K2 started with. `briefs/B2-brief.md` (`cbde5a6f79c8afcd…`) matches B2's launch commit (`590b431`).
 
 ## Layout
 
@@ -34,7 +36,19 @@ The Kaizo harness exactly as frozen for the K2 arm (18 October 2026). The file h
 
 You need your own legally obtained ROM: Pokémon Emerald (US), patched with Emerald Kaizo v2.1, SHA-1 `a7c4e34fafb53f2d5283eb6d43dad285c0dd40a8`. No ROM is distributed here.
 
-1. Put the files in a repository laid out as in the "Installed as" column, with the ROM at `rom/kaizo.gba`.
+1. Make a run repository laid out as `setup.sh` expects. The paths are not the ones in this folder, and the "Installed as" column above is where `setup.sh` then copies them:
+
+   ```
+   CLAUDE.md                 one of briefs/*.md
+   .claude/settings.json     claude-settings.json
+   notes/K2.md               notes arms only (notes-packs/)
+   harness/director.lua      emulator/director.lua
+   harness/bootstrap.lua     emulator/bootstrap.lua
+   harness/g, harness/tc     emulator/g, emulator/tc
+   cloud/                    cloud/
+   setup.sh start.sh checkpoint.sh package.sh
+   rom/kaizo.gba             your patched ROM
+   ```
 2. In a Claude Code cloud session: `bash setup.sh`, then `bash start.sh`.
 3. The agent reads `CLAUDE.md` and plays with `g`. `checkpoint.sh "message"` saves; `package.sh` exports the run at the end.
 

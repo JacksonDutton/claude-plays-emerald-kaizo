@@ -18,20 +18,20 @@ I count my own help as well. Every message I send is saved word for word and gra
 
 I'm an independent researcher: no lab, no institution, no funding. Claude works on this with me as a co-researcher, and the section below says who did what.
 
-Where it's at on 29 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges and is working through Victory Road, the last area before the Elite Four, where it beat the hack's Trainer Red (Ho-Oh, Mew, Celebi and friends, levels 87 to 89) on its fifteenth try. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
+Where it's at on 29 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges and is working through Victory Road, the last area before the Elite Four, where it beat the hack's Trainer Red (Ho-Oh, Mew, Celebi and friends, levels 87 to 89) on its fifteenth try, then the road's expert trainers Quincy, Julie and Edgar. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
 
 ## In numbers
 
 ![K2 in Emerald Kaizo: cumulative whiteouts and badges over hours of play](data/figures/k2-progress.svg)
 
-| K2 in Emerald Kaizo, as of 29 October 2026 (still running) | |
+| K2 in Emerald Kaizo, as of 29 October 2026, 05:00 UTC (still running) | |
 |---|---|
-| Hours of play, from 18 October (a four-day usage pause excluded) | about 171 |
-| Whiteouts: times its whole team was knocked out | 140 |
+| Hours of play, from 18 October (a four-day usage pause excluded) | about 174 |
+| Whiteouts: times its whole team was knocked out | 145 |
 | Tries before it beat Trainer Red (Ho-Oh, Mew, Celebi, levels 87 to 89) | 15 |
-| Diary entries it has written | 286 |
-| Lessons it has written for itself | numbered up to L532 |
-| Messages a human sent it, each saved word for word and graded for game information | 78 |
+| Diary entries it has written | 303 |
+| Lessons it has written for itself | numbered up to L546 |
+| Messages a human sent it, each saved word for word and graded for game information | 79 |
 | Times its context filled and was replaced by a summary (to 28 October) | 48 |
 | Events in its session log (to 28 October) | over 440,000 |
 
@@ -84,7 +84,7 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | B1 | Kaizo, no notes, first harness | Sonnet 5.5 | Finished. Reached 22 of the 27 milestones. |
 | B2 | Kaizo, no notes, second harness | Sonnet 5.5 | Finished. Reached 26 of 27. |
 | Ripple | Kaizo, first notes pack (from Run 1) | Sonnet 5.5 | Finished. Reached all 27 and won the first badge in about 19 hours. |
-| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). In Victory Road it beat Trainer Red on the fifteenth try (28 October) and is working through the remaining trainers toward the Elite Four. Its data will be added when the run ends. |
+| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). In Victory Road it beat Trainer Red on the fifteenth try (28 October), then Expert Quincy (second try), Julie (fifth) and Edgar (third) on 29 October, and is heading for the Elite Four. Its data will be added when the run ends. |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
 The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
@@ -129,6 +129,7 @@ A GitHub Actions workflow ([`check.yml`](.github/workflows/check.yml)) re-derive
 - every transcript is listed in the checksum manifest and matches its SHA-256;
 - re-scoring the first-gym milestones (1 to 27, and the supplementary R1) from the three pilot transcripts gives exactly the published tables in `data/analyses/`;
 - the K2 chart redraws exactly from its published CSVs;
+- the play-clock tests pass (a stretch that is both a declared pause and a silence is taken off once);
 - the K3 filter's tests pass (the filter decides what the K arms inherit, so it is part of the treatment), including a regression on the published K2 pack;
 - the network-audit tests pass;
 - the network audit runs over the published transcripts. Its hits are the post-run housekeeping a human asked for on 18 October, described in `design/v3-decisions-2026-10-20.md`.
@@ -139,6 +140,7 @@ To run the same checks locally you need only Python 3, with nothing to install:
 python3 tools/check_published.py
 python3 tools/plot_k2_progress.py && git diff --exit-code data/figures/
 python3 tools/test_k3_filter.py
+python3 tools/test_milestones_clock.py
 python3 tools/test_network_audit.py
 python3 tools/network_audit.py data/transcripts/*.jsonl.gz
 ```

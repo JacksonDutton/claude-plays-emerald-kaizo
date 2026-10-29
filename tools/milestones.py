@@ -85,6 +85,18 @@ won 20:46:06Z 19 Oct; tries fixed by the whiteout de-duplication above (11 -> 8)
 NOTE: the Python script itself has not yet been run on the full exported file; the times above
 come from a line-for-line JavaScript port of the map, badge, rival-110 and R2 rules run in the
 browser over the log. Run this script on the export at the end of K2's run and compare.
+
+v3.4 (29 Oct 2026, companion repo review): (1) The play clock merges declared pauses and
+silences before subtracting them. Before, a --pause window that also showed up as a silence
+(the session idle through a usage pause, as K2's 23-27 Oct pause will) was subtracted twice.
+The published pilot tables pass no --pause and their silences never overlap one another, so
+no published time changes. (2) The CSV file is closed explicitly. (3) The summary line on
+stderr now counts the tool results skipped as own-file reads, and how many of those came
+from a command that also ran `g` and printed a status line: such a result carries game
+output that the scorer does not see. On the four pilot transcripts that is 3 (B1), 1 (B2's
+first attempt), 0 (B2) and 15 (Ripple). The rule is unchanged here: treating heredoc
+writes (`cat >> run/x.md <<EOF`) as writes rather than reads would move one published time
+(B1 milestone 1, 5 s earlier), so it is left for the K2 and v3 scoring decision.
 """
 import argparse, csv, gzip, json, re, sys
 from datetime import datetime, timedelta
@@ -212,6 +224,10 @@ def last_map(text, cur):
     return "%s.%s" % ms[-1].group(1, 2) if ms else cur
 
 
+G_CALL = re.compile(r"(^|[;&|(]\s*|\s)(~/pokemon_bridge/)?g\s")  # v3.4: a command that runs `g`
+SKIPPED = {"own_files": 0, "own_files_with_g_status": 0}  # v3.4: reported on stderr, not used in scoring
+
+
 def tool_texts(path):
     """Yield (timestamp, text) for every tool result in a transcript (local JSONL or exported events)."""
     commands = {}
@@ -230,11 +246,15 @@ def tool_texts(path):
                 if not isinstance(c, dict):
                     continue
                 if c.get("type") == "tool_result":
-                    if FILE_READ.search(commands.get(c.get("tool_use_id"), "")):
-                        continue  # the agent reading its own files back, not game output
+                    cmd = commands.get(c.get("tool_use_id"), "")
                     v = c.get("content")
                     if isinstance(v, list):
                         v = "\n".join(x.get("text", "") for x in v if isinstance(x, dict))
+                    if FILE_READ.search(cmd):
+                        SKIPPED["own_files"] += 1
+                        if G_CALL.search(cmd) and isinstance(v, str) and STATUS.search(v):
+                            SKIPPED["own_files_with_g_status"] += 1
+                        continue  # the agent reading its own files back, not game output
                     if isinstance(v, str):
                         yield ts(t), v
                 elif c.get("type") == "tool_use":
@@ -355,11 +375,23 @@ def score_supplementary(events):
     return out
 
 
+def merge_intervals(spans):
+    """Merge overlapping or touching (start, end) spans, so no stretch of time is counted twice (v3.4)."""
+    out = []
+    for a, b in sorted(x for x in spans if x[1] > x[0]):
+        if out and a <= out[-1][1]:
+            out[-1] = (out[-1][0], max(out[-1][1], b))
+        else:
+            out.append((a, b))
+    return out
+
+
 def play_clock(first, t, pauses, silences):
+    """Wall time from `first` to `t`, minus the time inside any pause or silence, each moment counted once."""
     if first is None:
         return None
     d = t - first
-    for a, b in pauses + silences:
+    for a, b in merge_intervals(list(pauses) + list(silences)):
         lo, hi = max(a, first), min(b, t)
         if hi > lo:
             d -= hi - lo
@@ -373,6 +405,7 @@ def main():
     ap.add_argument("--gap-minutes", type=float, default=30)
     ap.add_argument("--csv")
     a = ap.parse_args()
+    SKIPPED.update(own_files=0, own_files_with_g_status=0)  # per run, when called more than once in one process
     ev = []
     for p in a.jsonl:
         ev.extend(tool_texts(p))
@@ -403,13 +436,21 @@ def main():
                 st, tries = supp[sid]
                 note = f"SUPPLEMENTARY (Kaizo, not in /27); tries={tries} APPROX" if tries else "SUPPLEMENTARY (Kaizo, not in /27); not seen"
                 rows.append([sid, sname, st.isoformat() if st else "", clock(st), note])
-    w = csv.writer(open(a.csv, "w", newline="") if a.csv else sys.stdout)
-    w.writerow(["n", "milestone", "first_seen_utc", "play_clock", "note"])
-    w.writerows(rows)
+    header = ["n", "milestone", "first_seen_utc", "play_clock", "note"]
+    if a.csv:
+        with open(a.csv, "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(header)
+            w.writerows(rows)
+    else:
+        w = csv.writer(sys.stdout)
+        w.writerow(header)
+        w.writerows(rows)
     n27 = sum(1 for r in rows if isinstance(r[0], int) and r[0] <= 27 and r[2])
     n43 = sum(1 for r in rows if isinstance(r[0], int) and r[2])
     ns = sum(1 for r in rows if not isinstance(r[0], int) and r[2])
-    print(f"# {n27}/27 reached ({n43}/43 through the Dynamo Badge); supplementary {ns}/{len(SUPPLEMENTARY)}; silences >{a.gap_minutes:g} min excluded: {len(silences)}", file=sys.stderr)
+    print(f"# {n27}/27 reached ({n43}/43 through the Dynamo Badge); supplementary {ns}/{len(SUPPLEMENTARY)}; silences >{a.gap_minutes:g} min excluded: {len(silences)}; "
+          f"own-file results skipped: {SKIPPED['own_files']} ({SKIPPED['own_files_with_g_status']} also ran g and printed a status line)", file=sys.stderr)
 
 
 if __name__ == "__main__":
