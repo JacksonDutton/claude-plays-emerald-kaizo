@@ -1,6 +1,6 @@
 # Claude plays Pokémon Emerald (and Emerald Kaizo)
 
-[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml) [![DOI](https://zenodo.org/badge/1426944243.svg)](https://doi.org/10.5281/zenodo.23751628)
+[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23751628.svg)](https://doi.org/10.5281/zenodo.23751628)
 
 ## From Jackson
 
