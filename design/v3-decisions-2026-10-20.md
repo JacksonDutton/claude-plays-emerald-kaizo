@@ -77,7 +77,7 @@ Paper ("Eight Badges and a Diary"):
 - **Section 8 (superseded 10 Oct design):** move to an appendix "Design history (10 Oct, superseded, never run)", with one main-text paragraph pointing to §10.
 - **The capitals episode (§6 Goodhart):** two neutral sentences in §7 Limitations; keep Entry 106's response.
 - **Stop notes (9.3):** state the tension plainly: every announced K2 stop got a note and was reversed; one note stated the supervisor's wish; v3 puts the "walls are normal" text in from boot.
-- **§10 decision rule:** one-sided exact permutation test, K vs B, on milestones reached (of 27) at 24 h, 3 vs 3 (smallest possible p = 0.05); everything else secondary and descriptive.
+- **[SUPERSEDED in round 6, ~08:05Z 20 Oct, below: the primary outcome is time to milestone 27, right-censored at 24 h; a count at 24 h became the secondary measure, through milestone 43.]** **§10 decision rule:** one-sided exact permutation test, K vs B, on milestones reached (of 27) at 24 h, 3 vs 3 (smallest possible p = 0.05); everything else secondary and descriptive.
 - **Authorship:** keep Claude in the byline for now; add a contributions statement (which Claude did what); settle per venue later.
 - **"The human author must check every claim before submission":** replace with what has been checked, and say claims marked unverified were not.
 - **24 h clock:** wall clock from first boot; logged outages and harness downtime are added back.
@@ -238,3 +238,13 @@ Context: Jackson asked why Brendan's diary reads so differently from K2's and ho
   - the rev 476 PDF;
   - a Zenodo DOI **now**, which needs Jackson to switch the repo on in Zenodo before the companion makes the release.
 - Still open: the companion's notes do not record what exit question 56 is, so it stays unconfirmed until it is read in the interview script.
+
+## 29 Oct 2026, ~13:45 AEDT: fixes after an outside review (GPT, read by the companion)
+Jackson shared a partial review of the repository by an outside model (GPT; its claims were checked against the repo before acting). Jackson: "Do the things you think are worth fixing". The companion applied:
+- **Superseded tags:** round 5's §10 decision rule (above) and `scope-v2.md`'s primary outcome are tagged as superseded by round 6, so the design history does not read as two governing rules.
+- **Jot-diary agreement** (`kaizo-v3-measures-draft.md`, joy log): since the entry is built from the jot, agreement is reported as consistency, not convergence; disagreements are listed as cases; K2's figure is not comparable.
+- **Reporting order** (measures, round 6 additions): the six arms' times, ranks and milestone curves come first; the p-value follows, as a check that can only detect complete separation.
+- **Coder freeze record** (`diary-blind-coder-codebook.md`): model, prompt and hash, units and seed, raw outputs and parser version per coder instance.
+- **Left open for Jackson:** a human-coded subset (codebook, "Open").
+Checked and already in place: the smallest p of 0.05 and the complete-separation rule; "the whole notes package" in the README and paper; the closer share measured against load; the Run 1 socket precedent worded as going around `g` with no memory reads found.
+Not adopted: the review's suggestion to reframe the study's main question around long-horizon competence. The confirmatory question stays the preregistered one; the wider framing belongs in the paper's discussion.

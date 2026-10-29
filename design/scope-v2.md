@@ -43,7 +43,7 @@ After the freeze, any change is a named design change applied to a whole batch, 
 ## 5. Confirmatory design (proposal)
 - Two conditions on the v3 package: **B (no notes)** and **K (notes K3)**, identical otherwise.
 - Order B-K-K-B-B-K (the thesis's 2-4-4-2-2-4), run **sequentially** (Jackson, 18 Oct: no parallel arms). Three per condition allows the exact one-sided permutation test already in the thesis.
-- **Primary outcome:** milestones reached (of 27) within the scoring window, and time to each (D1: 24 h of play). Arms may play on past the window; that part is scored separately as extended play.
+- **[SUPERSEDED on 20 Oct: see round 6 in `v3-decisions-2026-10-20.md` and the primary outcome in `kaizo-v3-measures-draft.md`, which is time to milestone 27, right-censored at 24 h.]** **Primary outcome:** milestones reached (of 27) within the scoring window, and time to each (D1: 24 h of play). Arms may play on past the window; that part is scored separately as extended play.
 - Time cost: roughly 12-20 h per arm, so about 3-5 days of wall clock for six arms if run back to back. Plan usage is not a constraint (Jackson, 18 Oct).
 
 ## 6. Parked, not dropped
