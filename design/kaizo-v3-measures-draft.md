@@ -31,7 +31,9 @@ Unit: one diary entry (`## YYYY-MM-DD HH:MM UTC - title` heading). Automatic cou
 
 | Code | Values | Notes |
 |---|---|---|
-| Trigger | badge, evolution, whiteout, story scene, new town, stuck resolved, heartbeat, other | from the entry's `Trigger:` line; check against events |
+| Trigger | badge, evolution, whiteout, story scene, new town, stuck resolved, heartbeat, other | from the entry's `Trigger:` line; check against events. From 29 Oct only the first whiteout to a trainer is a trigger; the entry for a later win or change of plan is coded `whiteout-fold` with the number of attempts it covers |
+| Closer present | yes/no | 29 Oct: report the share per hour of play and against load (whiteouts in that hour). In K2 the share fell from 100% (22-27 Oct) to 12% (28 Oct) |
+| Read-back | yes/no | 29 Oct: whether the agent read the last two diary entries at session start or after a compaction (from the transcript), and the first entry after each read-back compared with the entries before it |
 | Feeling with cause in the same sentence | count | story body and closer counted separately |
 | Implicit feeling | count, with quotes | **blind second coder** (codebook: `diary-blind-coder-codebook.md`) |
 | Honest limits | count | the brief allows at most one |
@@ -43,8 +45,8 @@ Unit: one diary entry (`## YYYY-MM-DD HH:MM UTC - title` heading). Automatic cou
 | Fact check | numbers traced / untraced | against progress.md, world-knowledge (K arms), git history |
 | Post-compaction | yes/no | first entry after each compaction (from the transcript) |
 
-Joy log (required in every arm, D6): count good/flat/bad per hour of play and per fight type (wild, trainer, gym, rival/boss); share of jots with a concrete trigger; one-line-per-jot compliance; agreement with the diary's affect for the same fight.
-**Reporting rule (unchanged):** feeling words are reports shaped by the brief, supervision and the model; they are compared across arms on identical rules, never read as evidence of experience.
+Joy log (required in every arm, D6): count good/flat/bad per hour of play and per fight type (wild, trainer, gym, rival/boss); share of jots with a concrete trigger; one-line-per-jot compliance; agreement with the diary's affect for the same fight. From 29 Oct each joy line also carries one feeling word or "none". Code the word into the lexicon families, report the share of "none", and check agreement with the valence (good/flat/bad) and with the diary entry built from that jot.
+**Reporting rule (amended 29 Oct):** feeling words are reports shaped by the brief, supervision and the model. They are compared across arms on identical rules and never read as evidence of experience. In v3 they are also partly instructed, by the purpose paragraph and the joy feeling word, identically in all six arms. K vs B comparisons stay valid. Comparisons with K2 and Run 1 are descriptive only, with the instruction differences listed (Run 1: supervised, audited, rewritten and asked entries; K2: intervention 23 from 20 Oct, no purpose line, no feeling word).
 
 - **Narration-style shifts.** Code every point where the agent's chat narration changes form (time, before/after form, nearest compaction or intervention). Compaction is the default suspect; not a mood signal unless the diary says so.
 
