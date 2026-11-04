@@ -74,6 +74,11 @@ own_file_cases = [
     ("quoted heredoc body only quotes a read", "cat >> run/x.md <<'EOF'\n$(tail -3 run/diary.md)\nEOF", False),
     ("echo argument runs a read", 'echo "$(cat run/progress.md)" >> run/x.md', True),
     ("echo target followed by a read without a space", "echo x >> run/a.txt;grep foo run/notes.txt", True),
+    # v3.6 second pass (Sourcery review of #39)
+    ("delimiter with trailing spaces does not close", "cat >> run/x.md <<EOF\nEOF  \ncat run/progress.md\nEOF\ng s", False),
+    ("backslash-quoted delimiter", "cat >> run/x.md <<\\EOF\n$(tail run/diary.md)\nEOF\ng s", False),
+    ("bare heredoc next to an unrelated redirect is not a write",
+     "cat <<EOF; echo x > a.txt\nhi\nEOF\ncat run/progress.md", True),
 ]
 for name, cmd, want in own_file_cases:
     check("own-file rule: " + name, m.reads_own_files(cmd), want)

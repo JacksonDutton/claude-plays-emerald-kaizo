@@ -196,7 +196,7 @@ FILE_READ = re.compile(r"(?i)\b(cat|grep|tail|head|sed|less|awk)\b[^|;&]*\.(md|t
 # targets stop at shell separators. Command substitutions inside a removed write still count as reads when the
 # shell would run them (unquoted heredoc delimiter; echo text outside single quotes).
 HEREDOC_OPEN = re.compile(
-    r"""\bcat\b(?:\s*>>?\s*[^\s;&|<>]+)?\s*<<(-?)\s*(['"]?)([^\s'"<>;&|()]+)\2(?:\s*>>?\s*[^\s;&|<>]+)?[^\n]*\n""")
+    r"""\bcat\b(\s*>>?\s*[^\s;&|<>]+)?\s*<<(-?)\s*(\\|['"]?)([^\s'"<>;&|()\\]+)(?(3)['"]?)(\s*>>?\s*[^\s;&|<>]+)?[^\n]*\n""")
 ECHO_WRITE = re.compile(r"""\b(?:echo|printf)\b(?:\s+(?:"(?:[^"\\]|\\.)*"|'[^']*'|[^\s|;&<>'"]+))*\s*>>?\s*[^\s;&|<>]+""")
 SUBST = re.compile(r"\$\(([^()]*)\)|`([^`]*)`")
 
@@ -214,12 +214,12 @@ def _strip_heredoc_writes(cmd):
         if not m:
             out.append(cmd[pos:])
             break
-        if ">" not in m.group(0):            # a heredoc that is not redirected into a file is not a write
+        if not (m.group(1) or m.group(5)):   # the cat itself must redirect into a file; a bare heredoc is not a write
             out.append(cmd[pos:m.end()])
             pos = m.end()
             continue
-        dash, quote, delim = m.group(1), m.group(2), m.group(3)
-        close = re.compile(r"(?m)^" + (r"\t*" if dash else "") + re.escape(delim) + r"[ \t]*$")
+        dash, quote, delim = m.group(2), m.group(3), m.group(4)   # quote: ' or " or a backslash (all stop expansion)
+        close = re.compile(r"(?m)^" + (r"\t*" if dash else "") + re.escape(delim) + r"$")   # bash: exact line
         c = close.search(cmd, m.end())
         body_end = c.start() if c else len(cmd)
         if not quote and _subst_reads(cmd[m.end():body_end]):

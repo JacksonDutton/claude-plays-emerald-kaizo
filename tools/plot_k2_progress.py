@@ -92,7 +92,7 @@ def main():
         if kind == "badge":
             badge += 1
             a(f'<circle class="dot" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>Badge {badge}: {esc(name)} '
-              f'(try {tries}), hour {h:.1f}</title></circle>')
+              f'(try {esc(str(tries))}), hour {h:.1f}</title></circle>')
             a(f'<text class="ink" x="{cx:.1f}" y="{cy-10:.1f}" font-size="11" font-weight="600" '
               f'text-anchor="middle">{badge}</text>')
         else:
