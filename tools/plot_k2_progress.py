@@ -5,6 +5,7 @@ Standard library only. Hours of play exclude K2's 23-27 October usage pause. Usa
     python3 tools/plot_k2_progress.py
 """
 import csv, os
+from xml.sax.saxutils import escape as esc  # milestone names and labels come from CSV; escape them for SVG (Sourcery, #37)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG = os.path.join(ROOT, "data", "figures")
@@ -53,8 +54,8 @@ def main():
     nb = sum(1 for m in ms if m[2] == "badge")
     bosses = [m for m in ms if m[2] != "badge"]           # every non-badge row is drawn and labelled from its own name
     nb_text = WORDS[nb] if nb < len(WORDS) else str(nb)
-    boss_desc = "; ".join(f"{name}, {tries_text(tries)}" for _, name, _, tries in bosses)
-    boss_key = ". ".join(f"{label[name]}: {name}, {tries_text(tries)}" for _, name, _, tries in bosses)
+    boss_desc = "; ".join(f"{esc(name)}, {tries_text(tries)}" for _, name, _, tries in bosses)
+    boss_key = ". ".join(f"{esc(label[name])}: {esc(name)}, {tries_text(tries)}" for _, name, _, tries in bosses)
     out = []
     a = out.append
     a(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
@@ -90,15 +91,15 @@ def main():
         cx, cy = x(h), y(at(h))
         if kind == "badge":
             badge += 1
-            a(f'<circle class="dot" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>Badge {badge}: {name} '
-              f'(try {tries}), hour {h:.1f}</title></circle>')
+            a(f'<circle class="dot" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>Badge {badge}: {esc(name)} '
+              f'(try {esc(str(tries))}), hour {h:.1f}</title></circle>')
             a(f'<text class="ink" x="{cx:.1f}" y="{cy-10:.1f}" font-size="11" font-weight="600" '
               f'text-anchor="middle">{badge}</text>')
         else:
-            a(f'<circle class="red" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>{name}, {tries_text(tries)}, '
+            a(f'<circle class="red" cx="{cx:.1f}" cy="{cy:.1f}" r="5"><title>{esc(name)}, {tries_text(tries)}, '
               f'hour {h:.1f}</title></circle>')
             a(f'<text class="ink" x="{cx:.1f}" y="{cy-10:.1f}" font-size="11" font-weight="600" '
-              f'text-anchor="middle">{label[name]}</text>')
+              f'text-anchor="middle">{esc(label[name])}</text>')
     a(f'<text class="ink" x="{x(last_h)+6:.1f}" y="{y(last_n)+4:.1f}" font-size="12" font-weight="600">{last_n}</text>')
     a('</svg>')
     path = os.path.join(FIG, "k2-progress.svg")

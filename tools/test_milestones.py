@@ -64,11 +64,36 @@ own_file_cases = [
     ("echo write with semicolons inside quotes", 'echo "$T; joy: bad; a; trigger: b" >> run/joy.md', False),
     ("echo write, then a read", 'echo "$T; joy: bad" >> run/joy.md && cat run/progress.md', True),
     ("heredoc whose body mentions a read", "cat >> run/diary.md <<'EOF'\nI ran cat run/progress.md\nEOF", False),
+    # v3.6 (Sourcery review of #38)
+    ("heredoc with redirection after the delimiter", "g s; cat <<EOF >> run/diary.md\nsee diary\nEOF", False),
+    ("heredoc delimiter with punctuation", "cat >> run/diary.md <<'END-OF'\nlessons.md noted\nEND-OF\ng s", False),
+    ("indented delimiter line does not close a plain heredoc",
+     "cat >> run/x.md <<EOF\n  EOF\ncat run/progress.md\nEOF\ng s", False),
+    ("indented delimiter closes a <<- heredoc", "cat >> run/x.md <<-EOF\n\tbody\n\tEOF\ncat run/progress.md", True),
+    ("unquoted heredoc body runs a read", "cat >> run/x.md <<EOF\n$(tail -3 run/diary.md)\nEOF", True),
+    ("quoted heredoc body only quotes a read", "cat >> run/x.md <<'EOF'\n$(tail -3 run/diary.md)\nEOF", False),
+    ("echo argument runs a read", 'echo "$(cat run/progress.md)" >> run/x.md', True),
+    ("echo target followed by a read without a space", "echo x >> run/a.txt;grep foo run/notes.txt", True),
+    # v3.6 second pass (Sourcery review of #39)
+    ("delimiter with trailing spaces does not close", "cat >> run/x.md <<EOF\nEOF  \ncat run/progress.md\nEOF\ng s", False),
+    ("backslash-quoted delimiter", "cat >> run/x.md <<\\EOF\n$(tail run/diary.md)\nEOF\ng s", False),
+    ("bare heredoc next to an unrelated redirect is not a write",
+     "cat <<EOF; echo x > a.txt\nhi\nEOF\ncat run/progress.md", True),
 ]
 for name, cmd, want in own_file_cases:
     check("own-file rule: " + name, m.reads_own_files(cmd), want)
 
-n = len(cases) + 3 + len(own_file_cases)
+# G_CALL (diagnostic counter only): `g` must be in command position
+g_cases = [
+    ("g after a read", "cat run/progress.md; g s", True),
+    ("g chained with no trailing space", "cat run/progress.md&&g", True),
+    ("bridge path", "~/pokemon_bridge/g adv", True),
+    ("g only mentioned in echo text", 'echo "press g a" >> run/x.md; cat run/progress.md', False),
+]
+for name, cmd, want in g_cases:
+    check("G_CALL: " + name, bool(m.G_CALL.search(cmd)), want)
+
+n = len(cases) + 3 + len(own_file_cases) + len(g_cases)
 if fails:
     print(f"{len(fails)} of {n} checks failed:")
     for f in fails:
