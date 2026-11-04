@@ -191,13 +191,53 @@ FILE_READ = re.compile(r"(?i)\b(cat|grep|tail|head|sed|less|awk)\b[^|;&]*\.(md|t
 # v3.5: writes are not reads. A heredoc write (`cat >> run/x.md <<'EOF' ... EOF`, `cat > f <<EOF`) or an
 # echo/printf redirected into a file is removed from the command before FILE_READ is applied, so a `g` call
 # chained with a record write keeps its game output. Commands that read the agent's files are still skipped.
-HEREDOC_WRITE = re.compile(r"(?s)\bcat\s*>>?\s*\S+\s*<<-?\s*(['\"]?)(\w+)\1.*?\n\s*\2[ \t]*(?=\n|$)")
-ECHO_WRITE = re.compile(r"""\b(?:echo|printf)\b(?:\s+(?:"(?:[^"\\]|\\.)*"|'[^']*'|[^\s|;&<>'"]+))*\s*>>?\s*\S+""")
+# v3.6 (Sourcery review of #38): heredoc redirection in either order (`cat >> f <<EOF` or `cat <<EOF >> f`),
+# delimiters with punctuation, and the closing line may be indented only for `<<-`. Echo/printf redirection
+# targets stop at shell separators. Command substitutions inside a removed write still count as reads when the
+# shell would run them (unquoted heredoc delimiter; echo text outside single quotes).
+HEREDOC_OPEN = re.compile(
+    r"""\bcat\b(?:\s*>>?\s*[^\s;&|<>]+)?\s*<<(-?)\s*(['"]?)([^\s'"<>;&|()]+)\2(?:\s*>>?\s*[^\s;&|<>]+)?[^\n]*\n""")
+ECHO_WRITE = re.compile(r"""\b(?:echo|printf)\b(?:\s+(?:"(?:[^"\\]|\\.)*"|'[^']*'|[^\s|;&<>'"]+))*\s*>>?\s*[^\s;&|<>]+""")
+SUBST = re.compile(r"\$\(([^()]*)\)|`([^`]*)`")
+
+
+def _subst_reads(text):
+    """True when a command substitution in text reads the agent's files."""
+    return any(FILE_READ.search(a or b) for a, b in SUBST.findall(text))
+
+
+def _strip_heredoc_writes(cmd):
+    """Remove heredoc writes from cmd; return (remaining command, whether an executed substitution read a file)."""
+    out, pos, sub_read = [], 0, False
+    while True:
+        m = HEREDOC_OPEN.search(cmd, pos)
+        if not m:
+            out.append(cmd[pos:])
+            break
+        if ">" not in m.group(0):            # a heredoc that is not redirected into a file is not a write
+            out.append(cmd[pos:m.end()])
+            pos = m.end()
+            continue
+        dash, quote, delim = m.group(1), m.group(2), m.group(3)
+        close = re.compile(r"(?m)^" + (r"\t*" if dash else "") + re.escape(delim) + r"[ \t]*$")
+        c = close.search(cmd, m.end())
+        body_end = c.start() if c else len(cmd)
+        if not quote and _subst_reads(cmd[m.end():body_end]):
+            sub_read = True
+        out.append(cmd[pos:m.start()] + " ")
+        pos = c.end() if c else len(cmd)
+    return "".join(out), sub_read
 
 
 def reads_own_files(cmd):
     """True when a command reads the agent's own record files (v3.5: record writes are ignored first)."""
-    return bool(FILE_READ.search(ECHO_WRITE.sub(" ", HEREDOC_WRITE.sub(" ", cmd))))
+    rest, sub_read = _strip_heredoc_writes(cmd)
+    if sub_read:
+        return True
+    for w in ECHO_WRITE.finditer(rest):
+        if _subst_reads(re.sub(r"'[^']*'", "", w.group(0))):
+            return True
+    return bool(FILE_READ.search(ECHO_WRITE.sub(" ", rest)))
 
 STATUS = re.compile(r"^(\d+)\.(\d+) (-?\d+),(-?\d+) P(\d) B(\d+)\b", re.M)
 
@@ -245,7 +285,7 @@ def last_map(text, cur):
     return "%s.%s" % ms[-1].group(1, 2) if ms else cur
 
 
-G_CALL = re.compile(r"(^|[;&|(]\s*|\s)(~/pokemon_bridge/)?g\s")  # v3.4: a command that runs `g`
+G_CALL = re.compile(r"(?:^|[;&|(\n])\s*(?:\./|~/pokemon_bridge/)?g(?:\s|$)")  # v3.6: `g` in command position only
 SKIPPED = {"own_files": 0, "own_files_with_g_status": 0}  # v3.4: reported on stderr, not used in scoring
 
 
