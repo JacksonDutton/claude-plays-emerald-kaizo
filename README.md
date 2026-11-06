@@ -1,6 +1,8 @@
 # Claude plays Pokémon Emerald (and Emerald Kaizo)
 
-[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23751628.svg)](https://doi.org/10.5281/zenodo.23751628)
+[![Check it yourself](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml/badge.svg)](https://github.com/JacksonDutton/claude-plays-emerald-kaizo/actions/workflows/check.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23751628.svg)](https://doi.org/10.5281/zenodo.23751628) ![K2 status](https://img.shields.io/badge/K2-at%20the%20Elite%20Four-6f42c1) ![Licence](https://img.shields.io/badge/code-MIT-blue) ![Licence](https://img.shields.io/badge/docs%20%26%20data-CC%20BY%204.0-lightgrey)
+
+**[Read the paper](paper/eight-badges-and-a-diary-rev492-2026-10-29.pdf)** · **[K2's live diary](https://claude.ai/artifact/UANmvbW6AWyFgv4pAPK9K7)** · [The runs](#the-runs) · [In numbers](#in-numbers) · [Check it yourself](#check-it-yourself) · [Glossary](GLOSSARY.md) · [Cite](#using-this-material)
 
 ## From Jackson
 
@@ -18,22 +20,27 @@ I count my own help as well. Every message I send is saved word for word and gra
 
 I'm an independent researcher: no lab, no institution, no funding. Claude works on this with me as a co-researcher, and the section below says who did what.
 
-Where it's at on 29 October 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges and is working through Victory Road, the last area before the Elite Four, where it beat the hack's Trainer Red (Ho-Oh, Mew, Celebi and friends, levels 87 to 89) on its fifteenth try, then the road's expert trainers Quincy, Julie and Edgar. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
+Where it's at on 6 November 2026: K2, a Claude Sonnet 5.5 agent, has all eight Kaizo badges, cleared Victory Road (including the hack's Trainer Red on its fifteenth try) and has been at the Elite Four since 29 October. Every Elite Four member is level 100. It has beaten the first two members many times over, and the third, Glacia, has stopped it on every attempt so far. As far as I can find, nobody has documented an AI agent getting this far in Emerald Kaizo before. If it makes the Hall of Fame, it'll be written up here.
+
+One change to flag up front: on 6 November (03:35 UTC) the study moved into a new phase, K2c. K2 was given a pack of outside information for the Elite Four and Champion: the community's developer documents, a summary of a professional player's winning run, and damage calculations by Claude, the project's co-researcher. Before that point K2 had played with no outside game information at all. Anything K2 achieves after 6 November will be reported as with outside help.
 
 ## In numbers
 
 ![K2 in Emerald Kaizo: cumulative whiteouts and badges over hours of play](data/figures/k2-progress.svg)
 
-| K2 in Emerald Kaizo, as of 29 October 2026, 05:00 UTC (still running) | |
+| K2 in Emerald Kaizo, as of 6 November 2026, 07:00 UTC (still running) | |
 |---|---|
-| Hours of play, from 18 October (a four-day usage pause excluded) | about 174 |
-| Whiteouts: times its whole team was knocked out | 145 |
+| Hours of play, from 18 October (a four-day usage pause excluded) | about 290 |
+| Whiteouts: times its whole team was knocked out | 383 |
 | Tries before it beat Trainer Red (Ho-Oh, Mew, Celebi, levels 87 to 89) | 15 |
-| Diary entries it has written | 303 |
-| Lessons it has written for itself | numbered up to L546 |
-| Messages a human sent it, each saved word for word and graded for game information | 79 |
-| Times its context filled and was replaced by a summary (to 28 October) | 48 |
+| Elite Four tries so far: first member (won), second member (won), third member | 212 (166 won), 163 (38 won), 38 (none won) |
+| Diary entries it has written | about 550 |
+| Lessons it has written for itself | numbered up to L969 |
+| Numbered messages a human sent it, each saved word for word and graded for game information | 110 |
+| Times its context filled and was replaced by a summary | 55 |
 | Events in its session log (to 28 October) | over 440,000 |
+
+The chart above runs to 29 October; it will be redrawn from the full data when the run ends.
 
 Run 1, on the original game, won all eight badges and entered the Hall of Fame. It then put together a 41-win streak in the Battle Frontier and wrote 149 diary entries along the way ([`data/run1/`](data/run1/)).
 
@@ -84,7 +91,7 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | B1 | Kaizo, no notes, first harness | Sonnet 5.5 | Finished. Reached 22 of the 27 milestones. |
 | B2 | Kaizo, no notes, second harness | Sonnet 5.5 | Finished. Reached 26 of 27. |
 | Ripple | Kaizo, first notes pack (from Run 1) | Sonnet 5.5 | Finished. Reached all 27 and won the first badge in about 19 hours. |
-| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). In Victory Road it beat Trainer Red on the fifteenth try (28 October), then Expert Quincy (second try), Julie (fifth) and Edgar (third) on 29 October, and is heading for the Elite Four. Its data will be added when the run ends. |
+| K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Still running. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). It beat Trainer Red on the fifteenth try (28 October), cleared Victory Road on 29 October, and beat the first two Elite Four members on 30 October (Sidney on the ninth try, Phoebe on the eighteenth). Since 6 November it plays with an outside-information pack (phase K2c, above). Its data will be added when the run ends. |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
 The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
