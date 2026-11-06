@@ -11,6 +11,7 @@ The study's documents use short names. This page explains each one in plain word
 | **B1, B2** | Kaizo trial arms with no notes (B for baseline). B1 used the first harness, B2 the second. |
 | **Ripple** | The first Kaizo arm with notes (pack K1). |
 | **K2** | The second Kaizo arm with notes (pack K2), and the long run still going on 29 October 2026. |
+| **K2c** | K2's phase from 6 November 2026, 03:35 UTC: same run, but with an outside-information pack for the Elite Four and Champion (see QUARANTINE). Results after this point are reported as with outside help. |
 | **K1, K2, K3 (notes packs)** | Lessons written by earlier agents and given to a notes arm at the start. K1 was distilled from Run 1, and K2 from Run 1 and Ripple. K3 will be distilled from K2's own records for the planned study (`design/kaizo-K3-extraction-kit.md`). The packs hold no places or routes. |
 | **K2.5** | A planned branch run forked from K2's final save, with a harness that shows more of what is already on screen. |
 | **v3, the six arms, the confirmatory study** | The planned fair comparison: three arms with notes (K) and three without (B), run one at a time on Jackson's Mac under a frozen brief (`design/kaizo-brief-v3-draft.md`). |
@@ -42,5 +43,5 @@ The study's documents use short names. This page explains each one in plain word
 | **L-numbers (L01, L532...)** | An agent's own lessons, in its `lessons.md`. |
 | **B, D, T, N, R, P lessons** | The sections of a notes pack: battle mechanics, battle decisions, tools, navigation method, records, and pacing and welfare. |
 | **D-, H-, M-, F- numbers** | Design decisions (D6 to D15), harness changes (H1 to H18), measures (M7 to M13) and the fixed message texts (F1 to F7) for the planned study. They are listed in `design/v3-decisions-2026-10-20.md` and `design/kaizo-v3-measures-draft.md`. |
-| **QUARANTINE** | Files holding outside game knowledge, kept away from every play agent and not published here. |
+| **QUARANTINE** | Files holding outside game knowledge, kept away from every play agent and not published here. One logged exception: in phase K2c (from 6 November 2026, 03:35 UTC) K2 was given an Elite Four and Champion pack drawn from these files (community developer documents, a summary of a professional player's winning run, and the co-researcher's damage calculations). Everything not in that pack stays quarantined. |
 | **Network audit** | `tools/network_audit.py`. It scans a transcript for any attempt to reach the internet, or to reach the emulator around `g`. |
