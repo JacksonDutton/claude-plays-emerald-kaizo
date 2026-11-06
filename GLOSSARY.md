@@ -10,7 +10,7 @@ The study's documents use short names. This page explains each one in plain word
 | **Arm** | One run in the Kaizo study, under one set of conditions. |
 | **B1, B2** | Kaizo trial arms with no notes (B for baseline). B1 used the first harness, B2 the second. |
 | **Ripple** | The first Kaizo arm with notes (pack K1). |
-| **K2** | The second Kaizo arm with notes (pack K2), and the long run still going on 29 October 2026. |
+| **K2** | The second Kaizo arm with notes (pack K2), and the long run still going on 6 November 2026 (at the Elite Four; in phase K2c from that day). |
 | **K2c** | K2's phase from 6 November 2026, 03:35 UTC: same run, but with an outside-information pack for the Elite Four and Champion (see QUARANTINE). Results after this point are reported as with outside help. |
 | **K1, K2, K3 (notes packs)** | Lessons written by earlier agents and given to a notes arm at the start. K1 was distilled from Run 1, and K2 from Run 1 and Ripple. K3 will be distilled from K2's own records for the planned study (`design/kaizo-K3-extraction-kit.md`). The packs hold no places or routes. |
 | **K2.5** | A planned branch run forked from K2's final save, with a harness that shows more of what is already on screen. |
