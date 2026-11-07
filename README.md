@@ -42,7 +42,7 @@ A second disclosure, found on 7 November while launching K3: in every Kaizo run 
 | Times its context filled and was replaced by a summary | 57 |
 | Events in its session log (to 28 October) | over 440,000 |
 
-The chart above runs to 29 October; it will be redrawn from the full data when the run ends.
+The chart above runs to 29 October. K2 stopped on 7 November; the chart will be redrawn from its full data once K2's records have been reviewed and added.
 
 Run 1, on the original game, won all eight badges and entered the Hall of Fame. It then put together a 41-win streak in the Battle Frontier and wrote 149 diary entries along the way ([`data/run1/`](data/run1/)).
 
@@ -94,7 +94,7 @@ Each run (we also call them "arms") has a short name. "Notes" means the agent wa
 | B2 | Kaizo, no notes, second harness | Sonnet 5.5 | Finished. Reached 26 of 27. |
 | Ripple | Kaizo, first notes pack (from Run 1) | Sonnet 5.5 | Finished. Reached all 27 and won the first badge in about 19 hours. |
 | K2 | Kaizo, second notes pack (from Run 1 and Ripple) | Sonnet 5.5 | Stopped on 7 November at the Elite Four for study budget, followed by an exit interview. On 28 October it won its eighth badge (Wallace on the seventh try, then Juan's double battle on the fifth), after a four-day pause at the weekly usage limit (23 to 27 October). It beat Trainer Red on the fifteenth try (28 October), cleared Victory Road on 29 October, and beat the first two Elite Four members on 30 October (Sidney on the ninth try, Phoebe on the eighteenth). From 6 November it played with an outside-information pack (phase K2c, above). Its data will be added to this repository after review. |
-| K3 | Kaizo, third notes pack (distilled from K2's own records) | Sonnet 5.5 | Running since 7 November, on the third start: two earlier starts that day were voided within minutes because the harness made choices for the agent (details in [`design/k3-launch-2026-11-07.md`](design/k3-launch-2026-11-07.md)). |
+| K3 | Kaizo, third notes pack (distilled from K2's own records) | Sonnet 5.5 | Running since 7 November, on the third start: two earlier starts that day were voided within minutes: the first because the harness made the starter and gender choices for the agent, the second because the first fix stopped the text command after every page (details in [`design/k3-launch-2026-11-07.md`](design/k3-launch-2026-11-07.md)). |
 | Planned study | Kaizo, six runs: three with notes, three without | Sonnet 5.5 | Being designed. The plan will be fixed and recorded before it starts, so the results cannot shape the method. Decisions so far are in `design/v3-decisions-2026-10-20.md`. |
 
 The trial runs differed in their instructions, their harness and how much a human stepped in. That means they are case studies, not a fair comparison. The planned six-run study is the fair comparison. Its two groups differ by the whole notes package, not by the notes alone.
@@ -116,7 +116,7 @@ The Kaizo runs used Claude Code on a Claude Max subscription, which charges a fl
 | B1 | 208.85 | about 69 |
 | B2 | 313.71 | about 64 |
 | Ripple | 506.63 | about 63 |
-| K2 | read when the run ends | |
+| K2 | 6,885.80 (read with `/usage` after the exit interview, 7 November) | not yet computed |
 | Run 1 | no figure (it ran in the desktop app, which has no `/usage` total) | |
 
 `tools/session_cost.py` recalculates each session's cost from its saved transcript.
@@ -160,7 +160,7 @@ The study's short names (B1, K2, K3, F1, M8c and so on) are explained in [`GLOSS
 ## What is not here, and why
 
 - **Game files.** No game ROM, patch or save file is included. The harness needs a legally obtained Pokémon Emerald ROM patched with Emerald Kaizo v2.1. `harness/setup.sh` checks the patched file's SHA-1 and stops if it does not match.
-- **K2's records.** K2 is still playing. Its diary, lessons and transcript will be added after the run ends and the agent has been interviewed.
+- **K2's records.** K2 stopped on 7 November and has been interviewed. Its diary, lessons, interview and transcript will be added after review.
 - **Outside game information.** During the study, some files are kept away from the agents because they hold game knowledge from outside the game, such as encounter tables, move lists, forum posts and a human's own playthrough. They are not published here.
 - **Run 1's other records.** Run 1's diary is published in [`data/run1/`](data/run1/). Its progress log, lessons and other working files are available on request.
 - **Personal and account details.** See the next section.
