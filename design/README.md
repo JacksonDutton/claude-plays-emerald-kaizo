@@ -17,4 +17,4 @@ Working documents from the project, first copied on 20 October 2026 and updated 
 | `kaizo-milestone-times.md` | Milestone definitions and times for every Kaizo arm, by progress-file audit and by transcript scoring. |
 | `transcript-analyses-2026-10-20.md` | Results from the pilot transcripts: injected messages, habits and narration around compaction, milestone scoring, whiteouts, diary rewrites, the scrub, and account skills in the arm sessions. |
 
-Some documents mention K2 interim results. K2 is still running; its full records come later.
+Some documents mention K2 interim results. K2 stopped on 7 November 2026; its full records come after review.

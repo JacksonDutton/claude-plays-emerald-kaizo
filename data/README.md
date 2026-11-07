@@ -15,7 +15,7 @@ The run records each finished Kaizo pilot wrote for itself, as exported at the e
 - `b2/`: Kaizo pilot B2 (no notes, harness v2).
 - `ripple-k1/`: Kaizo pilot Ripple (notes pack K1.1). Its sidecar file is held back with the quarantined material.
 - B1's records are not exported as files; its diary and progress file can be read from its transcript.
-- K2 is still running. Its records will be added when it ends.
+- K2 stopped on 7 November 2026. Its records will be added after review.
 
 The diaries are not strictly append-only: the agents sometimes edited earlier entries. The edits found are listed in `design/transcript-analyses-2026-10-20.md`, section 6.
 
@@ -46,7 +46,7 @@ The K2 progress chart on the front page, drawn by `tools/plot_k2_progress.py` fr
 | `k2-milestones.csv` | The badges and Trainer Red, with the try each was won on. `label` is the letter drawn above a non-badge dot. |
 | `k2-progress.svg` | The chart. |
 
-Interim: these come from the live record, not K2's export, and will be re-derived from its transcript when the run ends.
+Interim: these come from the live record (to 29 October), not K2's export, and will be re-derived from its transcript now that the run has ended.
 
 ## `transcripts/`
 
