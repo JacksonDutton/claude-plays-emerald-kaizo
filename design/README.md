@@ -16,5 +16,8 @@ Working documents from the project, first copied on 20 October 2026 and updated 
 | `diary-blind-coder-codebook.md` | Codebook and procedure for the blind second coder of diary feeling. |
 | `kaizo-milestone-times.md` | Milestone definitions and times for every Kaizo arm, by progress-file audit and by transcript scoring. |
 | `transcript-analyses-2026-10-20.md` | Results from the pilot transcripts: injected messages, habits and narration around compaction, milestone scoring, whiteouts, diary rewrites, the scrub, and account skills in the arm sessions. |
+| `k3-launch-2026-11-07.md` | Public notes on K2's end, how the K3 notes pack was built (process and numbers only), the two voided K3 starts and K3's launch settings. |
+| `k3-harness-fixes-2026-11-07.diff` | The harness patch made between the voided K3 starts (the text-advance command and the boot autopilot). |
+| `k3-end-2026-11-10.md` | K3's end: what the 10 November audit found (no save on disk, tools offered beyond the brief, notes read once), the stop and exit interview, errors by the study team, and the plan and harness changes for K4. |
 
 Some documents mention K2 interim results. K2 stopped on 7 November 2026; its full records come after review.
