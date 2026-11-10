@@ -32,6 +32,13 @@ The Kaizo harness exactly as frozen for the K2 arm (18 October 2026). The file h
 
 `FREEZE.md` lists `.claude/settings.json` as `18cb4850d570d68e`. The file committed in K2's run repository, and copied here, hashes to `0b6d3aebf3d8f016`. The table row appears not to have been updated when the settings changed (unverified). The file here is the one K2 ran with.
 
+## Known issues found on 7 November 2026 (kept as run; fixed in the v3 harness for K3)
+
+- **The autopilot chose the player's gender.** At boot, `director.lua` in auto mode presses A through the title screen, the main menu and the whole new-game speech, which includes the boy/girl choice. Every Kaizo run on this harness was therefore given "boy" by the harness; the agents first met the game at the naming screen. The starter and all later choices were the agents' own.
+- **`g adv` can press through a prompt that raises no flag.** `adv` keeps pressing A while the text buffer is unchanged and no flag is set. Some prompts (the starter confirm, the boy/girl menu) set no flag and do not change the buffer, so `adv` can answer them. K2 noted this in its own lessons.
+
+Both were fixed in the v3 harness that K3 ran (the boy/girl menu still raised no prompt flag there; see [`design/k3-end-2026-11-10.md`](../design/k3-end-2026-11-10.md)): see [`design/k3-harness-fixes-2026-11-07.diff`](../design/k3-harness-fixes-2026-11-07.diff) and [`design/k3-launch-2026-11-07.md`](../design/k3-launch-2026-11-07.md). The files here are left exactly as the earlier runs used them.
+
 ## Running it
 
 You need your own legally obtained ROM: Pokémon Emerald (US), patched with Emerald Kaizo v2.1, SHA-1 `a7c4e34fafb53f2d5283eb6d43dad285c0dd40a8`. No ROM is distributed here.

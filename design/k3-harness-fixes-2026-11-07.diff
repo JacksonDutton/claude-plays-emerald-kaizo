@@ -1,0 +1,79 @@
+# K3 harness fixes, 7 November 2026 (v3 harness: g and director.lua; diffs against the v3 draft used for the first K3 start)
+--- harness-v3/g.pre-k3b	2026-11-07 16:12:33
++++ harness-v3/g	2026-11-07 16:39:28
+@@ -7,7 +7,7 @@
+ #   g s                    status line only
+ #   g a|b|start|select|up|down|left|right   press once -> wait -> status (+new text)
+ #   g walk <dir> [n]       walk n tiles -> wait -> status + "moved dx,dy" (+new text)
+-#   g adv [max]            press a through the current already-shown message; stops on new text / yn / menu / battle / lock cleared
++#   g adv [max]            press a through the current already-shown message (g t shows all of it); stops on new text / yn / menu / battle / lock cleared, and after one press outside a plain message box
+ #   g t                    current dialogue text (always prints). Prefix [f]/[b] = live; [f old] = no message on screen (stale buffer);
+ #                          [b menu] = battle menu up; " (unchanged Ns)" after 3 s without a change (v2)
+ #   g name <TEXT>          type the whole name on the naming screen, then stop; prints the name read back from RAM (v2)
+@@ -105,12 +105,18 @@
+      fi
+      n=${2:-30}; for i in $(seq 1 $n); do
+        r=$(q PRESS a); [[ $r == OK* ]] || { echo "$r"; break; }
+-       wait_idle; s=$(q S); t=$(q T)
++       # K3 rev 2: the text buffer can update up to ~1 s after the press (intro speech, long scripts): poll briefly.
++       wait_idle; for w in 1 2 3 4 5 6 7 8; do t=$(q T); [[ "$(txt "$t")" != "$(txt "$t0")" ]] && break; sleep 0.15; done; s=$(q S)
+        if [[ "$(txt "$t")" != "$(txt "$t0")" ]]; then echo "$s"; printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; break; fi
+        if [[ $s == *bat:other* ]]; then sleep 0.3; s=$(q S); fi
+        b=${s/bat:other/}
+        if [[ $s == *bat:* ]]; then t=$(q T); echo "$s"; [[ "$(txt "$t")" != "$(txt "$t0")" ]] && { printf '%s' "$t" > /tmp/pk_lasttext; echo "$t"; }; break; fi
+        if [[ $s != *lock* || $s == *yn* || $s == *menu:* || $b == *bat:* || $s == *dec:* || $s == *learn* ]]; then echo "$s (after $i)"; break; fi
++       # K3 (7 Nov 2026, rev 2): keep pressing through further pages of the same message only while a plain
++       # overworld message box is up (g t already shows the whole message). Anywhere else (the starter choice,
++       # intro and clock screens, menus) stop after the press: those prompts raise no flag and keep T unchanged.
++       gm=$(q DIAG); mb=$(q R8 0x020375bc)
++       if [[ $gm != *'"game_mode":"overworld"'* || -z $mb || $mb == 0 ]]; then echo "$s (pressed a $i time(s), no new text; not in a plain message box now, so adv stopped. Some prompts raise no flag: take g shot before pressing again)"; break; fi
+        [[ $i == $n ]] && echo "$s (max $n presses, still in same message)"
+      done ;;
+   name) shift   # v2: type a whole name on the naming screen, then stop (never confirms)
+--- harness-v3/director.lua.pre-k3b	2026-11-07 16:12:33
++++ harness-v3/director.lua	2026-11-07 16:15:29
+@@ -828,6 +828,7 @@
+                  right = 16, left = 32, up = 64, down = 128}
+ 
+ local mode = "auto"
++local k3ReachedIntro = false   -- K3 (7 Nov 2026): set once the new-game intro or naming screen is seen
+ local decision = nil
+ local frameCount = 0
+ local lastGameMode = nil
+@@ -1256,16 +1257,32 @@
+         return
+     end
+ 
+-    if gameMode == "title_screen" or gameMode == "main_menu" or
+-       gameMode == "copyright_screen" or gameMode == "new_game_intro" or
+-       gameMode == "naming_screen_return" then
++    -- K3 (7 Nov 2026, companion; Jackson: no choice may be made for the agent): auto mode presses
++    -- only through the opening movie and the copyright and title screens. It no longer presses through
++    -- the new-game intro (Birch's speech holds the boy/girl choice, which auto mode used to answer
++    -- with A), the post-naming confirm, or unknown screens before the overworld: it parks there,
++    -- and the agent presses every button from Birch's first line on.
++    if gameMode == "title_screen" or gameMode == "copyright_screen" then
+         schedule(1, 8, 32)
+         lastGameMode = gameMode
+         return
+     end
+ 
++    -- Birch's speech (and its boy/girl choice) runs under the main menu's callback in this ROM,
++    -- so the main menu parks too: the agent presses from the main menu on.
++    if gameMode == "main_menu" or gameMode == "new_game_intro" or gameMode == "naming_screen_return" or gameMode == "naming_screen" then
++        k3ReachedIntro = true
++        mode = "parked"
++        decision = {type = "intro", game_mode = gameMode, frame = frameCount}
++        pushLog("decision_raised", {frame = frameCount, detail = "intro_park"})
++        lastGameMode = gameMode
++        return
++    end
++
+     if gameMode == "unknown" then
+-        if not everReachedOverworld then
++        -- Before the new-game intro (or the main menu) the only unknown screen is the opening movie,
++        -- which holds no choice: keep skipping it, as before.
++        if not k3ReachedIntro and not everReachedOverworld then
+             schedule(1, 8, 32)
+             lastGameMode = gameMode
+             return
