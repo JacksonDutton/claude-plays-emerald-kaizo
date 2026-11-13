@@ -13,11 +13,16 @@ The study's documents use short names. This page explains each one in plain word
 | **K2** | The second Kaizo arm with notes (pack K2): the long run that won all eight badges and was stopped at the Elite Four on 7 November 2026 (in phase K2c from 6 November). |
 | **K2c** | K2's phase from 6 November 2026, 03:35 UTC: same run, but with an outside-information pack for the Elite Four and Champion (see QUARANTINE). Results after this point are reported as with outside help. |
 | **K1, K2, K3 (notes packs)** | Lessons written by earlier agents and given to a notes arm at the start. K1 was distilled from Run 1, and K2 from Run 1 and Ripple. K3 was distilled from K2's own records on 7 November 2026 (`design/kaizo-K3-extraction-kit.md`, `design/k3-launch-2026-11-07.md`). The packs hold no places or routes. |
-| **K3 (the run), K4** | K3 is also the name of the single run that used pack K3 (7 to 10 November 2026, one badge; `design/k3-end-2026-11-10.md`). K4 is the planned run after it: a fresh start with the same pack on a repaired harness. |
+| **K3 (the run), K3c** | K3 is also the name of the single run that used pack K3 (7 to 10 November 2026, one badge; `design/k3-end-2026-11-10.md`). K3c is its third start, the one that played; the first two were voided within minutes. |
+| **K4** | The run after K3: a fresh start with the same pack on a repaired harness with a 300,000-token window (10 to 12 November 2026). Stopped at its first badge after 25 hours 28 minutes (`design/k4-k5-update-2026-11-13.md`). |
+| **K5, K5b** | The run after K4: the same pack, K4's harness with its faults fixed, a 500,000-token window, started 13 November 2026. K5b is the same run from 05:57 UTC that day, when its diary instruction was changed to the in-world voice. |
+| **K5F** | A side experiment started beside K5 on 13 November 2026: K5's set-up played from a new game by Claude Fable 5.2 at medium effort, with a 950,000-token window and the in-world diary instruction from the start. Not one of the planned arms. |
+| **K6** | The next planned run. Decided so far: the in-world diary voice is the rule and the trainer's name is fixed as CLAUDE. |
+| **In-world voice** | The diary instruction used by K5F, K5b and K6: write as the trainer who is there, with what happens to the team counted as the writer's own doing. The wording is in `design/k4-k5-update-2026-11-13.md`. |
 | **K2.5** | A planned branch run forked from K2's final save, with a harness that shows more of what is already on screen. |
 | **v3, the six arms, the confirmatory study** | The planned fair comparison: three arms with notes (K) and three without (B), run one at a time on Jackson's Mac under a frozen brief (`design/kaizo-brief-v3-draft.md`). |
 | **Brief** | The instructions an agent reads at the start (its `CLAUDE.md`). Every arm's brief is in `harness/briefs/`. |
-| **Companion** | The Claude Opus agent that monitors runs, keeps the logs and drafts the paper with Jackson. It never plays. |
+| **Companion** | The Claude agent that monitors runs, keeps the logs and drafts the paper with Jackson (Claude Opus up to 9 November 2026, Claude Fable 5.2 from 10 November). It never plays. |
 | **Supervisor** | Jackson, when he is acting in a run. |
 
 ## Playing
