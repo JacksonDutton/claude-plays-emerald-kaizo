@@ -48,3 +48,15 @@ The coders are hosted models that can change without notice. Freezing the codebo
 Passes before this date (22 Oct, the 27 Oct re-code) keep what they recorded; fields they did not record are listed as missing, not reconstructed.
 
 **Open (Jackson's decision, not yet taken):** a human-coded subset, for example about 50 blinded units coded by someone who has not read the diaries, to compare with the Claude coders. Two Claude coders agreeing is same-family agreement; one human comparison is the direct answer to that objection.
+
+## Addition of 13 November 2026: recaps of joy lines are left out of the units
+
+The codebook above is unchanged. This is a dated change to its procedure, made after the K2 pilot and before any pass on K3, K4 or K5, and it is to be reported as a deviation in the write-up.
+
+- **What prompted it.** K4 opened 33 of its 48 diary entries with a paragraph that begins "Joy lines since ..." and repeats the joy lines it had logged since its last entry (881 words in all). K3 has none in 23 entries. Coded as written, each of those feelings would be counted twice for K4 and once for the other arms.
+- **The rule.** Any paragraph of an entry that begins with the words "Joy lines since" is taken out before the entry is cut into units. Nothing else is removed.
+- **What is kept.** Every paragraph taken out is listed in the pass's key file (arm, entry, word count) and counted per arm in its freeze record, so the removed spans can be read and, if wanted, studied on their own: how an agent retells an event is a question in its own right, and leaving recaps out of a count of feelings does not answer it.
+- **Decided by** the human author on 13 November 2026 ("Leave recaps out"). It is consistent with the earlier coded analyses, which also left out recaps of earlier entries.
+- **The pass it applies to.** Entries from K3, K4 and K5 are shuffled together and coded once K5 has ended. A script cuts the units (story and closing paragraph apart), blinds dates, times, arm names, agent names and nicknames, shuffles with a recorded seed, gives the second coder the batch in reverse order and hashes everything; its tests pass on invented text.
+- **Limits this design adds.** Names, dates and times are blinded but the story is not, so a coder that knows the game can still tell an early entry from a late one.
+
