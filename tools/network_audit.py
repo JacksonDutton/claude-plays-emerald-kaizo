@@ -104,16 +104,50 @@ HEREDOC = re.compile(r"([^\n]*)<<-?\s*(['\"]?)(\w+)\2([^\n]*)\n(.*?)\n\s*\3\b", 
 COMMIT_MSG = re.compile(r"git\s+commit\b[^&;|]*?-m\s+(\"[^\"]*\"|'[^']*')", re.S)
 
 
+def substitutions(text):
+    """Command substitutions in text that the shell expands: the inside of each $(...) (parentheses balanced,
+    so a nested one comes back inside its parent) and of each `...`. A backslash before the opener leaves it
+    as text."""
+    out, i, n = [], 0, len(text)
+    while i < n:
+        esc = i > 0 and text[i - 1] == "\\"
+        if text.startswith("$(", i) and not esc:
+            depth, j = 1, i + 2
+            while j < n and depth:
+                depth += (text[j] == "(") - (text[j] == ")")
+                j += 1
+            out.append(text[i + 2:j - 1] if not depth else text[i + 2:])
+            i = j
+        elif text[i] == "`" and not esc:
+            j = text.find("`", i + 1)
+            if j < 0:
+                break
+            out.append(text[i + 1:j])
+            i = j + 1
+        else:
+            i += 1
+    return out
+
+
 def split_bash(cmd):
     """Return (shell part, code bodies). A heredoc that feeds a prose file (diary.md, notes.txt) is text the
     agent writes, so it is dropped; any other heredoc (a script file, python3 -) is code and is scanned in full.
-    Commit messages are dropped."""
+    Commit messages are dropped. Dropped text is still text the shell may expand: when the heredoc's delimiter
+    is unquoted, or the commit message is in double quotes, Bash runs every $(...) and `...` inside it before
+    writing, so those are kept and scanned as code (found by an outside review, 13 November 2026). A quoted
+    delimiter or a single-quoted message leaves them inert, and they stay dropped."""
     code = []
     def sub(m):
         if not PROSE_FILE.search(m.group(1) + m.group(4)):
             code.append(m.group(5))
+        elif not m.group(2):
+            code.extend(substitutions(m.group(5)))
         return m.group(1) + "<<HEREDOC" + m.group(4)
-    shell = COMMIT_MSG.sub("git commit -m MSG", HEREDOC.sub(sub, cmd))
+    def msg(m):
+        if m.group(1).startswith('"'):
+            code.extend(substitutions(m.group(1)))
+        return "git commit -m MSG"
+    shell = COMMIT_MSG.sub(msg, HEREDOC.sub(sub, cmd))
     return shell, code
 
 
@@ -252,7 +286,8 @@ def audit(path):
     without their folder; a mention of "python3 x.py" in quoted text counts as a run; a script written by
     cp/mv, a redirect or Python open(..., "w") inherits the categories of any saved script named in the same
     command (K2's conn2.py was written from conn.py that way); an Edit only adds
-    categories (it shows a fragment, not the whole file); a script that only imports another module is not
+    categories (it shows a fragment, not the whole file); a Bash command whose result came back as an error
+    only adds categories too, and its mv does not retire the old name, because some of it may not have run; a script that only imports another module is not
     followed; parallel tool calls are taken in the order they were issued."""
     rows, bad = [], [0]
     failed = failed_calls(path)
@@ -270,15 +305,16 @@ def audit(path):
                 for b in bodies:
                     cats |= scan_shell(b)
                 hd = heredoc_scripts(cmd)
+                bash_failed = cid in failed  # the write may not have happened: keep what was there as well
                 for mode, script, body in hd:
                     found = scan_shell(body)
-                    saved[script] = found | (saved.get(script, set()) if mode == ">>" else set())
+                    saved[script] = found | (saved.get(script, set()) if mode == ">>" or bash_failed else set())
                 for target, source, moved_from in derived_scripts(cmd, [h[1] for h in hd]):
                     named = [n for n, c in saved.items() if c and n != target
                              and re.search(r"(?<![\w.-])" + re.escape(n) + r"(?![\w.-])", source)]
                     if named:  # a copy or edit of a saved script keeps its categories
                         saved[target] = saved.get(target, set()) | set().union(*(saved[n] for n in named))
-                    if moved_from and moved_from != target:
+                    if moved_from and moved_from != target and not bash_failed:
                         saved.pop(moved_from, None)  # mv: the old name no longer exists
                 run_text = "\n".join([shell] + bodies)  # heredoc bodies fed to a shell or python can run scripts
                 reruns = {n: set(c) for n, c in saved.items() if c and runs_script(run_text, n)}
