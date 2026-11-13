@@ -31,7 +31,7 @@ for d in U.values():
     m = d['model'] or '?'; c5 = d['c5'] if (d['c5'] or d['c1']) else d['cw']
     pr = P.get(m) or (haiku(d['i'] + d['cw'] + d['cr']) if 'haiku' in m else None)
     usd = (d['i'] * pr[0] + c5 * pr[1] + d['c1'] * pr[2] + d['cr'] * pr[3] + d['o'] * pr[4]) / 1e6 if pr else 0
-    if not pr and (d['i'] or d['cw'] or d['cr'] or d['o']): unpriced[m] += 1  # no price on file for this model: counted, never silently priced at zero (13 Nov)
+    if not pr and (d['i'] or d['cw'] or d['c5'] or d['c1'] or d['cr'] or d['o']): unpriced[m] += 1  # no price on file for this model: counted, never silently priced at zero (13 Nov)
     b = by[m]; b['calls'] += 1; b['input'] += d['i']; b['cache_write_5m'] += c5; b['cache_write_1h'] += d['c1']; b['cache_read'] += d['cr']; b['output'] += d['o']; b['usd_x100'] += round(usd * 100)
     tot += usd
 print('file', sys.argv[1]); print('events', sum(types.values()), dict(types)); print('span', first, '->', last)
