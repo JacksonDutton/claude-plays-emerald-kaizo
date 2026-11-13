@@ -68,6 +68,13 @@ cases = [
     ("a saved script that would write a copy is not run yet", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("cat > w.py <<'EOF'\nopen('z.py','w').write(open('a.py').read())\nEOF"), B("python3 z.py")], ["emulator-socket"]),
     ("a new script that names no saved script is not tainted", [B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("echo 'print(1)' > d.py"), B("python3 d.py")], ["emulator-socket"]),
     ("a script that reads a json is not a run of another", [B("cat > conn2.py <<'EOF'\n" + EMU + "EOF"), B("python3 -I vrelev.py vr1.json; python3 conn2.pyc")], ["emulator-socket"]),
+    ("unquoted prose heredoc runs its $(...) (outside review, 13 Nov)", [B("cat >> run/diary.md <<EOF\nToday $(curl https://example.com/x) happened\nEOF")], ["client", "url"]),
+    ("unquoted prose heredoc runs its backticks", [B("cat >> run/diary.md <<EOF\nToday `wget example.com/x` happened\nEOF")], ["client"]),
+    ("quoted prose heredoc keeps $(...) inert", [B("cat >> run/diary.md <<'EOF'\nToday $(curl https://example.com/x) happened\nEOF")], []),
+    ("double-quoted commit message runs its $(...)", [B("git commit -m \"note $(curl https://example.com/x)\"")], ["client", "url"]),
+    ("single-quoted commit message is inert", [B("git commit -m 'note $(curl https://example.com/x)'")], []),
+    ("nested substitution in a prose heredoc", [B("cat > notes.txt <<EOF\n$(echo $(nc example.com 80))\nEOF")], ["client"]),
+    ("plain prose in an unquoted heredoc is still ignored", [B("cat >> run/diary.md <<EOF\nI thought about curl and (maybe) a $5 potion; see https://example.com\nEOF")], []),
 ]
 fail = 0
 for name, calls, want in cases:
@@ -88,4 +95,11 @@ ok = [r[4] for r in rows2] == ["emulator-socket", "emulator-socket"]; fail += no
 print(("PASS" if ok else "FAIL"), "a failed overwrite does not clear a saved socket script", "" if ok else rows2)
 ok = rows[-1][5].startswith("re-runs ev.py: "); fail += not ok
 print(("PASS" if ok else "FAIL"), "re-run rows name the script", "" if ok else rows[-1][5])
+berr = json.dumps({"event_type": "user", "created_at": "t", "payload": {"message": {"content": [{"type": "tool_result", "tool_use_id": "c1", "is_error": True}]}}})
+rows3, _ = run([B("cat > e.py <<'EOF'\n" + EMU + "EOF"), B("cat > e.py <<'EOF'\nprint(1)\nEOF"), B("python3 e.py")], raw_lines=[berr])
+ok = [r[4] for r in rows3] == ["emulator-socket", "emulator-socket"]; fail += not ok
+print(("PASS" if ok else "FAIL"), "a failed Bash overwrite does not clear a saved socket script (outside review, 13 Nov)", "" if ok else rows3)
+rows4, _ = run([B("cat > a.py <<'EOF'\n" + EMU + "EOF"), B("mv a.py m.py"), B("python3 a.py")], raw_lines=[berr])
+ok = [r[4] for r in rows4] == ["emulator-socket", "emulator-socket"]; fail += not ok
+print(("PASS" if ok else "FAIL"), "a failed mv keeps the old name tracked", "" if ok else rows4)
 sys.exit(1 if fail else 0)

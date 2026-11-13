@@ -32,14 +32,14 @@ for d in U.values():
     pr = P.get(m) or (haiku(d['i'] + d['cw'] + d['cr']) if 'haiku' in m else None)
     usd = (d['i'] * pr[0] + c5 * pr[1] + d['c1'] * pr[2] + d['cr'] * pr[3] + d['o'] * pr[4]) / 1e6 if pr else 0
     if not pr and (d['i'] or d['cw'] or d['c5'] or d['c1'] or d['cr'] or d['o']): unpriced[m] += 1  # no price on file for this model: counted, never silently priced at zero (13 Nov)
-    b = by[m]; b['calls'] += 1; b['input'] += d['i']; b['cache_write_5m'] += c5; b['cache_write_1h'] += d['c1']; b['cache_read'] += d['cr']; b['output'] += d['o']; b['usd_x100'] += round(usd * 100)
+    b = by[m]; b['calls'] += 1; b['input'] += d['i']; b['cache_write_5m'] += c5; b['cache_write_1h'] += d['c1']; b['cache_read'] += d['cr']; b['output'] += d['o']; b['usd'] += usd  # summed unrounded, rounded once for display (13 Nov: per-call rounding had left a model's subtotal short of the total)
     tot += usd
 print('file', sys.argv[1]); print('events', sum(types.values()), dict(types)); print('span', first, '->', last)
 rc = [r for r in results if r[1] is not None]
 print('claude_code_total_cost_usd (max of result events)', max((r[1] for r in rc), default=None), 'from', len(rc), 'result events')
 print('recomputed_usd_list_prices', round(tot, 2), '(INCOMPLETE: unpriced models below)' if unpriced else '')
 for m, n in unpriced.items(): print('  UNPRICED', m, n, 'calls: no price in this script, so they add 0 to the total above', file=sys.stderr); print('  UNPRICED', m, n, 'calls')
-for m, b in by.items(): print(' ', m, dict(b))
+for m, b in by.items(): print(' ', m, {k: (round(v, 2) if k == 'usd' else v) for k, v in b.items()})
 print('autocompact_state events', len(compact))
 for t, d in sorted(compact, key=lambda x: x[0]): print('  ', t, json.dumps(d)[:200])
 if unpriced: sys.exit(3)  # a total that leaves out a model is not a total
