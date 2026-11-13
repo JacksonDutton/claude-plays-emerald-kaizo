@@ -26,16 +26,20 @@ for line in src:
     elif e.get('event_type') == 'autocompact_state':
         compact.append((t, {k: v for k, v in p.items() if k not in ('session_id', 'uuid', 'type')}))
 by = collections.defaultdict(lambda: collections.Counter()); tot = 0.0
+unpriced = collections.Counter()
 for d in U.values():
     m = d['model'] or '?'; c5 = d['c5'] if (d['c5'] or d['c1']) else d['cw']
     pr = P.get(m) or (haiku(d['i'] + d['cw'] + d['cr']) if 'haiku' in m else None)
     usd = (d['i'] * pr[0] + c5 * pr[1] + d['c1'] * pr[2] + d['cr'] * pr[3] + d['o'] * pr[4]) / 1e6 if pr else 0
+    if not pr and (d['i'] or d['cw'] or d['cr'] or d['o']): unpriced[m] += 1  # no price on file for this model: counted, never silently priced at zero (13 Nov)
     b = by[m]; b['calls'] += 1; b['input'] += d['i']; b['cache_write_5m'] += c5; b['cache_write_1h'] += d['c1']; b['cache_read'] += d['cr']; b['output'] += d['o']; b['usd_x100'] += round(usd * 100)
     tot += usd
 print('file', sys.argv[1]); print('events', sum(types.values()), dict(types)); print('span', first, '->', last)
 rc = [r for r in results if r[1] is not None]
 print('claude_code_total_cost_usd (max of result events)', max((r[1] for r in rc), default=None), 'from', len(rc), 'result events')
-print('recomputed_usd_list_prices', round(tot, 2))
+print('recomputed_usd_list_prices', round(tot, 2), '(INCOMPLETE: unpriced models below)' if unpriced else '')
+for m, n in unpriced.items(): print('  UNPRICED', m, n, 'calls: no price in this script, so they add 0 to the total above', file=sys.stderr); print('  UNPRICED', m, n, 'calls')
 for m, b in by.items(): print(' ', m, dict(b))
 print('autocompact_state events', len(compact))
 for t, d in sorted(compact, key=lambda x: x[0]): print('  ', t, json.dumps(d)[:200])
+if unpriced: sys.exit(3)  # a total that leaves out a model is not a total
