@@ -65,9 +65,18 @@ def rescore(transcript, out):
         sys.argv = argv
 
 
+EXPECTED_ROWS = {str(i) for i in range(1, 28)} | {"R1"}  # PokeAgent first-gym milestones 1 to 27, plus Kaizo's Trainer Red
+
+
 def rows_by_n(path):
+    """Rows keyed by milestone number. A number that appears twice is an error, not a silent overwrite (13 Nov)."""
+    rows = {}
     with open(path, newline="") as f:
-        return {r["n"]: r for r in csv.DictReader(f)}
+        for r in csv.DictReader(f):
+            if r["n"] in rows:
+                raise SystemExit(f"FAIL {path}: milestone row {r['n']!r} appears more than once")
+            rows[r["n"]] = r
+    return rows
 
 
 def check_milestones(analyses):
@@ -81,6 +90,10 @@ def check_milestones(analyses):
         finally:
             os.remove(out)
         bad = []
+        missing = sorted(EXPECTED_ROWS - set(published))  # the published tables are the first-gym rows; all of them must be there
+        extra = sorted(set(published) - EXPECTED_ROWS)
+        if missing: bad.append(f"published table lacks rows {missing}")
+        if extra: bad.append(f"published table has unexpected rows {extra}")
         for n, row in published.items():
             other = rescored.get(n)
             if other is None:
