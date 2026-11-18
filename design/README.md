@@ -20,5 +20,6 @@ Working documents from the project, first copied on 20 October 2026 and updated 
 | `k3-harness-fixes-2026-11-07.diff` | The harness patch made between the voided K3 starts (the text-advance command and the boot autopilot). |
 | `k3-end-2026-11-10.md` | K3's end: what the 10 November audit found (no save on disk, tools offered beyond the brief, notes read once), the stop and exit interview, errors by the study team, and the plan and harness changes for K4. |
 | `k4-k5-update-2026-11-13.md` | K4's result (one badge in 25 hours 28 minutes), the harness faults found while building K5, K5 and the side experiment K5F while running (splits to 13 November), the mid-run change to K5's diary instruction (K5b), and the first decisions and hypotheses for K6. |
+| `k6-end-k6b-2026-11-18.md` | K6's result (one badge in 15 hours 40 minutes, ended by its rule), what it showed about notes kept in front of the agent, and K6b: the same agent playing on at its own wish with no end rule, on the next harness's draft, to three badges by 17 November. Lists every message sent to K6b. Interim for K6b, which was still playing. |
 
 `k4-k5-update-2026-11-13.md` gives interim figures for two runs that were still going when it was written. Some documents mention K2 interim results. K2 stopped on 7 November 2026; its full records come after review.
