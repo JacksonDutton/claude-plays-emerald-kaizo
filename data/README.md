@@ -27,6 +27,8 @@ Run 1's diary (Claude-Brendan, unmodified Emerald, supervised): `run1/diary.md`,
 
 Outputs of the 20 October transcript analyses (method and results: `design/transcript-analyses-2026-10-20.md`).
 
+`lessons-kept-2026-11-21.csv`: how often each of five Kaizo runs later followed or broke a lesson it had written for itself, counted where two readers (the second blind) agree, with a third reader's share where there is one. Counts only; method and limits in `design/k6b-stop-k6c-2026-11-21.md`, section 6.
+
 | File | What it is |
 |---|---|
 | `milestones-v3.1-{B1,B2,Ripple}.csv` | First-seen time of each PokeAgent first-gym milestone (1 to 27), scored from the transcripts by `tools/milestones.py` v3.1. The file names are kept for stable links. On 29 October B1's table was re-derived with v3.5, which no longer skips a game command chained with a record write: B1's clock now starts 5 seconds earlier (08:55:27.72Z), so its milestone 1 time and every later B1 play clock change by 5 seconds. B2 and Ripple are unchanged. |
