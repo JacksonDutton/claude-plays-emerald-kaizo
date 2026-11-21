@@ -29,7 +29,7 @@ Outputs of the 20 October transcript analyses (method and results: `design/trans
 
 `lessons-kept-2026-11-21.csv`: how often each of five Kaizo runs later followed or broke a lesson it had written for itself, counted where two readers (the second blind) agree, with a third reader's share where there is one. Counts only; method and limits in `design/k6b-stop-k6c-2026-11-21.md`, section 6.
 
-`lessons-kept-k2-by-date-2026-11-21.csv`: the same count for K2 cut by date (thirds of its cases, and three phases of the run). `lessons-kept-transcript-check-2026-11-21.csv`: a first check of 30 sampled K6 and K6b cases against the command log, by diary reading: how many could be placed on a log line, what a log-only reader said, and how many held up. Counts only; same section of the same note.
+`lessons-kept-k2-by-date-2026-11-21.csv`: the same count for K2 cut by date (thirds of its cases, and three phases of the run). `lessons-kept-transcript-check-2026-11-21.csv`: a check of all 188 agreed K6 and K6b cases against the command log, by diary reading: how many could be placed on a log line, what a log-only reader said, how many held up, and in how many the lesson's text had been shown since the previous diary entry. Counts only; same section of the same note.
 
 | File | What it is |
 |---|---|
