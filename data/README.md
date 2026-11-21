@@ -29,6 +29,8 @@ Outputs of the 20 October transcript analyses (method and results: `design/trans
 
 `lessons-kept-2026-11-21.csv`: how often each of five Kaizo runs later followed or broke a lesson it had written for itself, counted where two readers (the second blind) agree, with a third reader's share where there is one. Counts only; method and limits in `design/k6b-stop-k6c-2026-11-21.md`, section 6.
 
+`lessons-kept-k2-by-date-2026-11-21.csv`: the same count for K2 cut by date (thirds of its cases, and three phases of the run). `lessons-kept-transcript-check-2026-11-21.csv`: a first check of 30 sampled K6 and K6b cases against the command log, by diary reading: how many could be placed on a log line, what a log-only reader said, and how many held up. Counts only; same section of the same note.
+
 | File | What it is |
 |---|---|
 | `milestones-v3.1-{B1,B2,Ripple}.csv` | First-seen time of each PokeAgent first-gym milestone (1 to 27), scored from the transcripts by `tools/milestones.py` v3.1. The file names are kept for stable links. On 29 October B1's table was re-derived with v3.5, which no longer skips a game command chained with a record write: B1's clock now starts 5 seconds earlier (08:55:27.72Z), so its milestone 1 time and every later B1 play clock change by 5 seconds. B2 and Ripple are unchanged. |
