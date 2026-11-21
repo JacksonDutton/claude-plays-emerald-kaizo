@@ -1,0 +1,3 @@
+diary_reading,cases_sampled,action_placed_on_log_line,log_only_broken,log_only_followed,log_only_cannot_tell,held_up_after_companion_read,checkable
+broken,15,13,6,4,3,7,10
+followed,15,14,1,8,5,8,9
