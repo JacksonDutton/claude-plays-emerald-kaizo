@@ -1,6 +1,6 @@
 # The paper
 
-**Current:** [`eight-badges-and-a-diary-rev650-2026-11-21.pdf`](eight-badges-and-a-diary-rev650-2026-11-21.pdf): *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 21 November 2026 (rev 650), 76 pages. It has not been peer reviewed.
+**Current:** [`eight-badges-and-a-diary-rev650-2026-11-21.pdf`](eight-badges-and-a-diary-rev650-2026-11-21.pdf): *Eight Badges and a Diary: Measuring Help, Cost and Self-Report in a Claude Agent Playing Pokémon Emerald.* Working paper, draft of 21 November 2026 (rev 650), 76 pages. It has not been peer reviewed. Rev 650 differs from rev 649 by one correction sentence in Section 9.12: the K6 and K6b row of the lessons table includes 13 agreed cases from the assisted stretch, and the share without them is the same.
 
 Only the current revision is kept in this folder. Until 25 November 2026 every earlier PDF sat beside it; they were removed that day to make the folder readable. Nothing is lost: each one is still in the repository's history, and the links below go to the last commit that held them, so they will keep working. A link of the old form (`.../blob/main/paper/...rev640...pdf`) no longer resolves; use the table.
 
